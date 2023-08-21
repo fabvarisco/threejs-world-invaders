@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { ARButton } from 'three/addons/webxr/ARButton.js';
+import { CanvasUI } from '../../libs/CanvasUI.js';
 
 class App {
   private camera: THREE.PerspectiveCamera;
@@ -9,6 +10,7 @@ class App {
   private controls: OrbitControls;
   private geometry: THREE.BufferGeometry;
   private meshes: THREE.Mesh[];
+  private canvasUI: CanvasUI
 
   constructor() {
 
