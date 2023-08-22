@@ -41,7 +41,7 @@ class App {
 
     this.reticle = new THREE.Mesh(new THREE.RingGeometry(0.15, .2, 32), new THREE.MeshStandardMaterial()).rotateY(-Math.PI / 2);
     this.reticle.matrixAutoUpdate = false;
-    this.reticle.visible = true;
+    this.reticle.visible = false;
     this.scene.add(this.reticle);
 
     window.addEventListener('resize', this.resize.bind(this));
@@ -86,7 +86,7 @@ class App {
   private render(timestamp: any, frame: any) {
     if (frame) {
       const referenceSpace = this.renderer.xr.getReferenceSpace();
-      const session: XRSession | null = this.renderer.xr.getSession();
+      const session = this.renderer.xr.getSession();
 
       if (this.hitTestSourceRequested === false) {
         session?.requestReferenceSpace('viewer').then(referenceSpace => {
@@ -112,21 +112,15 @@ class App {
 
         } else {
           this.reticle.visible = false
-
         }
       }
     }
-    // console.log(scene.children)
     this.scene.children.forEach(object => {
       if (object.name === "cube") {
         object.rotation.y += 0.01
       }
     })
-
-
     this.renderer.render(this.scene, this.camera);
   }
-
-
 }
 export { App } 
