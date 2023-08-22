@@ -41,7 +41,7 @@ class App {
     this.controls.update();
 
 
-    this.reticle = new THREE.Mesh(new THREE.RingGeometry(0.15, .2, 32), new THREE.MeshStandardMaterial()).rotateY(-Math.PI / 2);
+    this.reticle = new THREE.Mesh(new THREE.RingGeometry(0.15, .2, 32), new THREE.MeshStandardMaterial()).rotateX(-Math.PI / 2);
     this.reticle.matrixAutoUpdate = false;
     this.reticle.visible = false;
     this.scene.add(this.reticle);
