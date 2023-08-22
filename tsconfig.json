@@ -22,9 +22,17 @@
     "noFallthroughCasesInSwitch": true,
     "types": [
       "vite/client"
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/libs/*": ["./libs/*"]
+    }
+    
   },
   "include": [
-    "src"
+    "src",
+    "decs.d.ts",
+    "./libs/CanvasUI.js"
   ]
 }
