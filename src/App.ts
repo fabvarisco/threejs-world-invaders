@@ -82,51 +82,50 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  private async render(frame: any) {
-    if (!frame) {
-      return;
-    }
+  private render(timestamp: any, frame: any) {
+    if (frame) {
+      const referenceSpace = this.renderer.xr.getReferenceSpace();
+      const session: XRSession | null = this.renderer.xr.getSession();
 
-    const { xr } = this.renderer;
-    const referenceSpace = xr.getReferenceSpace();
-    const session: XRSession | null = xr.getSession();
+      if (this.hitTestSourceRequested === false) {
+        session?.requestReferenceSpace('viewer').then(referenceSpace => {
+          //@ts-ignore
+          session?.requestHitTestSource({ space: referenceSpace })?.then(source =>
+            this.hitTestSource = source)
+        })
 
-    if (!this.hitTestSourceRequested) {
-      try {
-        const viewerSpace = await session?.requestReferenceSpace('viewer');
-        //@ts-ignore
-        this.hitTestSource = await session?.requestHitTestSource({ space: viewerSpace });
         this.hitTestSourceRequested = true;
 
         session?.addEventListener("end", () => {
           this.hitTestSourceRequested = false;
           this.hitTestSource = null;
-        });
-      } catch (error) {
-        console.error("Error requesting reference space or hit test source:", error);
+        })
+      }
+
+      if (this.hitTestSource) {
+        const hitTestResults = frame.getHitTestResults(this.hitTestSource);
+        if (hitTestResults.length > 0) {
+          const hit = hitTestResults[0];
+          this.reticle.visible = true;
+          this.reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix)
+
+        } else {
+          this.reticle.visible = false
+
+        }
       }
     }
-
-    if (this.hitTestSource) {
-      const hitTestResults = frame.getHitTestResults(this.hitTestSource);
-      if (hitTestResults.length > 0) {
-        const hit = hitTestResults[0];
-        this.reticle.visible = true;
-        this.reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
-      } else {
-        this.reticle.visible = false;
-      }
-    }
-
-    // Rotate objects named "cube"
+    // console.log(scene.children)
     this.scene.children.forEach(object => {
       if (object.name === "cube") {
-        object.rotation.y += 0.01;
+        object.rotation.y += 0.01
       }
-    });
+    })
+
 
     this.renderer.render(this.scene, this.camera);
   }
-}
 
+
+}
 export { App } 
