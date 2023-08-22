@@ -1,19 +1,20 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { ARButton } from 'three/addons/webxr/ARButton.js';
-//@ts-ignore
-import { CanvasUI } from '../libs/CanvasUI';
+
 
 class App {
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
   private renderer: THREE.WebGLRenderer;
   private controls: OrbitControls;
-  private geometry: THREE.BufferGeometry;
-  private meshes: THREE.Mesh[];
-  private ui: any; //CanvasUI
-
+  private reticle: THREE.Mesh;
+  private hitTestSource: any;
+  private hitTestSourceRequested: boolean;
   constructor() {
+    this.hitTestSource = null;
+    this.hitTestSourceRequested = false;
+
 
     this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
@@ -38,135 +39,42 @@ class App {
     this.controls.update();
 
 
-    this.geometry = new THREE.BoxGeometry(0.06, 0.06, 0.06);
-    this.meshes = [];
-
-    this.ui = this.createUI();
+    this.reticle = new THREE.Mesh(new THREE.RingGeometry(0.15, .2, 32), new THREE.MeshStandardMaterial()).rotateY(-Math.PI / 2);
+    this.reticle.matrixAutoUpdate = false;
+    this.reticle.visible = true;
+    this.scene.add(this.reticle);
 
     window.addEventListener('resize', this.resize.bind(this));
   }
 
   public Start() {
-    this.setupXRCreateCube();
-  }
-
-  private createUI() {
-
-    const config = {
-      panelSize: { width: 0.6, height: 0.3 },
-      width: 512,
-      height: 256,
-      opacity: 0.7,
-      body: {
-        fontFamily: 'Arial',
-        fontSize: 20,
-        padding: 20,
-        backgroundColor: '#000',
-        fontColor: '#fff',
-        borderRadius: 6,
-        opacity: 0.7
-      },
-      info: {
-        type: "text",
-        position: { x: 0, y: 0 },
-        height: 128
-      },
-      msg: {
-        type: "text",
-        position: { x: 0, y: 128 },
-        fontSize: 30,
-        height: 128
-      }
-    }
-    const content = {
-      info: "info",
-      msg: "controller"
-    }
-
-    const ui = new CanvasUI(content, config);
-    ui.mesh.material.opacity = 0.7;
-
-    return ui;
-  }
-
-
-  private setupXRCreateCube() {
     this.renderer.xr.enabled = true;
 
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.MeshStandardMaterial({ color: 0xffffff * Math.random() });
+
     const self = this;
-    let controller: THREE.Group;
 
     function onSelect() {
-      const material = new THREE.MeshPhongMaterial({ color: 0xffffff * Math.random() });
-      const mesh = new THREE.Mesh(self.geometry, material);
-      mesh.position.set(0, 0, -0.3).applyMatrix4(controller.matrixWorld);
-      mesh.quaternion.setFromRotationMatrix(controller.matrixWorld);
-      self.scene.add(mesh);
-      self.meshes.push(mesh);
+      if (self.reticle.visible) {
+        const cube = new THREE.Mesh(geometry, material);
+        cube.position.setFromMatrixPosition(self.reticle.matrix);
+        cube.name = "cube"
+        self.scene.add(cube)
+      }
     }
 
-    document.body.appendChild(ARButton.createButton(this.renderer))
 
-    controller = this.renderer.xr.getController(0) as THREE.Group;
+
+    document.body.appendChild(ARButton.createButton(this.renderer, { requiredFeatures: ['hit-test'] }))
+
+    const controller: THREE.Group = this.renderer.xr.getController(0) as THREE.Group;
     controller.addEventListener('select', onSelect);
+
     this.scene.add(controller);
 
     this.renderer.setAnimationLoop(this.render.bind(this));
   }
-
-  // private setupXRWithCanvasUI() {
-  //   this.renderer.xr.enabled = true;
-
-  //   const self = this;
-
-  //   function onConnected(event) {
-  //     if (self.info === undefined) {
-  //       const info = {};
-
-  //       fetchProfile(event.data, DEFAULT_PROFILES_PATH, DEFAULT_PROFILE).then(({ profile, assetPath }) => {
-  //         console.log(JSON.stringify(profile));
-
-  //         info.name = profile.profileId;
-  //         info.targetRayMode = event.data.targetRayMode;
-
-  //         Object.entries(profile.layouts).forEach(([key, layout]) => {
-  //           const components = {};
-  //           Object.values(layout.components).forEach((component) => {
-  //             components[component.type] = component.gamepadIndices;
-  //           });
-  //           info[key] = components;
-  //         });
-
-  //         self.info = info;
-  //         self.ui.updateElement("info", JSON.stringify(info));
-
-  //       });
-  //     }
-  //   }
-
-  //   function onSessionStart() {
-  //     self.ui.mesh.position.set(0, -0.5, -1.1);
-  //     self.camera.add(self.ui.mesh);
-  //   }
-
-  //   function onSessionEnd() {
-  //     self.camera.remove(self.ui.mesh);
-  //   }
-  //   const btn = ARButton.createButton(this.renderer, { optionalFeatures: ['dom-overlay'], domOverlay: { root: document.body } })
-    
-  //   btn.addEventListener('selectstart',onSessionStart)
-  //   btn.addEventListener('selectstart',onSessionStart)
-  //   document.body.appendChild(btn)
-
-
-  //   const controller = this.renderer.xr.getController(0);
-  //   controller.addEventListener('connected', onConnected);
-
-  //   this.scene.add(controller);
-  //   this.controller = controller;
-
-  //   this.renderer.setAnimationLoop(this.render.bind(this));
-  // }
 
   private resize() {
     this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -174,10 +82,48 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  private render() {
-    this.meshes.forEach((mesh) => {
-      mesh.rotateY(0.01);
+  private async render(timestamp: any, frame: any) {
+    if (!frame) {
+      return;
+    }
+
+    const { xr } = this.renderer;
+    const referenceSpace = xr.getReferenceSpace();
+    const session: XRSession | null = xr.getSession();
+
+    if (!this.hitTestSourceRequested) {
+      try {
+        const viewerSpace = await session?.requestReferenceSpace('viewer');
+        this.hitTestSource = await session?.requestHitTestSource({ space: viewerSpace });
+        this.hitTestSourceRequested = true;
+
+        session?.addEventListener("end", () => {
+          this.hitTestSourceRequested = false;
+          this.hitTestSource = null;
+        });
+      } catch (error) {
+        console.error("Error requesting reference space or hit test source:", error);
+      }
+    }
+
+    if (this.hitTestSource) {
+      const hitTestResults = frame.getHitTestResults(this.hitTestSource);
+      if (hitTestResults.length > 0) {
+        const hit = hitTestResults[0];
+        this.reticle.visible = true;
+        this.reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
+      } else {
+        this.reticle.visible = false;
+      }
+    }
+
+    // Rotate objects named "cube"
+    this.scene.children.forEach(object => {
+      if (object.name === "cube") {
+        object.rotation.y += 0.01;
+      }
     });
+
     this.renderer.render(this.scene, this.camera);
   }
 }
