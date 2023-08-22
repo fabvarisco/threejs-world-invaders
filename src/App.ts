@@ -82,7 +82,7 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  private render(timestamp: any, frame: any) {
+  private render(frame: any) {
     if (frame) {
       const referenceSpace = this.renderer.xr.getReferenceSpace();
       const session: XRSession | null = this.renderer.xr.getSession();
