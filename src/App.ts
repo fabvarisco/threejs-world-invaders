@@ -12,7 +12,7 @@ class App {
   private hitTestSource: any;
   private hitTestSourceRequested: boolean;
   constructor() {
-    this.hitTestSource = null;
+    this.hitTestSource = undefined;
     this.hitTestSourceRequested = false;
 
 
@@ -82,7 +82,8 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  private render(frame: any) {
+  //@ts-ignore
+  private render(timestamp: any, frame: any) {
     if (frame) {
       const referenceSpace = this.renderer.xr.getReferenceSpace();
       const session: XRSession | null = this.renderer.xr.getSession();
