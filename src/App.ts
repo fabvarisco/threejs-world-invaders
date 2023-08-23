@@ -52,7 +52,7 @@ class App {
   public Start() {
     this.renderer.xr.enabled = true;
 
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const geometry = new THREE.BoxGeometry(.3, .3, .3);
     const material = new THREE.MeshStandardMaterial({ color: 0xffffff * Math.random() });
 
     const self = this;
