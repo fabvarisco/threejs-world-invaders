@@ -82,6 +82,7 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
+  //@ts-ignore
   private async render(timestamp: any, frame: any) {
     if (!frame) {
       return;
@@ -94,6 +95,7 @@ class App {
     if (!this.hitTestSourceRequested) {
       try {
         const viewerSpace = await session?.requestReferenceSpace('viewer');
+        //@ts-ignore
         this.hitTestSource = await session?.requestHitTestSource({ space: viewerSpace });
         this.hitTestSourceRequested = true;
 
