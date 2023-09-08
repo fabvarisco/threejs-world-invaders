@@ -133,6 +133,92 @@ class App {
     // this.scene.add(outsideBox)
 
 
+    // bouncing icosphere
+    const portalPlane = new THREE.Plane( new THREE.Vector3( 0, 0, 1 ), 0.0 );
+    const geometry = new THREE.IcosahedronGeometry( 5, 0 );
+    const material = new THREE.MeshPhongMaterial( {
+      color: 0xffffff, emissive: 0x333333, flatShading: true,
+      clippingPlanes: [ portalPlane ], clipShadows: true } );
+   const smallSphereOne = new THREE.Mesh( geometry, material );
+    this.scene.add( smallSphereOne );
+  const  smallSphereTwo = new THREE.Mesh( geometry, material );
+    this.scene.add( smallSphereTwo );
+
+    // portals
+    const portalCamera = new THREE.PerspectiveCamera( 45, 1.0, 0.1, 500.0 );
+    this.scene.add( portalCamera );
+    //frustumHelper = new THREE.CameraHelper( portalCamera );
+    //this.scene.add( frustumHelper );
+    const bottomLeftCorner = new THREE.Vector3();
+    const bottomRightCorner = new THREE.Vector3();
+    const topLeftCorner = new THREE.Vector3();
+    const reflectedPosition = new THREE.Vector3();
+
+    const leftPortalTexture = new THREE.WebGLRenderTarget( 256, 256 );
+    const leftPortal = new THREE.Mesh( planeGeo, new THREE.MeshBasicMaterial( { map: leftPortalTexture.texture } ) );
+    leftPortal.position.x = - 30;
+    leftPortal.position.y = 20;
+    leftPortal.scale.set( 0.35, 0.35, 0.35 );
+    this.scene.add( leftPortal );
+
+    const  rightPortalTexture = new THREE.WebGLRenderTarget( 256, 256 );
+    const  rightPortal = new THREE.Mesh( planeGeo, new THREE.MeshBasicMaterial( { map: rightPortalTexture.texture } ) );
+    rightPortal.position.x = 30;
+    rightPortal.position.y = 20;
+    rightPortal.scale.set( 0.35, 0.35, 0.35 );
+    this.scene.add( rightPortal );
+
+    // walls
+    const planeTop = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0xffffff } ) );
+    planeTop.position.y = 100;
+    planeTop.rotateX( Math.PI / 2 );
+    this.scene.add( planeTop );
+
+    const planeBottom = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0xffffff } ) );
+    planeBottom.rotateX( - Math.PI / 2 );
+    this.scene.add( planeBottom );
+
+    const planeFront = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0x7f7fff } ) );
+    planeFront.position.z = 50;
+    planeFront.position.y = 50;
+    planeFront.rotateY( Math.PI );
+    this.scene.add( planeFront );
+
+    const planeBack = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0xff7fff } ) );
+    planeBack.position.z = - 50;
+    planeBack.position.y = 50;
+    //planeBack.rotateY( Math.PI );
+    this.scene.add( planeBack );
+
+    const planeRight = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0x00ff00 } ) );
+    planeRight.position.x = 50;
+    planeRight.position.y = 50;
+    planeRight.rotateY( - Math.PI / 2 );
+    this.scene.add( planeRight );
+
+    const planeLeft = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0xff0000 } ) );
+    planeLeft.position.x = - 50;
+    planeLeft.position.y = 50;
+    planeLeft.rotateY( Math.PI / 2 );
+    this.scene.add( planeLeft );
+
+    // lights
+    const mainLight = new THREE.PointLight( 0xe7e7e7, 2.5, 250, 0 );
+    mainLight.position.y = 60;
+    this.scene.add( mainLight );
+
+    const greenLight = new THREE.PointLight( 0x00ff00, 0.5, 1000, 0 );
+    greenLight.position.set( 550, 50, 0 );
+    this.scene.add( greenLight );
+
+    const redLight = new THREE.PointLight( 0xff0000, 0.5, 1000, 0 );
+    redLight.position.set( - 550, 50, 0 );
+    this.scene.add( redLight );
+
+    const blueLight = new THREE.PointLight( 0xbbbbfe, 0.5, 1000, 0 );
+    blueLight.position.set( 0, 50, 550 );
+    this.scene.add( blueLight );
+
 
 
 
@@ -145,20 +231,7 @@ class App {
         // const outsideBox = self.createOutsideBox()
         // outsideBox.scale.setScalar(100)
         // self.scene.add(outsideBox)
-        const leftPortalTexture = new THREE.WebGLRenderTarget( 256, 256 );
-        const leftPortal = new THREE.Mesh( planeGeo, new THREE.MeshBasicMaterial( { map: leftPortalTexture.texture } ) );
-    
-        leftPortal.scale.set( 5, 5, 5 );
-        self.scene.add( leftPortal );
-    
-        const rightPortalTexture = new THREE.WebGLRenderTarget( 256, 256 );
-        const rightPortal = new THREE.Mesh( planeGeo, new THREE.MeshBasicMaterial( { map: rightPortalTexture.texture } ) );
-    
-        rightPortal.scale.set( 1, 1, 1 );
-        rightPortal.position.setFromMatrixPosition(self.reticle.matrix);
-        self.scene.add( rightPortal );
 
-        
       }
     }
 
