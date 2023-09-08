@@ -149,10 +149,10 @@ class App {
     this.scene.add( portalCamera );
     //frustumHelper = new THREE.CameraHelper( portalCamera );
     //this.scene.add( frustumHelper );
-    const bottomLeftCorner = new THREE.Vector3();
-    const bottomRightCorner = new THREE.Vector3();
-    const topLeftCorner = new THREE.Vector3();
-    const reflectedPosition = new THREE.Vector3();
+    // const bottomLeftCorner = new THREE.Vector3();
+    // const bottomRightCorner = new THREE.Vector3();
+    // const topLeftCorner = new THREE.Vector3();
+    // const reflectedPosition = new THREE.Vector3();
 
     const leftPortalTexture = new THREE.WebGLRenderTarget( 256, 256 );
     const leftPortal = new THREE.Mesh( planeGeo, new THREE.MeshBasicMaterial( { map: leftPortalTexture.texture } ) );
