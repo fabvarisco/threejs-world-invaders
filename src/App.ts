@@ -65,7 +65,6 @@ class App {
     box.rotation.y = Math.PI / 4
     const innerBox = new THREE.Mesh(geo, insideMat)
     const insideBox = new THREE.Object3D()
-    insideBox.add(box)
     insideBox.add(innerBox)
     return insideBox
   }
@@ -108,7 +107,6 @@ class App {
       const { rotateY, rotateX, translate } = opt
       const geo = outsidePlaneGeo.clone().rotateY(rotateY).rotateX(rotateX).translate(translate[0], translate[1], translate[3]);
       const mesh = new THREE.Mesh(geo, outsideMat)
-      mesh.renderOrder = -1
       outsideBox.add(mesh)
     })
     return outsideBox
@@ -121,25 +119,46 @@ class App {
 
     const geometry = new THREE.BoxGeometry(.3, .3, .3);
     const material = new THREE.MeshStandardMaterial({ color: 0xffffff * Math.random() });
-
+    const planeGeo = new THREE.PlaneGeometry( 50, 50 );
     const self = this;
 
-    const insideBox = this.createInsideBox()
-    insideBox.scale.setScalar(300 * 0.99)
+    // const insideBox = this.createInsideBox()
+    // insideBox.scale.setScalar(300 * 0.99)
 
-    const outsideBox = this.createOutsideBox()
-    outsideBox.scale.setScalar(300)
+    // const outsideBox = this.createOutsideBox()
+    // outsideBox.scale.setScalar(100)
 
-    this.scene.add(insideBox)
-    this.scene.add(outsideBox)
+
+    // this.scene.add(insideBox)
+    // this.scene.add(outsideBox)
+
+
+
 
 
     function onSelect() {
       if (self.reticle.visible) {
-        const cube = new THREE.Mesh(geometry, material);
-        cube.position.setFromMatrixPosition(self.reticle.matrix);
-        cube.name = "cube"
-        self.scene.add(cube)
+        // const cube = new THREE.Mesh(geometry, material);
+        // cube.position.setFromMatrixPosition(self.reticle.matrix);
+        // cube.name = "cube"
+        // self.scene.add(cube)
+        // const outsideBox = self.createOutsideBox()
+        // outsideBox.scale.setScalar(100)
+        // self.scene.add(outsideBox)
+        const leftPortalTexture = new THREE.WebGLRenderTarget( 256, 256 );
+        const leftPortal = new THREE.Mesh( planeGeo, new THREE.MeshBasicMaterial( { map: leftPortalTexture.texture } ) );
+    
+        leftPortal.scale.set( 5, 5, 5 );
+        self.scene.add( leftPortal );
+    
+        const rightPortalTexture = new THREE.WebGLRenderTarget( 256, 256 );
+        const rightPortal = new THREE.Mesh( planeGeo, new THREE.MeshBasicMaterial( { map: rightPortalTexture.texture } ) );
+    
+        rightPortal.scale.set( 1, 1, 1 );
+        rightPortal.position.setFromMatrixPosition(self.reticle.matrix);
+        self.scene.add( rightPortal );
+
+        
       }
     }
 
