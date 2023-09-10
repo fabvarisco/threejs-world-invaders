@@ -4,6 +4,7 @@ import { ARButton } from 'three/addons/webxr/ARButton.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 
+import { BoxLineGeometry } from 'three/addons/geometries/BoxLineGeometry.js';
 
 class App {
   private camera: THREE.PerspectiveCamera;
@@ -17,19 +18,18 @@ class App {
   constructor() {
     this.loader = new GLTFLoader();
     const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath('/examples/jsm/libs/draco/');
-    this.loader.setDRACOLoader(dracoLoader);
-
+    dracoLoader.setDecoderPath( '/examples/jsm/libs/draco/' );
+    this.loader.setDRACOLoader( dracoLoader );
+    
     this.hitTestSource = undefined;
     this.hitTestSourceRequested = false;
 
 
-    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    this.camera.position.set(0, 2, 10);
-    this.camera.lookAt(new THREE.Vector3(0, 0, 0))
+    this.camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 10 );
+    this.camera.position.set( 0, 1.6, 3 );
 
     this.scene = new THREE.Scene();
-
+    this.scene.background = new THREE.Color( 0x505050 );
     this.scene.add(new THREE.HemisphereLight(0x606060, 0x404040));
 
     const light = new THREE.DirectionalLight(0xffffff);
@@ -38,21 +38,33 @@ class App {
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: document.getElementById('app') as HTMLCanvasElement,
-      antialias: true, alpha: true
+      antialias: true,
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
 
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.controls.target.set(0, 5, 0);
+    // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    // this.controls.target.set(0, 5, 0);
+    // this.controls.update();
+    this.controls = new OrbitControls( this.camera, this.renderer.domElement );
+    this.controls.maxDistance = 10;
+    this.controls.target.y = 1.6;
     this.controls.update();
-
 
     this.reticle = new THREE.Mesh(new THREE.RingGeometry(0.15, .2, 32).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial());
     this.reticle.matrixAutoUpdate = false;
     this.reticle.visible = false;
     this.scene.add(this.reticle);
+
+    const self = this;
+
+    const room = new THREE.LineSegments(
+      new BoxLineGeometry( 6, 6, 6, 10, 10, 10 ).translate( 0, 3, 0 ),
+      new THREE.LineBasicMaterial( { color: 0xbcbcbc } )
+    );
+    
+    this.scene.add( room );
 
     window.addEventListener('resize', this.resize.bind(this));
   }
@@ -124,6 +136,7 @@ class App {
 
   public Start() {
     this.renderer.xr.enabled = true;
+    console.log(this.renderer.xr)
 
     // const geometry = new THREE.BoxGeometry(.3, .3, .3);
     // const material = new THREE.MeshStandardMaterial({ color: 0xffffff * Math.random() });
@@ -142,19 +155,19 @@ class App {
 
 
     // bouncing icosphere
-    //   const portalPlane = new THREE.Plane( new THREE.Vector3( 0, 0, 1 ), 0.0 );
-    //   const geometry = new THREE.IcosahedronGeometry( 5, 0 );
-    //   const material = new THREE.MeshPhongMaterial( {
-    //     color: 0xffffff, emissive: 0x333333, flatShading: true,
-    //     clippingPlanes: [ portalPlane ], clipShadows: true } );
-    //  const smallSphereOne = new THREE.Mesh( geometry, material );
-    //   this.scene.add( smallSphereOne );
-    // const  smallSphereTwo = new THREE.Mesh( geometry, material );
-    //   this.scene.add( smallSphereTwo );
+  //   const portalPlane = new THREE.Plane( new THREE.Vector3( 0, 0, 1 ), 0.0 );
+  //   const geometry = new THREE.IcosahedronGeometry( 5, 0 );
+  //   const material = new THREE.MeshPhongMaterial( {
+  //     color: 0xffffff, emissive: 0x333333, flatShading: true,
+  //     clippingPlanes: [ portalPlane ], clipShadows: true } );
+  //  const smallSphereOne = new THREE.Mesh( geometry, material );
+  //   this.scene.add( smallSphereOne );
+  // const  smallSphereTwo = new THREE.Mesh( geometry, material );
+  //   this.scene.add( smallSphereTwo );
 
-    //   // portals
-    //   const portalCamera = new THREE.PerspectiveCamera( 45, 1.0, 0.1, 500.0 );
-    //   this.scene.add( portalCamera );
+  //   // portals
+  //   const portalCamera = new THREE.PerspectiveCamera( 45, 1.0, 0.1, 500.0 );
+  //   this.scene.add( portalCamera );
     //frustumHelper = new THREE.CameraHelper( portalCamera );
     //this.scene.add( frustumHelper );
     // const bottomLeftCorner = new THREE.Vector3();
@@ -228,74 +241,12 @@ class App {
     // this.scene.add( blueLight );
 
 
-    // Load a glTF resource
-    // this.loader.load(
-    //   // resource URL
-    //   '/dungeon.glb',
-    //   // called when the resource is loaded
-    //   function ( gltf ) {
 
-    //     self.scene.add( gltf.scene );
-
-    //     gltf.animations; // Array<THREE.AnimationClip>
-    //     gltf.scene; // THREE.Group
-    //     gltf.scenes; // Array<THREE.Group>
-    //     gltf.cameras; // Array<THREE.Camera>
-    //     gltf.asset; // Object
-
-    //   },
-    //   // called while loading is progressing
-    //   function ( xhr ) {
-
-    //     console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-
-    //   },
-    //   // called when loading has errors
-    //   function ( error ) {
-
-    //     console.log( 'An error happened' + error );
-
-    //   }
-    // );
 
     function onSelect() {
       if (self.reticle.visible) {
-        // const cube = new THREE.Mesh(geometry, material);
-        // cube.position.setFromMatrixPosition(self.reticle.matrix);
-        // cube.name = "cube"
-        // self.scene.add(cube)
-        // const outsideBox = self.createOutsideBox()
-        // outsideBox.scale.setScalar(100)
-        // self.scene.add(outsideBox)
-        self.loader.load(
-          // resource URL
-          '/dungeon.glb',
-          // called when the resource is loaded
-          function (gltf) {
 
-            self.scene.add(gltf.scene);
-            gltf.animations; // Array<THREE.AnimationClip>
-            gltf.scene; // THREE.Group
-            gltf.scenes; // Array<THREE.Group>
-            gltf.cameras; // Array<THREE.Camera>
-            gltf.asset; // Object
-            gltf.scene.position.setFromMatrixPosition(self.reticle.matrix);
-          },
-          // called while loading is progressing
-          function (xhr) {
-
-            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-
-          },
-          // called when loading has errors
-          function (error) {
-
-            console.log('An error happened' + error);
-
-          }
-        );
       }
-      
     }
 
 
