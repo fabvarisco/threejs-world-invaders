@@ -17,15 +17,15 @@ class App {
   constructor() {
     this.loader = new GLTFLoader();
     const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath( '/examples/jsm/libs/draco/' );
-    this.loader.setDRACOLoader( dracoLoader );
-    
+    dracoLoader.setDecoderPath('/examples/jsm/libs/draco/');
+    this.loader.setDRACOLoader(dracoLoader);
+
     this.hitTestSource = undefined;
     this.hitTestSourceRequested = false;
 
 
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    this.camera.position.set(0, 2, 5);
+    this.camera.position.set(0, 2, 10);
     this.camera.lookAt(new THREE.Vector3(0, 0, 0))
 
     this.scene = new THREE.Scene();
@@ -45,7 +45,7 @@ class App {
 
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.controls.target.set(0, 3.5, 0);
+    this.controls.target.set(0, 5, 0);
     this.controls.update();
 
 
@@ -142,19 +142,19 @@ class App {
 
 
     // bouncing icosphere
-  //   const portalPlane = new THREE.Plane( new THREE.Vector3( 0, 0, 1 ), 0.0 );
-  //   const geometry = new THREE.IcosahedronGeometry( 5, 0 );
-  //   const material = new THREE.MeshPhongMaterial( {
-  //     color: 0xffffff, emissive: 0x333333, flatShading: true,
-  //     clippingPlanes: [ portalPlane ], clipShadows: true } );
-  //  const smallSphereOne = new THREE.Mesh( geometry, material );
-  //   this.scene.add( smallSphereOne );
-  // const  smallSphereTwo = new THREE.Mesh( geometry, material );
-  //   this.scene.add( smallSphereTwo );
+    //   const portalPlane = new THREE.Plane( new THREE.Vector3( 0, 0, 1 ), 0.0 );
+    //   const geometry = new THREE.IcosahedronGeometry( 5, 0 );
+    //   const material = new THREE.MeshPhongMaterial( {
+    //     color: 0xffffff, emissive: 0x333333, flatShading: true,
+    //     clippingPlanes: [ portalPlane ], clipShadows: true } );
+    //  const smallSphereOne = new THREE.Mesh( geometry, material );
+    //   this.scene.add( smallSphereOne );
+    // const  smallSphereTwo = new THREE.Mesh( geometry, material );
+    //   this.scene.add( smallSphereTwo );
 
-  //   // portals
-  //   const portalCamera = new THREE.PerspectiveCamera( 45, 1.0, 0.1, 500.0 );
-  //   this.scene.add( portalCamera );
+    //   // portals
+    //   const portalCamera = new THREE.PerspectiveCamera( 45, 1.0, 0.1, 500.0 );
+    //   this.scene.add( portalCamera );
     //frustumHelper = new THREE.CameraHelper( portalCamera );
     //this.scene.add( frustumHelper );
     // const bottomLeftCorner = new THREE.Vector3();
@@ -229,34 +229,34 @@ class App {
 
 
     // Load a glTF resource
-    this.loader.load(
-      // resource URL
-      '/dungeon.glb',
-      // called when the resource is loaded
-      function ( gltf ) {
-    
-        self.scene.add( gltf.scene );
-    
-        gltf.animations; // Array<THREE.AnimationClip>
-        gltf.scene; // THREE.Group
-        gltf.scenes; // Array<THREE.Group>
-        gltf.cameras; // Array<THREE.Camera>
-        gltf.asset; // Object
-    
-      },
-      // called while loading is progressing
-      function ( xhr ) {
-    
-        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-    
-      },
-      // called when loading has errors
-      function ( error ) {
-    
-        console.log( 'An error happened' + error );
-    
-      }
-    );
+    // this.loader.load(
+    //   // resource URL
+    //   '/dungeon.glb',
+    //   // called when the resource is loaded
+    //   function ( gltf ) {
+
+    //     self.scene.add( gltf.scene );
+
+    //     gltf.animations; // Array<THREE.AnimationClip>
+    //     gltf.scene; // THREE.Group
+    //     gltf.scenes; // Array<THREE.Group>
+    //     gltf.cameras; // Array<THREE.Camera>
+    //     gltf.asset; // Object
+
+    //   },
+    //   // called while loading is progressing
+    //   function ( xhr ) {
+
+    //     console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+    //   },
+    //   // called when loading has errors
+    //   function ( error ) {
+
+    //     console.log( 'An error happened' + error );
+
+    //   }
+    // );
 
     function onSelect() {
       if (self.reticle.visible) {
@@ -267,8 +267,35 @@ class App {
         // const outsideBox = self.createOutsideBox()
         // outsideBox.scale.setScalar(100)
         // self.scene.add(outsideBox)
+        self.loader.load(
+          // resource URL
+          '/dungeon.glb',
+          // called when the resource is loaded
+          function (gltf) {
 
+            self.scene.add(gltf.scene);
+            gltf.animations; // Array<THREE.AnimationClip>
+            gltf.scene; // THREE.Group
+            gltf.scenes; // Array<THREE.Group>
+            gltf.cameras; // Array<THREE.Camera>
+            gltf.asset; // Object
+            gltf.scene.position.setFromMatrixPosition(self.reticle.matrix);
+          },
+          // called while loading is progressing
+          function (xhr) {
+
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+
+          },
+          // called when loading has errors
+          function (error) {
+
+            console.log('An error happened' + error);
+
+          }
+        );
       }
+      
     }
 
 
