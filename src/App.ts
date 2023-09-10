@@ -231,7 +231,7 @@ class App {
     // Load a glTF resource
     this.loader.load(
       // resource URL
-      'public/dungeon.glb',
+      '/dungeon.glb',
       // called when the resource is loaded
       function ( gltf ) {
     
