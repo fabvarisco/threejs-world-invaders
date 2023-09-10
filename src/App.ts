@@ -57,7 +57,7 @@ class App {
     this.reticle.visible = false;
     this.scene.add(this.reticle);
 
-    const self = this;
+    //const self = this;
 
     const room = new THREE.LineSegments(
       new BoxLineGeometry( 6, 6, 6, 10, 10, 10 ).translate( 0, 3, 0 ),
