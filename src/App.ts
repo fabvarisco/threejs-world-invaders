@@ -127,7 +127,7 @@ class App {
 
     // const geometry = new THREE.BoxGeometry(.3, .3, .3);
     // const material = new THREE.MeshStandardMaterial({ color: 0xffffff * Math.random() });
-    const planeGeo = new THREE.PlaneGeometry( 50, 50 );
+    //const planeGeo = new THREE.PlaneGeometry( 50, 50 );
     const self = this;
 
     // const insideBox = this.createInsideBox()
@@ -253,7 +253,7 @@ class App {
       // called when loading has errors
       function ( error ) {
     
-        console.log( 'An error happened' );
+        console.log( 'An error happened' + error );
     
       }
     );
