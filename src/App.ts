@@ -18,18 +18,18 @@ class App {
   constructor() {
     this.loader = new GLTFLoader();
     const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath( '/examples/jsm/libs/draco/' );
-    this.loader.setDRACOLoader( dracoLoader );
-    
+    dracoLoader.setDecoderPath('/examples/jsm/libs/draco/');
+    this.loader.setDRACOLoader(dracoLoader);
+
     this.hitTestSource = undefined;
     this.hitTestSourceRequested = false;
 
 
-    this.camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 10 );
-    this.camera.position.set( 0, 1.6, 3 );
+    this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10);
+    this.camera.position.set(0, 200, 3);
 
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color( 0x505050 );
+    this.scene.background = new THREE.Color(0x505050);
     this.scene.add(new THREE.HemisphereLight(0x606060, 0x404040));
 
     const light = new THREE.DirectionalLight(0xffffff);
@@ -47,7 +47,7 @@ class App {
     // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     // this.controls.target.set(0, 5, 0);
     // this.controls.update();
-    this.controls = new OrbitControls( this.camera, this.renderer.domElement );
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.maxDistance = 10;
     this.controls.target.y = 1.6;
     this.controls.update();
@@ -60,188 +60,34 @@ class App {
     //const self = this;
 
     const room = new THREE.LineSegments(
-      new BoxLineGeometry( 6, 6, 6, 10, 10, 10 ).translate( 0, 3, 0 ),
-      new THREE.LineBasicMaterial( { color: 0xbcbcbc } )
+      new BoxLineGeometry(6, 6, 6, 10, 10, 10).translate(0, 0, 0),
+      new THREE.LineBasicMaterial({ color: 0xbcbcbc })
     );
-    
-    this.scene.add( room );
+
+    this.scene.add(room);
 
     window.addEventListener('resize', this.resize.bind(this));
   }
 
 
-  // private createInsideBox(): THREE.Object3D {
-  //   const geo = new THREE.BoxGeometry(1, 1, 1)
-  //   const mat = new THREE.MeshLambertMaterial({
-  //     color: 0xff0000,
-  //   })
-  //   const insideMat = new THREE.MeshLambertMaterial({
-  //     color: 0xffffff,
-  //     side: THREE.BackSide,
-  //   })
-  //   const box = new THREE.Mesh(geo, mat)
-  //   box.scale.setScalar(0.2)
-  //   box.rotation.x = Math.PI / 4
-  //   box.rotation.y = Math.PI / 4
-  //   const innerBox = new THREE.Mesh(geo, insideMat)
-  //   const insideBox = new THREE.Object3D()
-  //   insideBox.add(innerBox)
-  //   return insideBox
-  // }
-
-
-  // private createOutsideBox(): THREE.Object3D {
-  //   const outsidePlaneGeo = new THREE.PlaneGeometry(1, 1, 1, 1)
-  //   const planeOptionArr = [
-  //     {// Right
-  //       rotateY: Math.PI / 2,
-  //       rotateX: 0,
-  //       translate: [0.5, 0, 0]
-  //     },
-  //     {// Left
-  //       rotateY: -Math.PI / 2,
-  //       rotateX: 0,
-  //       translate: [-0.5, 0, 0]
-  //     },
-  //     {// Top
-  //       rotateY: 0,
-  //       rotateX: -Math.PI / 2,
-  //       translate: [0, 0.5, 0]
-  //     },
-  //     {// Bottom
-  //       rotateY: 0,
-  //       rotateX: Math.PI / 2,
-  //       translate: [0, -0.5, 0]
-  //     },
-  //     {// Back
-  //       rotateY: 0,
-  //       rotateX: Math.PI,
-  //       translate: [0, 0, -0.5]
-  //     },
-  //   ]
-  //   const outsideMat = new THREE.MeshBasicMaterial({
-  //     colorWrite: false,
-  //   })
-  //   const outsideBox = new THREE.Object3D()
-  //   planeOptionArr.forEach((opt) => {
-  //     const { rotateY, rotateX, translate } = opt
-  //     const geo = outsidePlaneGeo.clone().rotateY(rotateY).rotateX(rotateX).translate(translate[0], translate[1], translate[3]);
-  //     const mesh = new THREE.Mesh(geo, outsideMat)
-  //     outsideBox.add(mesh)
-  //   })
-  //   return outsideBox
-  // }
-
-
-
   public Start() {
     this.renderer.xr.enabled = true;
     console.log(this.renderer.xr)
+    this.renderer.xr.setReferenceSpaceType('viewer');
 
-    // const geometry = new THREE.BoxGeometry(.3, .3, .3);
-    // const material = new THREE.MeshStandardMaterial({ color: 0xffffff * Math.random() });
-    //const planeGeo = new THREE.PlaneGeometry( 50, 50 );
     const self = this;
 
-    // const insideBox = this.createInsideBox()
-    // insideBox.scale.setScalar(300 * 0.99)
 
-    // const outsideBox = this.createOutsideBox()
-    // outsideBox.scale.setScalar(100)
+    this.renderer.xr.addEventListener('sessionstart', () => {
 
+      self.renderer.xr.getCamera().position.copy(self.camera.position);
+      console.log('sessionStart')
+      self.renderer.xr.updateCamera(self.camera)
+      //camera.position.copy(renderer.xr.getCamera().position);
 
-    // this.scene.add(insideBox)
-    // this.scene.add(outsideBox)
+      console.log("pos", self.renderer.xr.getCamera().position);
 
-
-    // bouncing icosphere
-  //   const portalPlane = new THREE.Plane( new THREE.Vector3( 0, 0, 1 ), 0.0 );
-  //   const geometry = new THREE.IcosahedronGeometry( 5, 0 );
-  //   const material = new THREE.MeshPhongMaterial( {
-  //     color: 0xffffff, emissive: 0x333333, flatShading: true,
-  //     clippingPlanes: [ portalPlane ], clipShadows: true } );
-  //  const smallSphereOne = new THREE.Mesh( geometry, material );
-  //   this.scene.add( smallSphereOne );
-  // const  smallSphereTwo = new THREE.Mesh( geometry, material );
-  //   this.scene.add( smallSphereTwo );
-
-  //   // portals
-  //   const portalCamera = new THREE.PerspectiveCamera( 45, 1.0, 0.1, 500.0 );
-  //   this.scene.add( portalCamera );
-    //frustumHelper = new THREE.CameraHelper( portalCamera );
-    //this.scene.add( frustumHelper );
-    // const bottomLeftCorner = new THREE.Vector3();
-    // const bottomRightCorner = new THREE.Vector3();
-    // const topLeftCorner = new THREE.Vector3();
-    // const reflectedPosition = new THREE.Vector3();
-
-    // const leftPortalTexture = new THREE.WebGLRenderTarget( 256, 256 );
-    // const leftPortal = new THREE.Mesh( planeGeo, new THREE.MeshBasicMaterial( { map: leftPortalTexture.texture } ) );
-    // leftPortal.position.x = - 30;
-    // leftPortal.position.y = 20;
-    // leftPortal.scale.set( 0.35, 0.35, 0.35 );
-    // this.scene.add( leftPortal );
-
-    // const  rightPortalTexture = new THREE.WebGLRenderTarget( 256, 256 );
-    // const  rightPortal = new THREE.Mesh( planeGeo, new THREE.MeshBasicMaterial( { map: rightPortalTexture.texture } ) );
-    // rightPortal.position.x = 30;
-    // rightPortal.position.y = 20;
-    // rightPortal.scale.set( 0.35, 0.35, 0.35 );
-    // this.scene.add( rightPortal );
-
-    // // walls
-    // const planeTop = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0xffffff } ) );
-    // planeTop.position.y = 100;
-    // planeTop.rotateX( Math.PI / 2 );
-    // this.scene.add( planeTop );
-
-    // const planeBottom = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0xffffff } ) );
-    // planeBottom.rotateX( - Math.PI / 2 );
-    // this.scene.add( planeBottom );
-
-    // const planeFront = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0x7f7fff } ) );
-    // planeFront.position.z = 50;
-    // planeFront.position.y = 50;
-    // planeFront.rotateY( Math.PI );
-    // this.scene.add( planeFront );
-
-    // const planeBack = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0xff7fff } ) );
-    // planeBack.position.z = - 50;
-    // planeBack.position.y = 50;
-    // //planeBack.rotateY( Math.PI );
-    // this.scene.add( planeBack );
-
-    // const planeRight = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0x00ff00 } ) );
-    // planeRight.position.x = 50;
-    // planeRight.position.y = 50;
-    // planeRight.rotateY( - Math.PI / 2 );
-    // this.scene.add( planeRight );
-
-    // const planeLeft = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0xff0000 } ) );
-    // planeLeft.position.x = - 50;
-    // planeLeft.position.y = 50;
-    // planeLeft.rotateY( Math.PI / 2 );
-    // this.scene.add( planeLeft );
-
-    // // lights
-    // const mainLight = new THREE.PointLight( 0xe7e7e7, 2.5, 250, 0 );
-    // mainLight.position.y = 60;
-    // this.scene.add( mainLight );
-
-    // const greenLight = new THREE.PointLight( 0x00ff00, 0.5, 1000, 0 );
-    // greenLight.position.set( 550, 50, 0 );
-    // this.scene.add( greenLight );
-
-    // const redLight = new THREE.PointLight( 0xff0000, 0.5, 1000, 0 );
-    // redLight.position.set( - 550, 50, 0 );
-    // this.scene.add( redLight );
-
-    // const blueLight = new THREE.PointLight( 0xbbbbfe, 0.5, 1000, 0 );
-    // blueLight.position.set( 0, 50, 550 );
-    // this.scene.add( blueLight );
-
-
-
+    });
 
     function onSelect() {
       if (self.reticle.visible) {
