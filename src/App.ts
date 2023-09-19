@@ -15,7 +15,7 @@ class App {
     private activeGame: Web | AR | undefined;
 
     constructor() {
-        this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10);
+        this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10);
         this.camera.position.set(0, 1.6, 3);
 
         this.scene = new THREE.Scene();
@@ -43,7 +43,6 @@ class App {
             new THREE.LineBasicMaterial({color: 0xbcbcbc})
         );
         this.scene.add(room);
-
         this.activeGame = undefined;
         window.addEventListener('resize', this._resize.bind(this));
     }
@@ -51,7 +50,6 @@ class App {
     public Start() {
         this.renderer.xr.enabled = true;
         this._createButtons();
-        console.log("asdasdsda")
         this.renderer.setAnimationLoop(this._render.bind(this));
     }
 
@@ -76,7 +74,6 @@ class App {
 
     private _onStartAr() {
         this.activeGame = new AR(this.scene, this.renderer);
-
     }
 
     private _onStartVr() {
@@ -85,6 +82,7 @@ class App {
 
     private _onStartWeb() {
         this.activeGame = new Web(this.scene);
+
     }
 
     private _resize() {

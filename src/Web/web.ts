@@ -1,15 +1,14 @@
 import * as THREE from 'three';
+import Portal from "../Assets/portal.ts";
 
 class Web {
-    private scene: THREE.Scene;
+    private readonly scene: THREE.Scene;
 
     constructor(scene:THREE.Scene) {
         this.scene = scene;
+        const portal = new Portal(this.scene);
+        console.log(portal)
 
-        const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-        const material = new THREE.MeshBasicMaterial();
-        const cube = new THREE.Mesh( geometry, material );
-        this.scene.add( cube );
     }
 
 }
