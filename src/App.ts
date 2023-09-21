@@ -6,6 +6,9 @@ import "./style.css"
 import Web from "./Web/web.ts";
 import {BoxLineGeometry} from 'three/addons/geometries/BoxLineGeometry.js';
 import AR from "./AR/ar.ts";
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import {DRACOLoader} from "three/examples/jsm/loaders/DRACOLoader";
 
 class App {
     private readonly camera: THREE.PerspectiveCamera;
@@ -15,10 +18,14 @@ class App {
     private activeGame: Web | AR | undefined;
 
     constructor() {
-        this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10);
-        this.camera.position.set(0, 1.6, 3);
+        this.camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.25, 4000  );
+        this.camera.position.set( - 5, 3, 10 );
+        this.camera.lookAt( 0, 2, 0 );
 
         this.scene = new THREE.Scene();
+        this.scene.background = new THREE.Color( 0xe0e0e0 );
+
+
 
         this.scene.add(new THREE.HemisphereLight(0x606060, 0x404040));
 
@@ -38,11 +45,65 @@ class App {
         this.controls.target.set(0, 3.5, 0);
         this.controls.update();
 
-        const room = new THREE.LineSegments(
-            new BoxLineGeometry(6, 6, 6, 10, 10, 10).translate(0, 2, 0),
-            new THREE.LineBasicMaterial({color: 0xbcbcbc})
+        // ground
+        const mesh = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000 ), new THREE.MeshPhongMaterial( { color: 0xcbcbcb, depthWrite: false } ) );
+        mesh.rotation.x = - Math.PI / 2;
+        this.scene.add( mesh );
+
+        const grid = new THREE.GridHelper( 200, 40, 0x000000, 0x000000 );
+        grid.material.opacity = 0.2;
+        grid.material.transparent = true;
+        this.scene.add( grid );
+
+
+        // const loader = new FBXLoader();
+        // loader.load( 'src/untitled.fbx', ( object ) => {
+        //     object.position.x = 0;
+        //     object.position.y = 0;
+        //     object.position.z = 0;
+        //
+        //     this.scene.add( object );
+        //
+        // } );
+
+        const loader = new GLTFLoader();
+
+// Optional: Provide a DRACOLoader instance to decode compressed mesh data
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath( '/examples/jsm/libs/draco/' );
+        loader.setDRACOLoader( dracoLoader );
+
+// Load a glTF resource
+        loader.load(
+            // resource URL
+            'dungeon.glb    ',
+            // called when the resource is loaded
+           ( gltf )=> {
+
+                this.scene.add( gltf.scene );
+
+                gltf.animations; // Array<THREE.AnimationClip>
+                gltf.scene; // THREE.Group
+                gltf.scenes; // Array<THREE.Group>
+                gltf.cameras; // Array<THREE.Camera>
+                gltf.asset; // Object
+
+            },
+            // called while loading is progressing
+            function ( xhr ) {
+
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+            },
+            // called when loading has errors
+            function ( error ) {
+
+                console.log( 'An error happened' );
+
+            }
         );
-        this.scene.add(room);
+
+
 
         this.activeGame = undefined;
         window.addEventListener('resize', this._resize.bind(this));
