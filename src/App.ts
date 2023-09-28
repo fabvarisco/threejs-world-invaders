@@ -88,9 +88,9 @@ class App {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
-    private _render() {
+    private _render(timestamp:any, frame:any) {
         if (this.activeGame) {
-            //this.activeGame.Render(timestamp, frame);
+            this.activeGame.Render(timestamp, frame);
         }
         this.renderer.render(this.scene, this.camera);
     }

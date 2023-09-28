@@ -30,6 +30,10 @@ class AR {
         this.meshes.push(mesh);
     }
 
+    Render(){
+
+    }
+
 }
 
 export default AR;

@@ -25,13 +25,19 @@ class Prefab {
             }).catch(() => {
             throw new Error('Failed to load ' + this.fileName )
         }).finally(()=> console.log("aaaa"));
-        console.log(this.object)
     }
 
     AddToScene(scene: THREE.Scene) {
-        console.log(this.object)
         if (!this.object) return;
         scene.add(this.object);
+    }
+
+    _createAChildPrefab() {
+
+    }
+
+    _render(){
+
     }
 }
 

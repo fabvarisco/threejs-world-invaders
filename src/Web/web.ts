@@ -67,7 +67,6 @@ class Web {
             raycaster.setFromCamera(mouse, this.camera);
 
             const intersects = raycaster.intersectObjects([plane]);
-            console.log(intersects)
             if (intersects.length > 0) {
                 const cubeGeometry = new THREE.BoxGeometry();
                 const cubeMaterial = new THREE.MeshBasicMaterial({color: 0x00ff00});
@@ -92,6 +91,11 @@ class Web {
             });
         }
 
+    }
+
+
+    Render(timestamp:any, frame:any) {
+        this.prefabs.forEach(item => item._render())
     }
 }
 
