@@ -4,16 +4,20 @@ import { Asset } from "@/type";
 import Tower from "@/Assets/Tower.ts";
 import { PREFABS } from "@/utils/utils.ts";
 import Monster from "@/Assets/Monster.ts";
+import SceneObject from "@/Assets/SceneObject.ts";
 
 class Web {
   private readonly scene: THREE.Scene;
   private readonly camera: THREE.Camera;
   private readonly assets: Asset[];
+  private readonly sceneObjects: SceneObject[];
+
   private start: boolean;
   constructor(scene: THREE.Scene, camera: THREE.Camera) {
     this.scene = scene;
     this.camera = camera;
     this.start = false;
+    this.sceneObjects = [];
     this.assets = [
       {
         asset: "Tower",
@@ -98,16 +102,18 @@ class Web {
 
   _createPrefabs() {
     for (const { asset, position } of this.assets) {
-      PREFABS[asset].AddToScene(position);
+      const prefabObj = PREFABS[asset].GetObject();
+      this.sceneObjects.push(new SceneObject(prefabObj, position, this.scene));
     }
+
     this.start = true;
   }
 
   Render(timestamp: any, frame: any) {
     console.log("render web");
     if (this.start) {
-      for (const { asset, position } of this.assets) {
-        PREFABS[asset]._render();
+      for (const obj of this.sceneObjects) {
+        obj.Render();
       }
     }
   }

@@ -16,12 +16,12 @@ class Tower extends Prefab {
 
   _render() {
     super._render();
-    this.spawnTimer -= 1;
-    if (this.spawnTimer <= 0) {
-      instanceNewPrefab("Monster", this.object?.position);
-      this.spawnTimer = 5000;
-      console.log("spawn");
-    }
+    // this.spawnTimer -= 1;
+    // if (this.spawnTimer <= 0) {
+    //   instanceNewPrefab("Monster", this.object?.position);
+    //   this.spawnTimer = 5000;
+    //   console.log("spawn");
+    // }
   }
 }
 

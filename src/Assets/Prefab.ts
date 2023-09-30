@@ -37,6 +37,10 @@ class Prefab {
     this.scene.add(this.object);
   }
 
+  GetObject() {
+    return this.object;
+  }
+
   _render() {}
 }
 
