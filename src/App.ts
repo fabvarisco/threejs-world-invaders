@@ -5,6 +5,9 @@ import {VRButton} from 'three/addons/webxr/VRButton.js';
 import Web from "./Web/web.ts";
 import AR from "./AR/ar.ts";
 import "./style.css"
+import Prefab from "@/Assets/Prefab.ts";
+import Tower from "@/Assets/Tower.ts";
+import {Asset} from "@/type";
 
 class App {
     private readonly camera: THREE.PerspectiveCamera;
@@ -12,7 +15,15 @@ class App {
     private readonly renderer: THREE.WebGLRenderer;
     private controls: OrbitControls;
     private activeGame: Web | AR | undefined;
+    private readonly prefabs:  {[k: string]: Prefab};
+    private readonly assets: Asset[]
     constructor() {
+        this.prefabs = {};
+        this.assets = [{
+            asset: "Tower",
+            position: new THREE.Vector3(80, 0, 96),
+            prefabType: Tower
+        }]
         this.camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.25, 4000  );
         this.camera.position.set( - 5, 3, 10 );
         this.camera.lookAt( 0, 2, 0 );
@@ -40,8 +51,20 @@ class App {
 
 
         this.activeGame = undefined;
+        this._init().then(r => r);
         window.addEventListener('resize', this._resize.bind(this));
     }
+
+    private async _init(){
+        console.log("Loading...");
+        for (const {asset, position, prefabType} of this.assets) {
+            const prefab = new prefabType(asset, position);
+            await prefab.Load();
+            this.prefabs[asset] = prefab;
+        }
+        console.log("All prefabs were created!");
+    }
+
 
     public Start() {
         this.renderer.xr.enabled = true;
@@ -79,7 +102,7 @@ class App {
     }
 
     private _onStartWeb() {
-        this.activeGame = new Web(this.scene, this.camera);
+        this.activeGame = new Web(this.scene, this.camera, this.prefabs);
     }
 
     private _resize() {

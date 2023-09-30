@@ -8,11 +8,11 @@ class Web {
     private readonly scene: THREE.Scene;
     private readonly camera: THREE.Camera;
     private readonly assets: Asset[];
-    private prefabs: Prefab[];
-    constructor(scene: THREE.Scene, camera: THREE.Camera,) {
+    private prefabs: {[k: string]: Prefab};
+    constructor(scene: THREE.Scene, camera: THREE.Camera, prefabs: {[k: string]: Prefab}) {
         this.scene = scene;
         this.camera = camera;
-        this.prefabs = [];
+        this.prefabs = prefabs;
         this.assets = [{
             asset: "Tower",
             position: new THREE.Vector3(80, 0, 96),
@@ -82,20 +82,13 @@ class Web {
 
     }
     _createPrefabs() {
-        for (const {asset, position, prefabType} of this.assets) {
-            const prefab = new prefabType(asset, position);
-
-            prefab.Load().then((r:any) => console.log("then", r)).catch((err:Error) => err).finally(()=> {
-                this.prefabs.push(prefab)
-                prefab.AddToScene(this.scene);
-            });
+        for (const {asset, position} of this.assets) {
+            this.prefabs[asset].AddToScene(this.scene, position);
         }
-
     }
 
-
     Render(timestamp:any, frame:any) {
-        this.prefabs.forEach(item => item._render())
+       // this.prefabs.forEach(item => item._render())
     }
 }
 

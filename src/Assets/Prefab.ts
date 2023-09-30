@@ -18,18 +18,19 @@ class Prefab {
        this.object = await this.loader.loadAsync(`src/Assets/models/${this.fileName}.fbx`)
             .then(object => {
                 object.scale.set(0.01, 0.01, 0.01);
-                object.position.x = this.position.x;
-                object.position.y = this.position.y;
-                object.position.z = this.position.z;
+
                 return object;
             }).catch(() => {
             throw new Error('Failed to load ' + this.fileName )
         }).finally(()=> console.log("aaaa"));
     }
 
-    AddToScene(scene: THREE.Scene) {
+    AddToScene(scene: THREE.Scene,position:THREE.Vector3) {
         if (!this.object) return;
-        scene.add(this.object);
+        this.object.position.x = position.x;
+        this.object.position.y = position.y;
+        this.object.position.z = position.z;
+        scene.add(this.object.clone());
     }
 
     _createAChildPrefab() {
