@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import { Asset } from "@/type";
 import Tower from "@/Assets/Tower.ts";
-import { PREFABS } from "@/utils/utils.ts";
+import { PREFABS, SCENE_OBJECTS } from "@/utils/utils.ts";
 import Monster from "@/Assets/Monster.ts";
 import SceneObject from "@/Assets/SceneObject.ts";
 
@@ -10,54 +10,52 @@ class Web {
   private readonly scene: THREE.Scene;
   private readonly camera: THREE.Camera;
   private readonly assets: Asset[];
-  private readonly sceneObjects: SceneObject[];
 
   private start: boolean;
   constructor(scene: THREE.Scene, camera: THREE.Camera) {
     this.scene = scene;
     this.camera = camera;
     this.start = false;
-    this.sceneObjects = [];
     this.assets = [
       {
         asset: "Tower",
         position: new THREE.Vector3(80, 0, 96),
-        prefabType: Tower,
+        sceneObjectType: Tower,
       },
       {
         asset: "Tower",
         position: new THREE.Vector3(-90, 0, 71),
-        prefabType: Tower,
+        sceneObjectType: Tower,
       },
       {
         asset: "Tower",
         position: new THREE.Vector3(10, 0, 82),
-        prefabType: Tower,
+        sceneObjectType: Tower,
       },
       {
         asset: "Tower",
         position: new THREE.Vector3(-20, 0, 90),
-        prefabType: Tower,
+        sceneObjectType: Tower,
       },
       {
         asset: "Tower",
         position: new THREE.Vector3(40, 0, 82),
-        prefabType: Tower,
+        sceneObjectType: Tower,
       },
       {
         asset: "Tower",
         position: new THREE.Vector3(90, 0, 73),
-        prefabType: Tower,
+        sceneObjectType: Tower,
       },
       {
         asset: "Tower",
         position: new THREE.Vector3(-32, 0, 62),
-        prefabType: Tower,
+        sceneObjectType: Tower,
       },
       {
         asset: "Monster",
         position: new THREE.Vector3(0, 0, 0),
-        prefabType: Monster,
+        sceneObjectType: Monster,
       },
     ];
 
@@ -101,18 +99,23 @@ class Web {
   }
 
   _createPrefabs() {
-    for (const { asset, position } of this.assets) {
+    for (const { asset, position, sceneObjectType } of this.assets) {
       const prefabObj = PREFABS[asset].GetObject();
-      this.sceneObjects.push(new SceneObject(prefabObj, position, this.scene));
+      SCENE_OBJECTS.push(
+        new sceneObjectType({
+          object: prefabObj,
+          position: position,
+          scene: this.scene,
+        }),
+      );
     }
 
     this.start = true;
   }
 
-  Render(timestamp: any, frame: any) {
-    console.log("render web");
+  Render() {
     if (this.start) {
-      for (const obj of this.sceneObjects) {
+      for (const obj of SCENE_OBJECTS) {
         obj.Render();
       }
     }

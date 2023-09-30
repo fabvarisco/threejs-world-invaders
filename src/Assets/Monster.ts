@@ -1,18 +1,15 @@
-import Prefab from "./Prefab.ts";
-import { Scene } from "three";
+import SceneObject from "@/Assets/SceneObject.ts";
+import { ISceneObjects } from "@/type";
 
-class Monster extends Prefab {
-  constructor(fileName: string, scene: Scene) {
-    super(fileName, scene);
+class Monster extends SceneObject {
+  constructor({ object, position, scene }: ISceneObjects) {
+    super({ object: object, position: position, scene: scene });
     console.log("monster");
   }
 
-  _render() {
-    super._render();
-    this.object.position.z -= 0.01;
-    console.log(this.object.position);
-    //console.log("render tower")
+  Render() {
+    super.Render();
+    this.object.position.z -= 1;
   }
 }
-
 export default Monster;

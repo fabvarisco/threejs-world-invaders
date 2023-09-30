@@ -1,27 +1,30 @@
-import * as THREE from "three";
-import Prefab from "./Prefab.ts";
-import { instanceNewPrefab } from "@/utils/utils.ts";
-class Tower extends Prefab {
+import SceneObject from "@/Assets/SceneObject.ts";
+import { ISceneObjects } from "@/type";
+import { instanceNewSceneObject } from "@/utils/utils.ts";
+import Monster from "@/Assets/Monster.ts";
+class Tower extends SceneObject {
   private spawnTimer: number;
-  constructor(fileName: string, scene: THREE.Scene) {
-    super(fileName, scene);
-    this.spawnTimer = 5000;
+  constructor({ object, position, scene }: ISceneObjects) {
+    super({ object: object, position: position, scene: scene });
+    this.scene = scene;
+    console.log(scene);
+    this.spawnTimer = 1000;
   }
 
-  Init() {
-    // const spanwTimer = setInterval(() => {
-    //   instanceNewPrefab("Monster", this.object?.position);
-    // }, 5000);
-  }
-
-  _render() {
-    super._render();
-    // this.spawnTimer -= 1;
-    // if (this.spawnTimer <= 0) {
-    //   instanceNewPrefab("Monster", this.object?.position);
-    //   this.spawnTimer = 5000;
-    //   console.log("spawn");
-    // }
+  Render() {
+    super.Render();
+    console.log(this.spawnTimer);
+    this.spawnTimer -= 1;
+    if (this.spawnTimer <= 0) {
+      instanceNewSceneObject(
+        "Monster",
+        this.object?.position,
+        Monster,
+        this.scene,
+      );
+      this.spawnTimer = 1000;
+      console.log("spawn");
+    }
   }
 }
 

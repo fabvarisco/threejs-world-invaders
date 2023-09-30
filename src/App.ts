@@ -9,6 +9,7 @@ import Tower from "@/Assets/Tower.ts";
 import { Asset } from "@/type";
 import Monster from "@/Assets/Monster.ts";
 import { PREFABS } from "@/utils/utils.ts";
+import Prefab from "@/Assets/Prefab.ts";
 
 class App {
   private readonly camera: THREE.PerspectiveCamera;
@@ -22,12 +23,12 @@ class App {
       {
         asset: "Tower",
         position: new THREE.Vector3(80, 0, 96),
-        prefabType: Tower,
+        sceneObjectType: Tower,
       },
       {
         asset: "Monster",
         position: new THREE.Vector3(0, 0, 0),
-        prefabType: Monster,
+        sceneObjectType: Monster,
       },
     ];
     this.camera = new THREE.PerspectiveCamera(
@@ -67,8 +68,8 @@ class App {
 
   private async _init() {
     console.log("Loading...");
-    for (const { asset, prefabType } of this.assets) {
-      const prefab = new prefabType(asset, this.scene);
+    for (const { asset, sceneObjectType } of this.assets) {
+      const prefab = new Prefab(asset, this.scene, sceneObjectType);
       await prefab.Load();
       PREFABS[asset] = prefab;
     }

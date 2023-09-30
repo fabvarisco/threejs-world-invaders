@@ -1,16 +1,23 @@
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
+import SceneObject from "@/Assets/SceneObject.ts";
 
 class Prefab {
   private loader: FBXLoader;
   private readonly fileName: string;
   protected scene: THREE.Scene;
   protected object: THREE.Group;
+  protected objectSceneType: typeof SceneObject;
 
-  constructor(fileName: string, scene: THREE.Scene) {
+  constructor(
+    fileName: string,
+    scene: THREE.Scene,
+    objectSceneType: typeof SceneObject,
+  ) {
     this.fileName = fileName;
     this.object = new THREE.Group();
     this.loader = new FBXLoader();
+    this.objectSceneType = objectSceneType;
     this.scene = scene;
   }
 
@@ -26,22 +33,9 @@ class Prefab {
       })
       .finally(() => console.log("aaaa"));
   }
-
-  AddToScene(position?: THREE.Vector3) {
-    if (!this.object || !position) return;
-    console.log(this.constructor);
-    this.object = this.object.clone();
-    this.object.position.x = position.x;
-    this.object.position.y = position.y;
-    this.object.position.z = position.z;
-    this.scene.add(this.object);
-  }
-
   GetObject() {
     return this.object;
   }
-
-  _render() {}
 }
 
 export default Prefab;
