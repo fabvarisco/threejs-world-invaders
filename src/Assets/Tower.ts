@@ -4,16 +4,17 @@ import { instanceNewSceneObject } from "@/utils/utils.ts";
 import Monster from "@/Assets/Monster.ts";
 class Tower extends SceneObject {
   private spawnTimer: number;
+  private readonly initSpawnTimer: number;
   constructor({ object, position, scene }: ISceneObjects) {
     super({ object: object, position: position, scene: scene });
     this.scene = scene;
     console.log(scene);
-    this.spawnTimer = 1000;
+    this.initSpawnTimer = Math.random() * 5000;
+    this.spawnTimer = this.initSpawnTimer;
   }
 
   Render() {
     super.Render();
-    console.log(this.spawnTimer);
     this.spawnTimer -= 1;
     if (this.spawnTimer <= 0) {
       instanceNewSceneObject(
@@ -22,7 +23,7 @@ class Tower extends SceneObject {
         Monster,
         this.scene,
       );
-      this.spawnTimer = 1000;
+      this.spawnTimer = this.initSpawnTimer;
       console.log("spawn");
     }
   }

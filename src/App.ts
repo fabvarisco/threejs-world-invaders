@@ -10,6 +10,7 @@ import { Asset } from "@/type";
 import Monster from "@/Assets/Monster.ts";
 import { PREFABS } from "@/utils/utils.ts";
 import Prefab from "@/Assets/Prefab.ts";
+import PortalWeb from "@/Assets/PortalWeb.ts";
 
 class App {
   private readonly camera: THREE.PerspectiveCamera;
@@ -29,6 +30,11 @@ class App {
         asset: "Monster",
         position: new THREE.Vector3(0, 0, 0),
         sceneObjectType: Monster,
+      },
+      {
+        asset: "PortalWeb",
+        position: new THREE.Vector3(0, 0, 0),
+        sceneObjectType: PortalWeb,
       },
     ];
     this.camera = new THREE.PerspectiveCamera(

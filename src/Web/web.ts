@@ -4,6 +4,7 @@ import { Asset } from "@/type";
 import Tower from "@/Assets/Tower.ts";
 import { PREFABS, SCENE_OBJECTS } from "@/utils/utils.ts";
 import Monster from "@/Assets/Monster.ts";
+import PortalWeb from "@/Assets/PortalWeb.ts";
 
 class Web {
   private readonly scene: THREE.Scene;
@@ -18,43 +19,43 @@ class Web {
     this.assets = [
       {
         asset: "Tower",
-        position: new THREE.Vector3(80, 0, 96),
+        position: new THREE.Vector3(80, -1, 96),
         sceneObjectType: Tower,
       },
       {
         asset: "Tower",
-        position: new THREE.Vector3(-90, 0, 71),
+        position: new THREE.Vector3(-90, -1, 71),
         sceneObjectType: Tower,
       },
       {
         asset: "Tower",
-        position: new THREE.Vector3(10, 0, 82),
+        position: new THREE.Vector3(10, -1, 82),
         sceneObjectType: Tower,
       },
       {
         asset: "Tower",
-        position: new THREE.Vector3(-20, 0, 90),
+        position: new THREE.Vector3(-20, -1, 90),
         sceneObjectType: Tower,
       },
       {
         asset: "Tower",
-        position: new THREE.Vector3(40, 0, 82),
+        position: new THREE.Vector3(40, -1, 82),
         sceneObjectType: Tower,
       },
       {
         asset: "Tower",
-        position: new THREE.Vector3(90, 0, 73),
+        position: new THREE.Vector3(90, -1, 73),
         sceneObjectType: Tower,
       },
       {
         asset: "Tower",
-        position: new THREE.Vector3(-32, 0, 62),
+        position: new THREE.Vector3(-32, -1, 62),
         sceneObjectType: Tower,
       },
       {
-        asset: "Monster",
-        position: new THREE.Vector3(0, 0, 0),
-        sceneObjectType: Monster,
+        asset: "PortalWeb",
+        position: new THREE.Vector3(0, -1, -90),
+        sceneObjectType: PortalWeb,
       },
     ];
 
@@ -66,12 +67,15 @@ class Web {
       }),
     );
     plane.rotation.x = -Math.PI / 2;
+    plane.position.y = -1;
 
     this.scene.add(plane);
 
     const grid = new THREE.GridHelper(200, 40, 0x000000, 0x000000);
     grid.material.opacity = 0.2;
     grid.material.transparent = true;
+    grid.position.y = -1;
+
     this.scene.add(grid);
 
     const raycaster = new THREE.Raycaster();

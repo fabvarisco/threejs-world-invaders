@@ -1,5 +1,6 @@
 import { Group, Scene, Vector3 } from "three";
 import { ISceneObjects } from "@/type";
+import { SCENE_OBJECTS } from "@/utils/utils.ts";
 
 class SceneObject {
   protected object: Group;
@@ -20,6 +21,12 @@ class SceneObject {
   Render() {
     //console.log("render tower")
   }
+
+  GetObject() {
+    return this.object;
+  }
+
+  Destroy() {}
 }
 
 export default SceneObject;
