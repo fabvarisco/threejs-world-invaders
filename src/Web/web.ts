@@ -4,7 +4,6 @@ import { Asset } from "@/type";
 import Tower from "@/Assets/Tower.ts";
 import { PREFABS, SCENE_OBJECTS } from "@/utils/utils.ts";
 import Monster from "@/Assets/Monster.ts";
-import SceneObject from "@/Assets/SceneObject.ts";
 
 class Web {
   private readonly scene: THREE.Scene;
@@ -67,6 +66,7 @@ class Web {
       }),
     );
     plane.rotation.x = -Math.PI / 2;
+
     this.scene.add(plane);
 
     const grid = new THREE.GridHelper(200, 40, 0x000000, 0x000000);
