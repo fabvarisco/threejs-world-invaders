@@ -1,21 +1,18 @@
-import * as THREE from 'three';
 import Prefab from "./Prefab.ts";
+import { Scene } from "three";
 
 class Monster extends Prefab {
-    constructor(fileName: string, position: THREE.Vector3) {
-        super(fileName, position)
-        console.log("monster")
+  constructor(fileName: string, scene: Scene) {
+    super(fileName, scene);
+    console.log("monster");
+  }
 
-
-    }
-
-    _render() {
-        super._render();
-        //console.log("render tower")
-
-    }
-
-
+  _render() {
+    super._render();
+    this.object.position.z -= 0.01;
+    console.log(this.object.position);
+    //console.log("render tower")
+  }
 }
 
 export default Monster;

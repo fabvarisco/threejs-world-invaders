@@ -1,45 +1,43 @@
-import * as THREE from 'three';
-import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js'
+import * as THREE from "three";
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 
 class Prefab {
-    private loader: FBXLoader;
-    private readonly fileName: string;
-    private position: THREE.Vector3;
-    private object: THREE.Group | null;
+  private loader: FBXLoader;
+  private readonly fileName: string;
+  protected scene: THREE.Scene;
+  protected object: THREE.Group;
 
-    constructor(fileName: string, position: THREE.Vector3) {
-        this.position = position;
-        this.fileName = fileName;
-        this.object = null;
-        this.loader = new FBXLoader();
-    }
+  constructor(fileName: string, scene: THREE.Scene) {
+    this.fileName = fileName;
+    this.object = new THREE.Group();
+    this.loader = new FBXLoader();
+    this.scene = scene;
+  }
 
-    async Load() {
-       this.object = await this.loader.loadAsync(`src/Assets/models/${this.fileName}.fbx`)
-            .then(object => {
-                object.scale.set(0.01, 0.01, 0.01);
+  async Load() {
+    this.object = await this.loader
+      .loadAsync(`src/Assets/models/${this.fileName}.fbx`)
+      .then((object) => {
+        object.scale.set(0.01, 0.01, 0.01);
+        return object;
+      })
+      .catch(() => {
+        throw new Error("Failed to load " + this.fileName);
+      })
+      .finally(() => console.log("aaaa"));
+  }
 
-                return object;
-            }).catch(() => {
-            throw new Error('Failed to load ' + this.fileName )
-        }).finally(()=> console.log("aaaa"));
-    }
+  AddToScene(position?: THREE.Vector3) {
+    if (!this.object || !position) return;
+    console.log(this.constructor);
+    this.object = this.object.clone();
+    this.object.position.x = position.x;
+    this.object.position.y = position.y;
+    this.object.position.z = position.z;
+    this.scene.add(this.object);
+  }
 
-    AddToScene(scene: THREE.Scene,position:THREE.Vector3) {
-        if (!this.object) return;
-        this.object.position.x = position.x;
-        this.object.position.y = position.y;
-        this.object.position.z = position.z;
-        scene.add(this.object.clone());
-    }
-
-    _createAChildPrefab() {
-
-    }
-
-    _render(){
-
-    }
+  _render() {}
 }
 
 export default Prefab;
