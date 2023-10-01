@@ -5,12 +5,14 @@ import { VRButton } from "three/addons/webxr/VRButton.js";
 import Web from "./Web/web.ts";
 import AR from "./AR/ar.ts";
 import "./style.css";
-import Tower from "@/Assets/Tower.ts";
+import SpawnMonsterTower from "@/Assets/SceneObjects/SpawnMonsterTower.ts";
 import { Asset } from "@/type";
-import Monster from "@/Assets/Monster.ts";
+import Monster from "@/Assets/SceneObjects/Monster.ts";
 import { PREFABS } from "@/utils/utils.ts";
 import Prefab from "@/Assets/Prefab.ts";
-import PortalWeb from "@/Assets/PortalWeb.ts";
+import PortalWeb from "@/Assets/SceneObjects/PortalWeb.ts";
+import Tower from "@/Assets/SceneObjects/Tower.ts";
+import TowerShoot from "@/Assets/SceneObjects/TowerShoot.ts";
 
 class App {
   private readonly camera: THREE.PerspectiveCamera;
@@ -21,6 +23,11 @@ class App {
   private readonly assets: Asset[];
   constructor() {
     this.assets = [
+      {
+        asset: "SpawnMonsterTower",
+        position: new THREE.Vector3(80, 0, 96),
+        sceneObjectType: SpawnMonsterTower,
+      },
       {
         asset: "Tower",
         position: new THREE.Vector3(80, 0, 96),
@@ -35,6 +42,11 @@ class App {
         asset: "PortalWeb",
         position: new THREE.Vector3(0, 0, 0),
         sceneObjectType: PortalWeb,
+      },
+      {
+        asset: "TowerShoot",
+        position: new THREE.Vector3(0, 0, 0),
+        sceneObjectType: TowerShoot,
       },
     ];
     this.camera = new THREE.PerspectiveCamera(

@@ -1,10 +1,14 @@
 import * as THREE from "three";
 
 import { Asset } from "@/type";
-import Tower from "@/Assets/Tower.ts";
-import { PREFABS, SCENE_OBJECTS } from "@/utils/utils.ts";
-import Monster from "@/Assets/Monster.ts";
-import PortalWeb from "@/Assets/PortalWeb.ts";
+import SpawnMonsterTower from "@/Assets/SceneObjects/SpawnMonsterTower.ts";
+import {
+  instanceNewSceneObject,
+  PREFABS,
+  SCENE_OBJECTS,
+} from "@/utils/utils.ts";
+import PortalWeb from "@/Assets/SceneObjects/PortalWeb.ts";
+import Tower from "@/Assets/SceneObjects/Tower.ts";
 
 class Web {
   private readonly scene: THREE.Scene;
@@ -18,39 +22,39 @@ class Web {
     this.start = false;
     this.assets = [
       {
-        asset: "Tower",
+        asset: "SpawnMonsterTower",
         position: new THREE.Vector3(80, -1, 96),
-        sceneObjectType: Tower,
+        sceneObjectType: SpawnMonsterTower,
       },
       {
-        asset: "Tower",
+        asset: "SpawnMonsterTower",
         position: new THREE.Vector3(-90, -1, 71),
-        sceneObjectType: Tower,
+        sceneObjectType: SpawnMonsterTower,
       },
       {
-        asset: "Tower",
+        asset: "SpawnMonsterTower",
         position: new THREE.Vector3(10, -1, 82),
-        sceneObjectType: Tower,
+        sceneObjectType: SpawnMonsterTower,
       },
       {
-        asset: "Tower",
+        asset: "SpawnMonsterTower",
         position: new THREE.Vector3(-20, -1, 90),
-        sceneObjectType: Tower,
+        sceneObjectType: SpawnMonsterTower,
       },
       {
-        asset: "Tower",
+        asset: "SpawnMonsterTower",
         position: new THREE.Vector3(40, -1, 82),
-        sceneObjectType: Tower,
+        sceneObjectType: SpawnMonsterTower,
       },
       {
-        asset: "Tower",
+        asset: "SpawnMonsterTower",
         position: new THREE.Vector3(90, -1, 73),
-        sceneObjectType: Tower,
+        sceneObjectType: SpawnMonsterTower,
       },
       {
-        asset: "Tower",
+        asset: "SpawnMonsterTower",
         position: new THREE.Vector3(-32, -1, 62),
-        sceneObjectType: Tower,
+        sceneObjectType: SpawnMonsterTower,
       },
       {
         asset: "PortalWeb",
@@ -89,13 +93,14 @@ class Web {
 
       const intersects = raycaster.intersectObjects([plane]);
       if (intersects.length > 0) {
-        const cubeGeometry = new THREE.BoxGeometry();
-        const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-
-        cube.position.copy(intersects[0].point);
-
-        this.scene.add(cube);
+        // const cubeGeometry = new THREE.BoxGeometry();
+        // const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        // const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        //
+        // cube.position.copy(intersects[0].point);
+        //
+        // this.scene.add(cube);
+        instanceNewSceneObject("Tower", intersects[0].point, Tower, this.scene);
       }
     });
 

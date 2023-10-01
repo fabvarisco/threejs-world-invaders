@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import Prefab from "@/Assets/Prefab.ts";
 import { Group, Scene, Vector3 } from "three";
-import SceneObject from "@/Assets/SceneObject.ts";
+import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
 
 interface ISceneObjects {
   object: Group;

@@ -1,4 +1,4 @@
-import SceneObject from "@/Assets/SceneObject.ts";
+import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
 import { ISceneObjects } from "@/type";
 
 class PortalWeb extends SceneObject {
@@ -11,7 +11,6 @@ class PortalWeb extends SceneObject {
   }
 
   Render() {
-    super.Render();
     if (this.hp <= 0) {
       this.scene.remove(this.object);
     }

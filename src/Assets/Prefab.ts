@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
-import SceneObject from "@/Assets/SceneObject.ts";
+import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
 
 class Prefab {
   private loader: FBXLoader;
