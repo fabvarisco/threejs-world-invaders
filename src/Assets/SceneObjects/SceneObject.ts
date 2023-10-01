@@ -1,14 +1,4 @@
-import {
-  Box3,
-  Box3Helper,
-  BoxHelper,
-  Group,
-  LineBasicMaterial,
-  LineSegments,
-  Raycaster,
-  Scene,
-  Vector3,
-} from "three";
+import { Box3, Group, Scene, Vector3 } from "three";
 import { ISceneObjects } from "@/type";
 
 class SceneObject {

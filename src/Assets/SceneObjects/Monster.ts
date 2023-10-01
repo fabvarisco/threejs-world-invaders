@@ -5,7 +5,7 @@ import PortalWeb from "@/Assets/SceneObjects/PortalWeb.ts";
 import { Vector3 } from "three";
 
 class Monster extends SceneObject {
-  private portal: SceneObject | undefined;
+  private portal: SceneObject;
   constructor({ object, position, scene }: ISceneObjects) {
     super({ object: object, position: position, scene: scene });
     this.portal = this.getPortal();

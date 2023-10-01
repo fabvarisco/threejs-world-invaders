@@ -1,6 +1,7 @@
 import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
 import { Raycaster, Vector3 } from "three";
 import { ISceneObjects } from "@/type";
+import { SCENE_OBJECTS } from "@/utils/utils.ts";
 
 class TowerShoot extends SceneObject {
   private target: SceneObject | undefined;
@@ -13,18 +14,21 @@ class TowerShoot extends SceneObject {
   }
 
   checkCollision() {
+    // for (const item of this.collisionWith) {
+    //   const raycaster = new Raycaster(this.object.position, this.direction);
+    //   const intersections = raycaster.intersectObject(item.GetObject());
+    //   if (intersections.length > 0) {
+    //     console.log("collision");
+    //     this.scene.remove(item.GetObject());
+    //   }
+    // }
+
     for (const item of this.collisionWith) {
-      const raycaster = new Raycaster(this.object.position, this.direction);
-      const intersections = raycaster.intersectObject(item.GetObject());
-
-      if (intersections.length > 0) {
-        debugger;
+      if (item.GetObjectBox().intersectsBox(this.GetObjectBox())) {
+        console.log("collision");
+        this.scene.remove(item.GetObject());
       }
-
-      return intersections.length > 0;
     }
-
-    return false;
   }
 
   SetTarget(target: SceneObject) {
@@ -42,11 +46,7 @@ class TowerShoot extends SceneObject {
   Render() {
     if (this.target && this.direction) {
       this.object.position.add(this.direction);
-      if (this.checkCollision()) {
-        debugger;
-        this.scene.remove(this.object);
-        console.log("collision");
-      }
+      this.checkCollision();
     }
   }
 }
