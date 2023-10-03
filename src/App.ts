@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { ARButton } from "three/addons/webxr/ARButton.js";
-import { VRButton } from "three/addons/webxr/VRButton.js";
+//import { VRButton } from "three/addons/webxr/VRButton.js";
 import Web from "./Web/web.ts";
 import AR from "./AR/ar.ts";
 import "./style.css";
@@ -111,17 +111,17 @@ class App {
     startWebButton.className = "WebButton";
     document.body.appendChild(startWebButton);
 
-    const startVrButton = VRButton.createButton(this.renderer);
-    startVrButton.addEventListener("click", this._onStartVr.bind(this));
-    startVrButton.className = "VRButton";
-    document.body.appendChild(startVrButton);
+    // const startVrButton = VRButton.createButton(this.renderer);
+    // startVrButton.addEventListener("click", this._onStartVr.bind(this));
+    // startVrButton.className = "VRButton";
+    // document.body.appendChild(startVrButton);
   }
 
   private _onStartAr() {
-    this.activeGame = new AR(this.scene, this.renderer, this.camera);
+    this.activeGame = new AR(this.scene, this.renderer);
   }
 
-  private _onStartVr() {}
+  // private _onStartVr() {}
 
   private _onStartWeb() {
     this.activeGame = new Web(this.scene, this.camera);
@@ -133,11 +133,11 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  private _render(timestamp, frame) {
+  private _render(timestamp: any, frame: any) {
     if (this.activeGame) {
       this.activeGame.Render(timestamp, frame);
+      this.renderer.render(this.scene, this.camera);
     }
-    this.renderer.render(this.scene, this.camera);
   }
 }
 

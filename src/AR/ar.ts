@@ -1,7 +1,6 @@
 import {
   BoxGeometry,
   BufferGeometry,
-  Camera,
   Group,
   Mesh,
   MeshPhongMaterial,
@@ -16,11 +15,9 @@ class AR {
   private meshes: Mesh[];
   private geometry: BufferGeometry;
   private controller: Group;
-  private camera: Camera;
-  constructor(scene: Scene, renderer: WebGLRenderer, camera: Camera) {
+  constructor(scene: Scene, renderer: WebGLRenderer) {
     this.scene = scene;
     this.renderer = renderer;
-    this.camera = camera;
 
     this.geometry = new BoxGeometry(0.06, 0.06, 0.06);
     this.meshes = [];
@@ -42,12 +39,11 @@ class AR {
     mesh.userData.velocity.y = (Math.random() - 0.5) * 0.02;
     mesh.userData.velocity.z = Math.random() * 0.01 - 0.05;
     mesh.userData.velocity.applyQuaternion(this.controller.quaternion);
-    mesh.position.add(mesh.userData.velocity);
     this.scene.add(mesh);
     this.meshes.push(mesh);
   }
-
-  Render(timestamp, frame) {
+  //@ts-ignore
+  Render(timestamp: any, frame: any) {
     this.meshes.forEach((cube, index) => {
       cube.position.add(cube.userData.velocity);
 

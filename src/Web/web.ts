@@ -122,7 +122,8 @@ class Web {
     this.start = true;
   }
 
-  Render(timestamp, frame) {
+  //@ts-ignore
+  Render(timestamp: any, frame: any) {
     if (this.start) {
       for (const obj of SCENE_OBJECTS) {
         obj.Render();
