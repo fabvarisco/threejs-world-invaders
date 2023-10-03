@@ -1,5 +1,5 @@
 import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
-import { Vector3 } from "three";
+import { Box3, Vector3 } from "three";
 import { ISceneObjects } from "@/type";
 import { removeSceneObject } from "@/utils/utils.ts";
 
@@ -11,41 +11,19 @@ class TowerShoot extends SceneObject {
     scene: scene,
   }: ISceneObjects) {
     super({ object: object, position: position, scene: scene });
+    console.log("TowerShoot target", this.target);
   }
 
   checkCollision() {
-    // for (const item of this.collisionWith) {
-    //   const raycaster = new Raycaster(this.object.position, this.direction);
-    //   const intersections = raycaster.intersectObject(item.GetObject());
-    //   if (intersections.length > 0) {
-    //     console.log("collision");
-    //     this.scene.remove(item.GetObject());
-    //     this.scene.remove(this.object);
-    //     removeSceneObject(item);
-    //     removeSceneObject(this);
-    //     this.target = undefined;
-    //   }
-    // }
-    //
-    // for (const item of this.collisionWith) {
-    //   if (item.GetObjectBox().intersectsBox(this.GetObjectBox())) {
-    //     console.log("collision");
-    //     this.scene.remove(item.GetObject());
-    //     this.scene.remove(this.object);
-    //     removeSceneObject(item);
-    //     removeSceneObject(this);
-    //     this.target = undefined;
-    //   }
-    // }
-
     if (!this.target) return;
     this.object.position.add(this.direction);
 
-    const distance = this.target
-      ?.GetObject()
-      .position.distanceTo(this.object.position);
+    const shootBoundingBox = new Box3().setFromObject(this.object);
+    const monsterBoundingBox = new Box3().setFromObject(
+      this.target.GetObject(),
+    );
 
-    if (distance <= 1.0) {
+    if (shootBoundingBox.intersectsBox(monsterBoundingBox)) {
       this.scene.remove(this.target.GetObject());
       this.scene.remove(this.object);
       removeSceneObject(this.target);
@@ -56,7 +34,7 @@ class TowerShoot extends SceneObject {
   }
 
   SetTarget(target: SceneObject) {
-    if (this.target) return;
+    console.log("settarget", target);
     this.target = target;
     this.collisionWith.push(this.target);
     this.direction = new Vector3();

@@ -34,15 +34,9 @@ export function instanceNewTowerShoot(
 }
 
 export function removeSceneObject(object: SceneObject) {
-  console.log("antes", SCENE_OBJECTS);
-  debugger;
-
   for (let i = SCENE_OBJECTS.length; i--; ) {
     if (SCENE_OBJECTS[i].GetUID() === object.GetUID()) {
-      debugger;
       SCENE_OBJECTS.splice(i, 1);
     }
   }
-  console.log("dps", SCENE_OBJECTS);
-  debugger;
 }

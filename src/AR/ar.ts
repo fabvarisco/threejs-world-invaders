@@ -1,39 +1,64 @@
-import * as THREE from 'three';
+import {
+  BoxGeometry,
+  BufferGeometry,
+  Camera,
+  Group,
+  Mesh,
+  MeshPhongMaterial,
+  Scene,
+  Vector3,
+  WebGLRenderer,
+} from "three";
 
 class AR {
-    private scene: THREE.Scene;
-    private renderer: THREE.WebGLRenderer;
-    private meshes: THREE.Mesh[];
-    private geometry: THREE.BufferGeometry;
-    private controller: THREE.Group;
+  private scene: Scene;
+  private renderer: WebGLRenderer;
+  private meshes: Mesh[];
+  private geometry: BufferGeometry;
+  private controller: Group;
+  private camera: Camera;
+  constructor(scene: Scene, renderer: WebGLRenderer, camera: Camera) {
+    this.scene = scene;
+    this.renderer = renderer;
+    this.camera = camera;
 
-    constructor(scene:THREE.Scene, renderer: THREE.WebGLRenderer) {
-        this.scene = scene;
-        this.renderer = renderer;
+    this.geometry = new BoxGeometry(0.06, 0.06, 0.06);
+    this.meshes = [];
 
-        this.geometry = new THREE.BoxGeometry(0.06, 0.06, 0.06);
-        this.meshes = [];
+    this.controller = this.renderer.xr.getController(0) as Group;
+    this.controller.addEventListener("select", this._onSelect.bind(this));
+    this.scene.add(this.controller);
+  }
 
-        this.controller = this.renderer.xr.getController(0) as THREE.Group;
-        this.controller.addEventListener('select', this._onSelect.bind(this));
-        this.scene.add(this.controller);
+  private _onSelect() {
+    const material = new MeshPhongMaterial({
+      color: 0xffffff * Math.random(),
+    });
+    const mesh = new Mesh(this.geometry, material);
+    mesh.position.set(0, 0, -0.3).applyMatrix4(this.controller.matrixWorld);
+    mesh.quaternion.setFromRotationMatrix(this.controller.matrixWorld);
+    mesh.userData.velocity = new Vector3(0, 0, -0.1);
+    mesh.userData.velocity.x = (Math.random() - 0.5) * 0.02;
+    mesh.userData.velocity.y = (Math.random() - 0.5) * 0.02;
+    mesh.userData.velocity.z = Math.random() * 0.01 - 0.05;
+    mesh.userData.velocity.applyQuaternion(this.controller.quaternion);
+    mesh.position.add(mesh.userData.velocity);
+    this.scene.add(mesh);
+    this.meshes.push(mesh);
+  }
 
-    }
+  Render(timestamp, frame) {
+    this.meshes.forEach((cube, index) => {
+      cube.position.add(cube.userData.velocity);
 
-
-    private _onSelect() {
-        const material = new THREE.MeshPhongMaterial({ color: 0xffffff * Math.random() });
-        const mesh = new THREE.Mesh(this.geometry, material);
-        mesh.position.set(0, 0, -0.3).applyMatrix4(this.controller.matrixWorld);
-        mesh.quaternion.setFromRotationMatrix(this.controller.matrixWorld);
-        this.scene.add(mesh);
-        this.meshes.push(mesh);
-    }
-
-    Render(){
-
-    }
-
+      // Check for collision with hand or other objects
+      if (cube.position.distanceTo(this.controller.position) < 0.05) {
+        // Handle collision logic (e.g., remove cube, increase score)
+        this.scene.remove(cube);
+        this.meshes.splice(index, 1);
+      }
+    });
+  }
 }
 
 export default AR;

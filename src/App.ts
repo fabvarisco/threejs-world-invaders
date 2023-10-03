@@ -69,8 +69,6 @@ class App {
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: document.getElementById("app") as HTMLCanvasElement,
-      antialias: true,
-      alpha: true,
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -101,9 +99,7 @@ class App {
   }
 
   private _createButtons() {
-    const startArButton = ARButton.createButton(this.renderer, {
-      requiredFeatures: ["hit-test"],
-    });
+    const startArButton = ARButton.createButton(this.renderer, {});
     startArButton.addEventListener("click", this._onStartAr.bind(this));
     document.body.appendChild(startArButton);
 
@@ -122,7 +118,7 @@ class App {
   }
 
   private _onStartAr() {
-    this.activeGame = new AR(this.scene, this.renderer);
+    this.activeGame = new AR(this.scene, this.renderer, this.camera);
   }
 
   private _onStartVr() {}
@@ -137,9 +133,9 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  private _render() {
+  private _render(timestamp, frame) {
     if (this.activeGame) {
-      this.activeGame.Render();
+      this.activeGame.Render(timestamp, frame);
     }
     this.renderer.render(this.scene, this.camera);
   }

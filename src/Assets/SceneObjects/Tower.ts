@@ -10,28 +10,31 @@ class Tower extends SceneObject {
 
   constructor({ object, position, scene }: ISceneObjects) {
     super({ object: object, position: position, scene: scene });
-    this.initShootTimer = 100;
+    this.initShootTimer = 150;
     this.shootTimer = this.initShootTimer;
     this.target = null;
   }
 
   private getTarget() {
-    const list = SCENE_OBJECTS.filter((el) => el.constructor === Monster);
-    list.map((monster) => {
+    const monster = SCENE_OBJECTS.find((el) => el.constructor === Monster);
+    if (monster) {
+      console.log("monster", monster);
       const distance = monster
         ?.GetObject()
         .position.distanceTo(this.object.position);
       if (distance <= 100) {
         this.target = monster;
+        console.log("target", this.target);
       }
-    });
+    }
   }
 
   Render() {
-    this.getTarget();
-    if (this.target) {
+    if (!this.target) {
+      this.getTarget();
+    } else {
       this.shootTimer -= 1;
-      if (this.shootTimer <= 0) {
+      if (this.shootTimer <= 0 && this.target) {
         instanceNewTowerShoot(
           "TowerShoot",
           this.object?.position,

@@ -122,7 +122,7 @@ class Web {
     this.start = true;
   }
 
-  Render() {
+  Render(timestamp, frame) {
     if (this.start) {
       for (const obj of SCENE_OBJECTS) {
         obj.Render();
