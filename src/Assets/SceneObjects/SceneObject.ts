@@ -1,5 +1,6 @@
 import { Box3, Group, Scene, Vector3 } from "three";
 import { ISceneObjects } from "@/type";
+import { v4 as uuidv4 } from "uuid";
 
 class SceneObject {
   protected object: Group;
@@ -8,6 +9,7 @@ class SceneObject {
   protected direction: Vector3;
   protected collisionBox: Box3;
   protected collisionWith: SceneObject[];
+  protected uid: any;
   constructor({ object, position, scene }: ISceneObjects) {
     this.object = object.clone();
     this.position = position || null;
@@ -21,6 +23,7 @@ class SceneObject {
       this.object.position.z = this.position.z;
     }
 
+    this.uid = uuidv4();
     this.scene.add(this.object);
   }
 
@@ -34,6 +37,9 @@ class SceneObject {
     return this.collisionBox;
   }
 
+  GetUID() {
+    return this.uid;
+  }
   Destroy() {
     this.scene.remove(this.object);
   }

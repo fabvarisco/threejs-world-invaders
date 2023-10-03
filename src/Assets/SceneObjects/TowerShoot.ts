@@ -1,7 +1,7 @@
 import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
-import { Raycaster, Vector3 } from "three";
+import { Vector3 } from "three";
 import { ISceneObjects } from "@/type";
-import { SCENE_OBJECTS } from "@/utils/utils.ts";
+import { removeSceneObject } from "@/utils/utils.ts";
 
 class TowerShoot extends SceneObject {
   private target: SceneObject | undefined;
@@ -20,14 +20,38 @@ class TowerShoot extends SceneObject {
     //   if (intersections.length > 0) {
     //     console.log("collision");
     //     this.scene.remove(item.GetObject());
+    //     this.scene.remove(this.object);
+    //     removeSceneObject(item);
+    //     removeSceneObject(this);
+    //     this.target = undefined;
+    //   }
+    // }
+    //
+    // for (const item of this.collisionWith) {
+    //   if (item.GetObjectBox().intersectsBox(this.GetObjectBox())) {
+    //     console.log("collision");
+    //     this.scene.remove(item.GetObject());
+    //     this.scene.remove(this.object);
+    //     removeSceneObject(item);
+    //     removeSceneObject(this);
+    //     this.target = undefined;
     //   }
     // }
 
-    for (const item of this.collisionWith) {
-      if (item.GetObjectBox().intersectsBox(this.GetObjectBox())) {
-        console.log("collision");
-        this.scene.remove(item.GetObject());
-      }
+    if (!this.target) return;
+    this.object.position.add(this.direction);
+
+    const distance = this.target
+      ?.GetObject()
+      .position.distanceTo(this.object.position);
+
+    if (distance <= 1.0) {
+      this.scene.remove(this.target.GetObject());
+      this.scene.remove(this.object);
+      removeSceneObject(this.target);
+      removeSceneObject(this);
+      this.target = undefined;
+      console.log(this.target);
     }
   }
 
@@ -44,7 +68,7 @@ class TowerShoot extends SceneObject {
   }
 
   Render() {
-    if (this.target && this.direction) {
+    if (this.target) {
       this.object.position.add(this.direction);
       this.checkCollision();
     }

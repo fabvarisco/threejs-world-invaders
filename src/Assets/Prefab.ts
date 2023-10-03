@@ -30,8 +30,7 @@ class Prefab {
       })
       .catch(() => {
         throw new Error("Failed to load " + this.fileName);
-      })
-      .finally(() => console.log("aaaa"));
+      });
   }
   GetObject() {
     return this.object;

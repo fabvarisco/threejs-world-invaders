@@ -2,7 +2,6 @@ import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
 import { ISceneObjects } from "@/type";
 import { instanceNewTowerShoot, SCENE_OBJECTS } from "@/utils/utils.ts";
 import Monster from "@/Assets/SceneObjects/Monster.ts";
-import { Group } from "three";
 
 class Tower extends SceneObject {
   private shootTimer: number;
@@ -11,7 +10,7 @@ class Tower extends SceneObject {
 
   constructor({ object, position, scene }: ISceneObjects) {
     super({ object: object, position: position, scene: scene });
-    this.initShootTimer = Math.random() * 500;
+    this.initShootTimer = 100;
     this.shootTimer = this.initShootTimer;
     this.target = null;
   }
@@ -40,6 +39,7 @@ class Tower extends SceneObject {
           this.target,
         );
         this.shootTimer = this.initShootTimer;
+        this.target = null;
       }
     }
   }

@@ -1,5 +1,5 @@
 import Prefab from "@/Assets/Prefab.ts";
-import { Group, Scene, Vector3 } from "three";
+import { Scene, Vector3 } from "three";
 import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
 import TowerShoot from "@/Assets/SceneObjects/TowerShoot.ts";
 export const PREFABS: { [k: string]: Prefab } = {};
@@ -31,4 +31,18 @@ export function instanceNewTowerShoot(
   });
   obj.SetTarget(target);
   SCENE_OBJECTS.push(obj);
+}
+
+export function removeSceneObject(object: SceneObject) {
+  console.log("antes", SCENE_OBJECTS);
+  debugger;
+
+  for (let i = SCENE_OBJECTS.length; i--; ) {
+    if (SCENE_OBJECTS[i].GetUID() === object.GetUID()) {
+      debugger;
+      SCENE_OBJECTS.splice(i, 1);
+    }
+  }
+  console.log("dps", SCENE_OBJECTS);
+  debugger;
 }
