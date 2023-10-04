@@ -14,18 +14,24 @@ class AR {
   private renderer: WebGLRenderer;
   private meshes: Mesh[];
   private monsters: Mesh[];
-
+  private xrSession: XRSession | null;
+  private xrReferenceSpace: XRReferenceSpace | null | undefined;
   private readonly geometry: BufferGeometry;
   private readonly controller: Group;
+  private playerPosition: Vector3;
   constructor(scene: Scene, renderer: WebGLRenderer) {
     this.scene = scene;
     this.renderer = renderer;
+    this.xrSession = null;
 
     this.geometry = new BoxGeometry(0.06, 0.06, 0.06);
     this.meshes = [];
     this.monsters = [];
     this.controller = this.renderer.xr.getController(0) as Group;
+    this.controller.userData.position = this.controller.position;
+
     this.controller.addEventListener("select", this._onSelect.bind(this));
+    this.playerPosition = this.controller.position;
     this.scene.add(this.controller);
   }
 
@@ -52,7 +58,6 @@ class AR {
     this.spawnMonster();
     this.spawnMonster();
     this.spawnMonster();
-    console.log(this.controller);
   }
 
   spawnMonster() {
@@ -60,12 +65,12 @@ class AR {
       color: 0xffffff * Math.random(),
     });
     const monster = new Mesh(this.geometry, material);
-    const minX = -5; // Limite mínimo X
-    const maxX = 5; // Limite máximo X
-    const minY = 0; // Limite mínimo Y (altura)
-    const maxY = 2; // Limite máximo Y (altura)
-    const minZ = -5; // Limite mínimo Z
-    const maxZ = 5; // Limite máximo Z
+    const minX = -5;
+    const maxX = 5;
+    const minY = 0;
+    const maxY = 2;
+    const minZ = -5;
+    const maxZ = 5;
 
     monster.position.x = Math.random() * (maxX - minX) + minX;
     monster.position.y = Math.random() * (maxY - minY) + minY;
@@ -78,14 +83,53 @@ class AR {
     const speed = 0.01;
 
     const direction = new Vector3();
-    direction.subVectors(this.controller.position, monster.position);
+    direction.subVectors(this.playerPosition, monster.position);
     direction.normalize();
 
     monster.position.addScaledVector(direction, speed);
   }
 
+  // private async initSession() {
+  //   this.xrSession = this.renderer.xr.getSession();
+  //   this.xrReferenceSpace =
+  //     await this.xrSession?.requestReferenceSpace("viewer");
+  //
+  //   const onEnd = () => {
+  //     this.xrReferenceSpace = null;
+  //   };
+  //   console.log("this.xrSession");
+  //
+  //   console.log(this.xrSession);
+  //   this.xrSession?.addEventListener("end", onEnd.bind(this));
+  // }
+
   //@ts-ignore
   Render(timestamp: any, frame: any) {
+    if (!this.xrSession) {
+      const session = this.renderer.xr.getSession();
+      session
+        ?.requestReferenceSpace("local")
+        .then((xrRefenceSpace) => {
+          this.xrReferenceSpace = xrRefenceSpace;
+          this.xrSession = session;
+        })
+        .catch((error) => {
+          console.error("Failed to create XR session: ", error);
+        });
+    }
+
+    if (this.xrReferenceSpace) {
+      const pose = frame.getViewerPose(this.xrReferenceSpace);
+
+      if (pose) {
+        const position = pose.transform.position;
+        const orientation = pose.transform.orientation;
+        console.log(position);
+        console.log(orientation);
+        this.playerPosition = position;
+        // Use position and orientation data as needed.
+      }
+    }
     this.meshes.forEach((cube, index) => {
       cube.position.add(cube.userData.velocity);
 
