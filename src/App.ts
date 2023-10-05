@@ -4,14 +4,10 @@ import { ARButton } from "three/addons/webxr/ARButton.js";
 import Web from "./Web/web.ts";
 import AR from "./AR/ar.ts";
 import "./style.css";
-import SpawnMonsterTower from "@/Assets/SceneObjects/SpawnMonsterTower.ts";
 import { Asset } from "@/type";
-import Monster from "@/Assets/SceneObjects/Monster.ts";
 import { PREFABS } from "@/utils/utils.ts";
 import Prefab from "@/Assets/Prefab.ts";
-import PortalWeb from "@/Assets/SceneObjects/PortalWeb.ts";
-import Tower from "@/Assets/SceneObjects/Tower.ts";
-import TowerShoot from "@/Assets/SceneObjects/TowerShoot.ts";
+
 import AngrySlime from "@/Assets/SceneObjects/AngrySlime.ts";
 import Bee from "@/Assets/SceneObjects/Bee.ts";
 
@@ -24,31 +20,6 @@ class App {
   private readonly assets: Asset[];
   constructor() {
     this.assets = [
-      {
-        asset: "SpawnMonsterTower",
-        position: new THREE.Vector3(80, 0, 96),
-        sceneObjectType: SpawnMonsterTower,
-      },
-      {
-        asset: "Tower",
-        position: new THREE.Vector3(80, 0, 96),
-        sceneObjectType: Tower,
-      },
-      {
-        asset: "Monster",
-        position: new THREE.Vector3(0, 0, 0),
-        sceneObjectType: Monster,
-      },
-      {
-        asset: "PortalWeb",
-        position: new THREE.Vector3(0, 0, 0),
-        sceneObjectType: PortalWeb,
-      },
-      {
-        asset: "TowerShoot",
-        position: new THREE.Vector3(0, 0, 0),
-        sceneObjectType: TowerShoot,
-      },
       {
         asset: "AngrySlime",
         position: new THREE.Vector3(0, 0, 0),

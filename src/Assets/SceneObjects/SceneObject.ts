@@ -1,6 +1,7 @@
 import { Box3, Group, Scene, Vector3 } from "three";
 import { ISceneObjects } from "@/type";
 import { v4 as uuidv4 } from "uuid";
+import { removeSceneObject } from "@/utils/utils.ts";
 
 class SceneObject {
   protected object: Group;
@@ -42,6 +43,7 @@ class SceneObject {
   }
   Destroy() {
     this.scene.remove(this.object);
+    removeSceneObject(this);
   }
 }
 

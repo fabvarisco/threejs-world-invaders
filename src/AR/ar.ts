@@ -8,30 +8,43 @@ import {
   Vector3,
   WebGLRenderer,
 } from "three";
+import {
+  DEVICE_POSITION,
+  instanceNewSceneObject,
+  SCENE_OBJECTS,
+} from "@/utils/utils.ts";
+import Monster from "@/Assets/SceneObjects/Monster.ts";
 
 class AR {
-  private scene: Scene;
-  private renderer: WebGLRenderer;
-  private meshes: Mesh[];
-  private monsters: Mesh[];
+  private readonly scene: Scene;
   private xrSession: XRSession | null;
-  private xrReferenceSpace: XRReferenceSpace | null | undefined;
   private readonly geometry: BufferGeometry;
   private readonly controller: Group;
-  private playerPosition: Vector3;
+  private renderer: WebGLRenderer;
+  private meshes: Mesh[];
+  private xrReferenceSpace: XRReferenceSpace | null | undefined;
+  private spawnTimer: number;
+  private readonly initSpawnTimer: number;
   constructor(scene: Scene, renderer: WebGLRenderer) {
     this.scene = scene;
     this.renderer = renderer;
     this.xrSession = null;
 
+    this.initSpawnTimer = 1000;
+    this.spawnTimer = this.initSpawnTimer;
+
     this.geometry = new BoxGeometry(0.06, 0.06, 0.06);
     this.meshes = [];
-    this.monsters = [];
     this.controller = this.renderer.xr.getController(0) as Group;
     this.controller.userData.position = this.controller.position;
-
     this.controller.addEventListener("select", this._onSelect.bind(this));
-    this.playerPosition = this.controller.position;
+
+    DEVICE_POSITION.set(
+      this.controller.position.x,
+      this.controller.position.y,
+      this.controller.position.z,
+    );
+
     this.scene.add(this.controller);
   }
 
@@ -52,10 +65,6 @@ class AR {
   }
 
   spawnMonster() {
-    const material = new MeshPhongMaterial({
-      color: 0xffffff * Math.random(),
-    });
-    const monster = new Mesh(this.geometry, material);
     const minX = -5;
     const maxX = 5;
     const minY = 0;
@@ -63,21 +72,11 @@ class AR {
     const minZ = -5;
     const maxZ = 5;
 
-    monster.position.x = Math.random() * (maxX - minX) + minX;
-    monster.position.y = Math.random() * (maxY - minY) + minY;
-    monster.position.z = Math.random() * (maxZ - minZ) + minZ;
-    this.monsters.push(monster);
-    this.scene.add(monster);
-  }
-
-  updateMonster(monster: any) {
-    const speed = 0.01;
-
-    const direction = new Vector3();
-    direction.subVectors(this.playerPosition, monster.position);
-    direction.normalize();
-
-    monster.position.addScaledVector(direction, speed);
+    const position: Vector3 = new Vector3(0, 0, 0);
+    position.x = Math.random() * (maxX - minX) + minX;
+    position.y = Math.random() * (maxY - minY) + minY;
+    position.z = Math.random() * (maxZ - minZ) + minZ;
+    instanceNewSceneObject("Bee", position, Monster, this.scene);
   }
 
   // private async initSession() {
@@ -96,12 +95,19 @@ class AR {
 
   //@ts-ignore
   Render(timestamp: any, frame: any) {
+    for (const obj of SCENE_OBJECTS) {
+      obj.Render();
+    }
+    if (this.spawnTimer <= 0) {
+      this.spawnMonster();
+      this.spawnTimer = this.initSpawnTimer;
+    }
     if (!this.xrSession) {
       const session = this.renderer.xr.getSession();
       session
         ?.requestReferenceSpace("local")
-        .then((xrRefenceSpace) => {
-          this.xrReferenceSpace = xrRefenceSpace;
+        .then((xrReferenceSpace) => {
+          this.xrReferenceSpace = xrReferenceSpace;
           this.xrSession = session;
         })
         .catch((error) => {
@@ -110,15 +116,12 @@ class AR {
     }
 
     if (this.xrReferenceSpace) {
-      const pose = frame.getViewerPose(this.xrReferenceSpace);
+      const {
+        transform: { position },
+      } = frame.getViewerPose(this.xrReferenceSpace);
 
-      if (pose) {
-        const position = pose.transform.position;
-        const orientation = pose.transform.orientation;
-        console.log(position);
-        console.log(orientation);
-        this.playerPosition = position;
-        // Use position and orientation data as needed.
+      if (position) {
+        DEVICE_POSITION.set(position.x, position.y, position.z);
       }
     }
     this.meshes.forEach((cube, index) => {
@@ -129,10 +132,7 @@ class AR {
         this.meshes.splice(index, 1);
       }
     });
-
-    this.monsters.forEach((monster) => {
-      this.updateMonster(monster);
-    });
+    this.spawnTimer -= 1;
   }
 }
 

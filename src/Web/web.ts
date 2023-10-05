@@ -1,14 +1,7 @@
 import * as THREE from "three";
 
 import { Asset } from "@/type";
-import SpawnMonsterTower from "@/Assets/SceneObjects/SpawnMonsterTower.ts";
-import {
-  instanceNewSceneObject,
-  PREFABS,
-  SCENE_OBJECTS,
-} from "@/utils/utils.ts";
-import PortalWeb from "@/Assets/SceneObjects/PortalWeb.ts";
-import Tower from "@/Assets/SceneObjects/Tower.ts";
+import { PREFABS, SCENE_OBJECTS } from "@/utils/utils.ts";
 
 class Web {
   private readonly scene: THREE.Scene;
@@ -20,48 +13,7 @@ class Web {
     this.scene = scene;
     this.camera = camera;
     this.start = false;
-    this.assets = [
-      {
-        asset: "SpawnMonsterTower",
-        position: new THREE.Vector3(80, -1, 96),
-        sceneObjectType: SpawnMonsterTower,
-      },
-      {
-        asset: "SpawnMonsterTower",
-        position: new THREE.Vector3(-90, -1, 71),
-        sceneObjectType: SpawnMonsterTower,
-      },
-      {
-        asset: "SpawnMonsterTower",
-        position: new THREE.Vector3(10, -1, 82),
-        sceneObjectType: SpawnMonsterTower,
-      },
-      {
-        asset: "SpawnMonsterTower",
-        position: new THREE.Vector3(-20, -1, 90),
-        sceneObjectType: SpawnMonsterTower,
-      },
-      {
-        asset: "SpawnMonsterTower",
-        position: new THREE.Vector3(40, -1, 82),
-        sceneObjectType: SpawnMonsterTower,
-      },
-      {
-        asset: "SpawnMonsterTower",
-        position: new THREE.Vector3(90, -1, 73),
-        sceneObjectType: SpawnMonsterTower,
-      },
-      {
-        asset: "SpawnMonsterTower",
-        position: new THREE.Vector3(-32, -1, 62),
-        sceneObjectType: SpawnMonsterTower,
-      },
-      {
-        asset: "PortalWeb",
-        position: new THREE.Vector3(0, -1, -90),
-        sceneObjectType: PortalWeb,
-      },
-    ];
+    this.assets = [];
 
     const plane = new THREE.Mesh(
       new THREE.PlaneGeometry(200, 200),
@@ -100,7 +52,7 @@ class Web {
         // cube.position.copy(intersects[0].point);
         //
         // this.scene.add(cube);
-        instanceNewSceneObject("Tower", intersects[0].point, Tower, this.scene);
+        //instanceNewSceneObject("Tower", intersects[0].point, Tower, this.scene);
       }
     });
 

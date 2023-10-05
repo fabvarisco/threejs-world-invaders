@@ -1,43 +1,24 @@
 import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
 import { ISceneObjects } from "@/type";
-import { removeSceneObject, SCENE_OBJECTS } from "@/utils/utils.ts";
-import PortalWeb from "@/Assets/SceneObjects/PortalWeb.ts";
 import { Vector3 } from "three";
+import { DEVICE_POSITION } from "@/utils/utils.ts";
 
 class Monster extends SceneObject {
-  private portal: SceneObject | undefined;
   constructor({ object, position, scene }: ISceneObjects) {
     super({ object: object, position: position, scene: scene });
-    this.portal = this.getPortal();
-    this.direction = new Vector3();
-    this.direction.subVectors(
-      <Vector3>this.portal?.GetObject().position,
-      this.object.position,
-    );
-    this.direction.normalize().multiplyScalar(0.05);
   }
+  updatePos() {
+    const speed = 0.01;
 
-  private getPortal() {
-    return SCENE_OBJECTS.find((item) => item.constructor === PortalWeb);
-  }
-  private moveToPortal() {
-    if (!this.portal) return;
-    this.object.position.add(this.direction);
+    const direction = new Vector3();
+    direction.subVectors(DEVICE_POSITION, this.object.position);
+    direction.normalize();
 
-    const distance = this.portal
-      ?.GetObject()
-      .position.distanceTo(this.object.position);
-    if (distance <= 1.0) {
-      this.scene.remove(this.object);
-      removeSceneObject(this);
-    }
+    this.object.position.addScaledVector(direction, speed);
   }
 
   Render() {
-    if (!this.portal) {
-      this.portal = this.getPortal();
-    }
-    this.moveToPortal();
+    this.updatePos();
   }
 }
 export default Monster;
