@@ -8,12 +8,7 @@ import {
   Vector3,
   WebGLRenderer,
 } from "three";
-import {
-  DEVICE_POSITION,
-  instanceNewSceneObject,
-  SCENE_OBJECTS,
-} from "@/utils/utils.ts";
-import Monster from "@/Assets/SceneObjects/Monster.ts";
+import { DEVICE_POSITION, SCENE_OBJECTS } from "@/utils/utils.ts";
 
 class AR {
   private readonly scene: Scene;
