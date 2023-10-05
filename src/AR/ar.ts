@@ -49,15 +49,6 @@ class AR {
     mesh.userData.velocity.applyQuaternion(this.controller.quaternion);
     this.scene.add(mesh);
     this.meshes.push(mesh);
-
-    this.spawnMonster();
-    this.spawnMonster();
-    this.spawnMonster();
-    this.spawnMonster();
-    this.spawnMonster();
-    this.spawnMonster();
-    this.spawnMonster();
-    this.spawnMonster();
   }
 
   spawnMonster() {

@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { ARButton } from "three/addons/webxr/ARButton.js";
-//import { VRButton } from "three/addons/webxr/VRButton.js";
 import Web from "./Web/web.ts";
 import AR from "./AR/ar.ts";
 import "./style.css";
@@ -13,6 +12,8 @@ import Prefab from "@/Assets/Prefab.ts";
 import PortalWeb from "@/Assets/SceneObjects/PortalWeb.ts";
 import Tower from "@/Assets/SceneObjects/Tower.ts";
 import TowerShoot from "@/Assets/SceneObjects/TowerShoot.ts";
+import AngrySlime from "@/Assets/SceneObjects/AngrySlime.ts";
+import Bee from "@/Assets/SceneObjects/Bee.ts";
 
 class App {
   private readonly camera: THREE.PerspectiveCamera;
@@ -47,6 +48,16 @@ class App {
         asset: "TowerShoot",
         position: new THREE.Vector3(0, 0, 0),
         sceneObjectType: TowerShoot,
+      },
+      {
+        asset: "AngrySlime",
+        position: new THREE.Vector3(0, 0, 0),
+        sceneObjectType: AngrySlime,
+      },
+      {
+        asset: "Bee",
+        position: new THREE.Vector3(0, 0, 0),
+        sceneObjectType: Bee,
       },
     ];
     this.camera = new THREE.PerspectiveCamera(
