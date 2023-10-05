@@ -76,7 +76,7 @@ class AR {
     position.x = Math.random() * (maxX - minX) + minX;
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
-    instanceNewSceneObject("Bee", position, Monster, this.scene);
+    //instanceNewSceneObject("Bee", position, Monster, this.scene);
   }
 
   // private async initSession() {
