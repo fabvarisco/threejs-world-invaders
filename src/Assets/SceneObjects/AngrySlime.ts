@@ -5,7 +5,5 @@ class AngrySlime extends SceneObject {
   constructor({ object, position, scene }: ISceneObjects) {
     super({ object: object, position: position, scene: scene });
   }
-
-  Render() {}
 }
 export default AngrySlime;

@@ -8,7 +8,12 @@ import {
   Vector3,
   WebGLRenderer,
 } from "three";
-import { DEVICE_POSITION, SCENE_OBJECTS } from "@/utils/utils.ts";
+import {
+  DEVICE_POSITION,
+  instanceNewSceneObject,
+  SCENE_OBJECTS,
+} from "@/utils/utils.ts";
+import Bee from "@/Assets/SceneObjects/Bee.ts";
 
 class AR {
   private readonly scene: Scene;
@@ -71,7 +76,7 @@ class AR {
     position.x = Math.random() * (maxX - minX) + minX;
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
-    //instanceNewSceneObject("Bee", position, Monster, this.scene);
+    instanceNewSceneObject("Bee", position, Bee, this.scene);
   }
 
   // private async initSession() {

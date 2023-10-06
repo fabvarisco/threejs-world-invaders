@@ -1,7 +1,7 @@
-import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
 import { ISceneObjects } from "@/type";
+import Monster from "@/Assets/SceneObjects/Monster.ts";
 
-class Bee extends SceneObject {
+class Bee extends Monster {
   constructor({ object, position, scene }: ISceneObjects) {
     super({ object: object, position: position, scene: scene });
   }
