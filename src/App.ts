@@ -10,6 +10,7 @@ import Prefab from "@/Assets/Prefab.ts";
 
 import AngrySlime from "@/Assets/SceneObjects/AngrySlime.ts";
 import Bee from "@/Assets/SceneObjects/Bee.ts";
+import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
 
 class App {
   private readonly camera: THREE.PerspectiveCamera;
@@ -29,6 +30,11 @@ class App {
         asset: "Bee",
         position: new THREE.Vector3(0, 0, 0),
         sceneObjectType: Bee,
+      },
+      {
+        asset: "PlayerShoot",
+        position: new THREE.Vector3(0, 0, 0),
+        sceneObjectType: PlayerShoot,
       },
     ];
     this.camera = new THREE.PerspectiveCamera(

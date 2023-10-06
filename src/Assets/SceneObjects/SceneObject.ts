@@ -43,7 +43,7 @@ class SceneObject {
   }
   Destroy() {
     this.scene.remove(this.object);
-    removeSceneObject(this);
+    removeSceneObject(this, this.scene);
   }
 }
 

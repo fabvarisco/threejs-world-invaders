@@ -1,15 +1,7 @@
-import {
-  BoxGeometry,
-  BufferGeometry,
-  Group,
-  Mesh,
-  MeshPhongMaterial,
-  Scene,
-  Vector3,
-  WebGLRenderer,
-} from "three";
+import { Group, Scene, Vector3, WebGLRenderer } from "three";
 import {
   DEVICE_POSITION,
+  instanceNewPlayerShoot,
   instanceNewSceneObject,
   SCENE_OBJECTS,
 } from "@/utils/utils.ts";
@@ -18,10 +10,8 @@ import Bee from "@/Assets/SceneObjects/Bee.ts";
 class AR {
   private readonly scene: Scene;
   private xrSession: XRSession | null;
-  private readonly geometry: BufferGeometry;
   private readonly controller: Group;
   private renderer: WebGLRenderer;
-  private meshes: Mesh[];
   private xrReferenceSpace: XRReferenceSpace | null | undefined;
   private spawnTimer: number;
   private readonly initSpawnTimer: number;
@@ -33,8 +23,6 @@ class AR {
     this.initSpawnTimer = 1000;
     this.spawnTimer = this.initSpawnTimer;
 
-    this.geometry = new BoxGeometry(0.06, 0.06, 0.06);
-    this.meshes = [];
     this.controller = this.renderer.xr.getController(0) as Group;
     this.controller.userData.position = this.controller.position;
     this.controller.addEventListener("select", this._onSelect.bind(this));
@@ -49,19 +37,21 @@ class AR {
   }
 
   private _onSelect() {
-    const material = new MeshPhongMaterial({
-      color: 0xffffff * Math.random(),
-    });
-    const mesh = new Mesh(this.geometry, material);
-    mesh.position.set(0, 0, -0.3).applyMatrix4(this.controller.matrixWorld);
-    mesh.quaternion.setFromRotationMatrix(this.controller.matrixWorld);
-    mesh.userData.velocity = new Vector3(0, 0, -0.1);
-    mesh.userData.velocity.x = (Math.random() - 0.5) * 0.02;
-    mesh.userData.velocity.y = (Math.random() - 0.5) * 0.02;
-    mesh.userData.velocity.z = Math.random() * 0.01 - 0.05;
-    mesh.userData.velocity.applyQuaternion(this.controller.quaternion);
-    this.scene.add(mesh);
-    this.meshes.push(mesh);
+    const position = new Vector3()
+      .set(0, 0, -0.3)
+      .applyMatrix4(this.controller.matrixWorld);
+    const velocity = new Vector3(0, 0, -0.1);
+    velocity.x = (Math.random() - 0.5) * 0.02;
+    velocity.y = (Math.random() - 0.5) * 0.02;
+    velocity.z = Math.random() * 0.01 - 0.05;
+    velocity.applyQuaternion(this.controller.quaternion);
+    instanceNewPlayerShoot(
+      "PlayerShoot",
+      position,
+      this.scene,
+      velocity,
+      this.controller,
+    );
   }
 
   spawnMonster() {
@@ -124,13 +114,6 @@ class AR {
         DEVICE_POSITION.set(position.x, position.y, position.z);
       }
     }
-    this.meshes.forEach((cube, index) => {
-      cube.position.add(cube.userData.velocity);
-      if (cube.position.distanceTo(this.controller.position) < 0.05) {
-        this.scene.remove(cube);
-        this.meshes.splice(index, 1);
-      }
-    });
     this.spawnTimer -= 1;
   }
 }
