@@ -4,8 +4,13 @@ import { Vector3 } from "three";
 import { DEVICE_POSITION } from "@/utils/utils.ts";
 
 class Monster extends SceneObject {
-  constructor({ object, position, scene }: ISceneObjects) {
-    super({ object: object, position: position, scene: scene });
+  constructor({ object, scene, args }: ISceneObjects) {
+    super({ object, scene, args });
+    this.object.position.set(
+      this.args.position!.x,
+      this.args.position!.y,
+      this.args.position!.z,
+    );
   }
   updatePos() {
     const speed = 0.01;
@@ -21,10 +26,13 @@ class Monster extends SceneObject {
     const distance = DEVICE_POSITION.distanceTo(this.object.position);
     if (distance <= 1.0) {
       this.Destroy();
+      console.log(DEVICE_POSITION);
+      console.log(this.object.position);
     }
   }
 
   Render() {
+    console.log("monster");
     this.updatePos();
   }
 }

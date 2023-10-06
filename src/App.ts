@@ -23,17 +23,14 @@ class App {
     this.assets = [
       {
         asset: "AngrySlime",
-        position: new THREE.Vector3(0, 0, 0),
         sceneObjectType: AngrySlime,
       },
       {
         asset: "Bee",
-        position: new THREE.Vector3(0, 0, 0),
         sceneObjectType: Bee,
       },
       {
         asset: "PlayerShoot",
-        position: new THREE.Vector3(0, 0, 0),
         sceneObjectType: PlayerShoot,
       },
     ];
@@ -72,8 +69,8 @@ class App {
 
   private async _init() {
     console.log("Loading...");
-    for (const { asset, sceneObjectType } of this.assets) {
-      const prefab = new Prefab(asset, this.scene, sceneObjectType);
+    for (const { asset } of this.assets) {
+      const prefab = new Prefab(asset);
       await prefab.Load();
       PREFABS[asset] = prefab;
     }

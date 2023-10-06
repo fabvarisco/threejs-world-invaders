@@ -1,11 +1,11 @@
 import { Group, Scene, Vector3, WebGLRenderer } from "three";
 import {
   DEVICE_POSITION,
-  instanceNewPlayerShoot,
   instanceNewSceneObject,
   SCENE_OBJECTS,
 } from "@/utils/utils.ts";
 import Bee from "@/Assets/SceneObjects/Bee.ts";
+import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
 
 class AR {
   private readonly scene: Scene;
@@ -45,51 +45,42 @@ class AR {
     velocity.y = (Math.random() - 0.5) * 0.02;
     velocity.z = Math.random() * 0.01 - 0.05;
     velocity.applyQuaternion(this.controller.quaternion);
-    instanceNewPlayerShoot(
-      "PlayerShoot",
+    instanceNewSceneObject("PlayerShoot", PlayerShoot, this.scene, {
       position,
-      this.scene,
       velocity,
-      this.controller,
-    );
+      controller: this.controller,
+    });
   }
 
   spawnMonster() {
-    const minX = -5;
-    const maxX = 5;
+    const minX = -10;
+    const maxX = 10;
     const minY = 0;
-    const maxY = 2;
-    const minZ = -5;
-    const maxZ = 5;
+    const maxY = 10;
+    const minZ = -10;
+    const maxZ = 10;
 
     const position: Vector3 = new Vector3(0, 0, 0);
     position.x = Math.random() * (maxX - minX) + minX;
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
-    instanceNewSceneObject("Bee", position, Bee, this.scene);
+    instanceNewSceneObject("Bee", Bee, this.scene, { position: position });
   }
-
-  // private async initSession() {
-  //   this.xrSession = this.renderer.xr.getSession();
-  //   this.xrReferenceSpace =
-  //     await this.xrSession?.requestReferenceSpace("viewer");
-  //
-  //   const onEnd = () => {
-  //     this.xrReferenceSpace = null;
-  //   };
-  //   console.log("this.xrSession");
-  //
-  //   console.log(this.xrSession);
-  //   this.xrSession?.addEventListener("end", onEnd.bind(this));
-  // }
 
   //@ts-ignore
   Render(timestamp: any, frame: any) {
-    for (const obj of SCENE_OBJECTS) {
+    SCENE_OBJECTS.forEach((obj) => {
       obj.Render();
-    }
+    });
+
     if (this.spawnTimer <= 0) {
       this.spawnMonster();
+      this.spawnMonster();
+      this.spawnMonster();
+      this.spawnMonster();
+      this.spawnMonster();
+      this.spawnMonster();
+
       this.spawnTimer = this.initSpawnTimer;
     }
     if (!this.xrSession) {

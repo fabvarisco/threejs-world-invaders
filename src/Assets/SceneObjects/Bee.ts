@@ -2,12 +2,8 @@ import { ISceneObjects } from "@/type";
 import Monster from "@/Assets/SceneObjects/Monster.ts";
 
 class Bee extends Monster {
-  constructor({ object, position, scene }: ISceneObjects) {
-    super({ object: object, position: position, scene: scene });
-  }
-
-  Render() {
-    super.Render();
+  constructor({ object, scene, args }: ISceneObjects) {
+    super({ object, scene, args });
   }
 }
 export default Bee;
