@@ -126,7 +126,6 @@ class AR {
     }
     this.meshes.forEach((cube, index) => {
       cube.position.add(cube.userData.velocity);
-
       if (cube.position.distanceTo(this.controller.position) < 0.05) {
         this.scene.remove(cube);
         this.meshes.splice(index, 1);

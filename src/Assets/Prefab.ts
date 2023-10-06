@@ -25,7 +25,7 @@ class Prefab {
     this.object = await this.loader
       .loadAsync(`src/Assets/models/${this.fileName}.fbx`)
       .then((object) => {
-        object.scale.set(0.01, 0.01, 0.01);
+        object.scale.set(0.01 / 5, 0.01 / 5, 0.01 / 5);
         return object;
       })
       .catch(() => {
