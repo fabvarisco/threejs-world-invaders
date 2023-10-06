@@ -7,8 +7,6 @@ import "./style.css";
 import { Asset } from "@/type";
 import { PREFABS } from "@/utils/utils.ts";
 import Prefab from "@/Assets/Prefab.ts";
-
-import AngrySlime from "@/Assets/SceneObjects/AngrySlime.ts";
 import Bee from "@/Assets/SceneObjects/Bee.ts";
 import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
 
@@ -21,10 +19,6 @@ class App {
   private readonly assets: Asset[];
   constructor() {
     this.assets = [
-      {
-        asset: "AngrySlime",
-        sceneObjectType: AngrySlime,
-      },
       {
         asset: "Bee",
         sceneObjectType: Bee,
