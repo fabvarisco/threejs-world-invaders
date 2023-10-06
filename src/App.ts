@@ -109,7 +109,7 @@ class App {
   // private _onStartVr() {}
 
   private _onStartWeb() {
-    this.activeGame = new Web(this.scene, this.camera);
+    //this.activeGame = new Web(this.scene, this.camera);
   }
 
   private _resize() {
