@@ -1,4 +1,3 @@
-import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { ARButton } from "three/addons/webxr/ARButton.js";
 import Web from "./Web/web.ts";
@@ -9,11 +8,19 @@ import { PREFABS } from "@/utils/utils.ts";
 import Prefab from "@/Assets/Prefab.ts";
 import Bee from "@/Assets/SceneObjects/Bee.ts";
 import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
+import {
+  Color,
+  DirectionalLight,
+  HemisphereLight,
+  PerspectiveCamera,
+  Scene,
+  WebGLRenderer,
+} from "three";
 
 class App {
-  private readonly camera: THREE.PerspectiveCamera;
-  private readonly scene: THREE.Scene;
-  private readonly renderer: THREE.WebGLRenderer;
+  private readonly camera: PerspectiveCamera;
+  private readonly scene: Scene;
+  private readonly renderer: WebGLRenderer;
   private controls: OrbitControls;
   private activeGame: Web | AR | undefined;
   private readonly assets: Asset[];
@@ -28,7 +35,7 @@ class App {
         sceneObjectType: PlayerShoot,
       },
     ];
-    this.camera = new THREE.PerspectiveCamera(
+    this.camera = new PerspectiveCamera(
       45,
       window.innerWidth / window.innerHeight,
       0.25,
@@ -37,16 +44,16 @@ class App {
     this.camera.position.set(-5, 3, 10);
     this.camera.lookAt(0, 2, 0);
 
-    this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0xe0e0e0);
+    this.scene = new Scene();
+    this.scene.background = new Color(0xe0e0e0);
 
-    this.scene.add(new THREE.HemisphereLight(0x606060, 0x404040));
+    this.scene.add(new HemisphereLight(0x606060, 0x404040));
 
-    const light = new THREE.DirectionalLight(0xffffff);
+    const light = new DirectionalLight(0xffffff);
     light.position.set(1, 1, 1).normalize();
     this.scene.add(light);
 
-    this.renderer = new THREE.WebGLRenderer({
+    this.renderer = new WebGLRenderer({
       canvas: document.getElementById("app") as HTMLCanvasElement,
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
@@ -57,7 +64,7 @@ class App {
     this.controls.update();
 
     this.activeGame = undefined;
-    this._init().then((r) => r);
+    this._init();
     window.addEventListener("resize", this._resize.bind(this));
   }
 
