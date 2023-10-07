@@ -1,4 +1,4 @@
-import { Box3, Box3Helper, Group, Scene, Vector3 } from "three";
+import { Box3, Group, Scene, Vector3 } from "three";
 import { ISceneObjects, ISceneObjectsArgs } from "@/type";
 import { v4 as uuidv4 } from "uuid";
 import { removeSceneObject } from "@/utils/utils.ts";
@@ -8,7 +8,6 @@ class SceneObject {
   protected scene: Scene;
   protected direction: Vector3;
   protected collisionBox: Box3;
-  private boxHelper: Box3Helper;
   protected args: ISceneObjectsArgs;
   protected uid: any;
   constructor({ object, scene, args }: ISceneObjects) {
@@ -22,20 +21,10 @@ class SceneObject {
 
     this.uid = uuidv4();
 
-    this.boxHelper = new Box3Helper(this.collisionBox, 0xffff00);
-    this.scene.add(this.boxHelper);
-
     this.scene.add(this.object);
   }
 
-  Render() {
-    this.boxHelper.position.set(
-      this.object.position.x,
-      this.object.position.y,
-      this.object.position.z,
-    );
-    console.log("daasd");
-  }
+  Render() {}
 
   GetObject() {
     return this.object;
