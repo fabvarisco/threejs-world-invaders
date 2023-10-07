@@ -6,6 +6,7 @@ import {
 } from "@/utils/utils.ts";
 import Bee from "@/Assets/SceneObjects/Bee.ts";
 import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
+import CollisionObserver from "@/CollisionObserver.ts";
 
 class AR {
   private readonly scene: Scene;

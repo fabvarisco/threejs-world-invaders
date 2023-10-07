@@ -1,7 +1,8 @@
 import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
 import { ISceneObjects } from "@/type";
 import { Vector3 } from "three";
-import { DEVICE_POSITION } from "@/utils/utils.ts";
+import { DEVICE_POSITION, SCENE_OBJECTS } from "@/utils/utils.ts";
+import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
 
 class Monster extends SceneObject {
   constructor({ object, scene, args }: ISceneObjects) {
@@ -32,8 +33,18 @@ class Monster extends SceneObject {
   }
 
   Render() {
-    console.log("monster");
     this.updatePos();
+    SCENE_OBJECTS.filter((obj) => obj instanceof PlayerShoot).forEach(
+      (playerShoot) => {
+        const distance = playerShoot
+          .GetObject()
+          .position.distanceTo(this.object.position);
+        if (distance <= 1.0) {
+          this.Destroy();
+          playerShoot.Destroy();
+        }
+      },
+    );
   }
 }
 export default Monster;

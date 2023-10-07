@@ -17,6 +17,7 @@ class PlayerShoot extends SceneObject {
   }
 
   Render() {
+    super.Render();
     this.updatePos();
   }
 }
