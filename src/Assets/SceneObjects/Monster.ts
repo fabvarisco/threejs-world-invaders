@@ -39,7 +39,7 @@ class Monster extends SceneObject {
         const distance = playerShoot
           .GetObject()
           .position.distanceTo(this.object.position);
-        if (distance <= 1.0) {
+        if (distance <= 0.5) {
           this.Destroy();
           playerShoot.Destroy();
         }

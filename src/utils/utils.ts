@@ -2,10 +2,8 @@ import Prefab from "@/Assets/Prefab.ts";
 import { Scene, Vector3 } from "three";
 import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
 import { ISceneObjectsArgs } from "@/type";
-import CollisionObserver from "@/CollisionObserver.ts";
 export const PREFABS: { [k: string]: Prefab } = {};
 export const SCENE_OBJECTS: SceneObject[] = [];
-export const collisionObserver = new CollisionObserver();
 
 export function instanceNewSceneObject(
   prefabName: string,
@@ -18,7 +16,6 @@ export function instanceNewSceneObject(
     scene,
     args,
   });
-  collisionObserver.addObserver(obj);
   SCENE_OBJECTS.push(obj);
 }
 export function removeSceneObject(object: SceneObject, scene: Scene) {

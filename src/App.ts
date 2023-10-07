@@ -64,7 +64,7 @@ class App {
     this.controls.update();
 
     this.activeGame = undefined;
-    this._init();
+    this._init().then((r) => r);
     window.addEventListener("resize", this._resize.bind(this));
   }
 
