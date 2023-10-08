@@ -66,15 +66,16 @@ class App {
 
     this._createLoading();
 
+    window.addEventListener("resize", this._resize.bind(this));
+  }
+
+  public Start() {
     this._init().finally(() => {
       this.renderer.xr.enabled = true;
       this._createButtons();
       this._removeLoading();
     });
-
-    window.addEventListener("resize", this._resize.bind(this));
   }
-
   private async _init() {
     console.log("Loading...");
     for (const { asset } of this.assets) {
@@ -102,8 +103,6 @@ class App {
     container?.remove();
   }
 
-  public Start() {}
-
   private _createButtons() {
     const startArButton = ARButton.createButton(this.renderer, {});
     startArButton.addEventListener("click", this._onStartAr.bind(this));
@@ -125,7 +124,7 @@ class App {
 
   private _onStartAr() {
     this.activeGame?.Destroy();
-    this.activeGame = new AR(this.scene, this.renderer);
+    this.activeGame = new AR(this.scene, this.camera, this.renderer);
   }
 
   // private _onStartVr() {}

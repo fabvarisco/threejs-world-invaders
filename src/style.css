@@ -80,7 +80,9 @@ h1 {
 
 .game-over-overlay {
     position: absolute;
-    z-index: 100;
-    background: rgb(128, 128, 128);
+    z-index: 100002;
+    background: cadetblue;
+    height: 100vh;
+    width: 100vw;
     opacity: 0.5;
 }

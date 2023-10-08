@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "three": "^0.155.0",
+    "three-mesh-ui": "^6.5.4",
     "uuid": "^9.0.1"
   }
 }

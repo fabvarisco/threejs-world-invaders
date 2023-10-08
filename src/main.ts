@@ -1,6 +1,6 @@
-import App from "./App"
+import App from "./App";
 
 document.addEventListener("DOMContentLoaded", function () {
-  const app = new App();
+  const app: App = new App();
   app.Start();
 });

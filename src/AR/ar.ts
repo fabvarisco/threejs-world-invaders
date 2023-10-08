@@ -1,4 +1,4 @@
-import { Group, Scene, Vector3, WebGLRenderer } from "three";
+import { Camera, Group, Scene, Vector3, WebGLRenderer } from "three";
 import {
   DEVICE_POSITION,
   instanceNewSceneObject,
@@ -6,17 +6,21 @@ import {
 } from "@/utils/utils.ts";
 import Bee from "@/Assets/SceneObjects/Bee.ts";
 import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
+import ArOverlay from "@/Overlay/AR/ArOverlay.ts";
 
 class AR {
   private readonly scene: Scene;
+  private readonly camera: Camera;
   private xrSession: XRSession | null;
   private readonly controller: Group;
   private renderer: WebGLRenderer;
   private xrReferenceSpace: XRReferenceSpace | null | undefined;
   private spawnTimer: number;
   private readonly initSpawnTimer: number;
-  constructor(scene: Scene, renderer: WebGLRenderer) {
+  private arOverlay: ArOverlay;
+  constructor(scene: Scene, camera: Camera, renderer: WebGLRenderer) {
     this.scene = scene;
+    this.camera = camera;
     this.renderer = renderer;
     this.xrSession = null;
 
@@ -33,6 +37,7 @@ class AR {
     );
 
     this.scene.add(this.controller);
+    this.arOverlay = new ArOverlay();
   }
 
   private _onSelect() {
@@ -106,6 +111,7 @@ class AR {
       }
     }
     this.spawnTimer -= 1;
+    this.arOverlay.Render();
   }
 
   Destroy() {}
