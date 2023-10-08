@@ -1,4 +1,3 @@
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { ARButton } from "three/addons/webxr/ARButton.js";
 import Web from "./Web/web.ts";
 import AR from "./AR/ar.ts";
@@ -9,20 +8,23 @@ import Prefab from "@/Assets/Prefab.ts";
 import Bee from "@/Assets/SceneObjects/Bee.ts";
 import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
 import {
-  Color,
   DirectionalLight,
   HemisphereLight,
+  Mesh,
   PerspectiveCamera,
   Scene,
+  Vector3,
   WebGLRenderer,
 } from "three";
+
+import Text from "@/Assets/Text.ts";
 
 class App {
   private readonly camera: PerspectiveCamera;
   private readonly scene: Scene;
   private readonly renderer: WebGLRenderer;
-  private controls: OrbitControls;
   private activeGame: Web | AR | undefined;
+  private loading: boolean;
   private readonly assets: Asset[];
   constructor() {
     this.assets = [
@@ -35,17 +37,16 @@ class App {
         sceneObjectType: PlayerShoot,
       },
     ];
+    this.loading = true;
     this.camera = new PerspectiveCamera(
-      45,
+      70,
       window.innerWidth / window.innerHeight,
-      0.25,
-      4000,
+      0.01,
+      400,
     );
-    this.camera.position.set(-5, 3, 10);
-    this.camera.lookAt(0, 2, 0);
-
+    this.camera.position.set(0, 0, 20);
+    this.camera.lookAt(new Vector3(0, 0, 0));
     this.scene = new Scene();
-    this.scene.background = new Color(0xe0e0e0);
 
     this.scene.add(new HemisphereLight(0x606060, 0x404040));
 
@@ -55,16 +56,29 @@ class App {
 
     this.renderer = new WebGLRenderer({
       canvas: document.getElementById("app") as HTMLCanvasElement,
+      antialias: true,
+      alpha: true,
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.controls.target.set(0, 3.5, 0);
-    this.controls.update();
-
     this.activeGame = undefined;
-    this._init().then((r) => r);
+    this.renderer.setAnimationLoop(this._render.bind(this));
+
+    this._createLoading();
+
+    this._init().finally(() => {
+      //@ts-ignore
+      const titleText = new Text(
+        "./fonts/Pixel.json",
+        "World Invaders",
+        this.scene,
+      );
+      this.renderer.xr.enabled = true;
+      this._createButtons();
+      this._removeLoading();
+    });
+
     window.addEventListener("resize", this._resize.bind(this));
   }
 
@@ -78,11 +92,23 @@ class App {
     console.log("All prefabs were created!");
   }
 
-  public Start() {
-    this.renderer.xr.enabled = true;
-    this._createButtons();
-    this.renderer.setAnimationLoop(this._render.bind(this));
+  private _createLoading() {
+    const app = document.getElementById("container");
+    const loadingContainer = document.createElement("div");
+    loadingContainer.textContent = "Loading...";
+    loadingContainer.style.position = "absolute";
+    loadingContainer.style.left = "50%";
+    loadingContainer.style.fontSize = "54px";
+    app?.appendChild(loadingContainer);
   }
+
+  private _removeLoading() {
+    this.loading = false;
+    const container = document.getElementById("container");
+    container?.remove();
+  }
+
+  public Start() {}
 
   private _createButtons() {
     const startArButton = ARButton.createButton(this.renderer, {});
@@ -120,8 +146,10 @@ class App {
   }
 
   private _render(timestamp: any, frame: any) {
-    if (this.activeGame) {
-      this.activeGame.Render(timestamp, frame);
+    if (!this.loading) {
+      if (this.activeGame) {
+        this.activeGame.Render(timestamp, frame);
+      }
       this.renderer.render(this.scene, this.camera);
     }
   }
