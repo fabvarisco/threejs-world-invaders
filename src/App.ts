@@ -10,7 +10,6 @@ import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
 import {
   DirectionalLight,
   HemisphereLight,
-  Mesh,
   PerspectiveCamera,
   Scene,
   Vector3,
