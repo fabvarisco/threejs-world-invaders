@@ -1,4 +1,4 @@
-import { Camera, Group, Scene, Vector3, WebGLRenderer } from "three";
+import { Group, Scene, Vector3, WebGLRenderer } from "three";
 import {
   DEVICE_POSITION,
   instanceNewSceneObject,
@@ -10,7 +10,6 @@ import ArOverlay from "@/Overlay/AR/ArOverlay.ts";
 
 class AR {
   private readonly scene: Scene;
-  private readonly camera: Camera;
   private xrSession: XRSession | null;
   private readonly controller: Group;
   private renderer: WebGLRenderer;
@@ -18,9 +17,8 @@ class AR {
   private spawnTimer: number;
   private readonly initSpawnTimer: number;
   private arOverlay: ArOverlay;
-  constructor(scene: Scene, camera: Camera, renderer: WebGLRenderer) {
+  constructor(scene: Scene, renderer: WebGLRenderer) {
     this.scene = scene;
-    this.camera = camera;
     this.renderer = renderer;
     this.xrSession = null;
 

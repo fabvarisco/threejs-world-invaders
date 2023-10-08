@@ -124,7 +124,7 @@ class App {
 
   private _onStartAr() {
     this.activeGame?.Destroy();
-    this.activeGame = new AR(this.scene, this.camera, this.renderer);
+    this.activeGame = new AR(this.scene, this.renderer);
   }
 
   // private _onStartVr() {}
