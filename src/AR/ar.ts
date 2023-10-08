@@ -26,7 +26,6 @@ class AR {
     this.controller = this.renderer.xr.getController(0) as Group;
     this.controller.userData.position = this.controller.position;
     this.controller.addEventListener("select", this._onSelect.bind(this));
-
     DEVICE_POSITION.set(
       this.controller.position.x,
       this.controller.position.y,
@@ -90,6 +89,7 @@ class AR {
         .then((xrReferenceSpace) => {
           this.xrReferenceSpace = xrReferenceSpace;
           this.xrSession = session;
+          this.xrSession.addEventListener("end", (event) => console.log(event));
         })
         .catch((error) => {
           console.error("Failed to create XR session: ", error);
@@ -107,6 +107,8 @@ class AR {
     }
     this.spawnTimer -= 1;
   }
+
+  Destroy() {}
 }
 
 export default AR;

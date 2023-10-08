@@ -1,10 +1,11 @@
 import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
 import { ISceneObjects } from "@/type";
 import { Vector3 } from "three";
-import { DEVICE_POSITION, SCENE_OBJECTS } from "@/utils/utils.ts";
+import { DEVICE_POSITION, getRandom, SCENE_OBJECTS } from "@/utils/utils.ts";
 import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
 
 class Monster extends SceneObject {
+  private life: number;
   constructor({ object, scene, args }: ISceneObjects) {
     super({ object, scene, args });
     this.object.position.set(
@@ -12,6 +13,7 @@ class Monster extends SceneObject {
       this.args.position!.y,
       this.args.position!.z,
     );
+    this.life = getRandom(1, 3);
   }
   updatePos() {
     const speed = 0.01;
@@ -40,11 +42,14 @@ class Monster extends SceneObject {
           .GetObject()
           .position.distanceTo(this.object.position);
         if (distance <= 0.5) {
-          this.Destroy();
+          this.life -= 1;
           playerShoot.Destroy();
         }
       },
     );
+    if (this.life <= 0) {
+      this.Destroy();
+    }
   }
 }
 export default Monster;

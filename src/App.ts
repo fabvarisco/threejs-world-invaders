@@ -16,13 +16,13 @@ import {
   WebGLRenderer,
 } from "three";
 
-import Text from "@/Assets/Text.ts";
+import TitleScreen from "@/TitleScreen/TitleScreen.ts";
 
 class App {
   private readonly camera: PerspectiveCamera;
   private readonly scene: Scene;
   private readonly renderer: WebGLRenderer;
-  private activeGame: Web | AR | undefined;
+  private activeGame: Web | AR | TitleScreen | undefined;
   private loading: boolean;
   private readonly assets: Asset[];
   constructor() {
@@ -61,18 +61,12 @@ class App {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-    this.activeGame = undefined;
+    this.activeGame = new TitleScreen(this.scene);
     this.renderer.setAnimationLoop(this._render.bind(this));
 
     this._createLoading();
 
     this._init().finally(() => {
-      //@ts-ignore
-      const titleText = new Text(
-        "./fonts/Pixel.json",
-        "World Invaders",
-        this.scene,
-      );
       this.renderer.xr.enabled = true;
       this._createButtons();
       this._removeLoading();
@@ -94,6 +88,7 @@ class App {
   private _createLoading() {
     const app = document.getElementById("container");
     const loadingContainer = document.createElement("div");
+    loadingContainer.id = "loadingContainer";
     loadingContainer.textContent = "Loading...";
     loadingContainer.style.position = "absolute";
     loadingContainer.style.left = "50%";
@@ -103,7 +98,7 @@ class App {
 
   private _removeLoading() {
     this.loading = false;
-    const container = document.getElementById("container");
+    const container = document.getElementById("loadingContainer");
     container?.remove();
   }
 
@@ -129,6 +124,7 @@ class App {
   }
 
   private _onStartAr() {
+    this.activeGame?.Destroy();
     this.activeGame = new AR(this.scene, this.renderer);
   }
 

@@ -83,6 +83,7 @@ class Web {
   //   }
   // }
   Render() {}
+  Destroy() {}
 }
 
 export default Web;

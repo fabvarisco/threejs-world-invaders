@@ -76,3 +76,11 @@ h1 {
 .VRButton {
     left: 60% !important;
 }
+
+
+.game-over-overlay {
+    position: absolute;
+    z-index: 100;
+    background: rgb(128, 128, 128);
+    opacity: 0.5;
+}

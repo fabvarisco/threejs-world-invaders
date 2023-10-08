@@ -62,6 +62,10 @@ class Text {
     this.textMesh.updateMatrixWorld();
     this.scene.add(this.textMesh);
   }
+
+  Destroy() {
+    this.scene.remove(this.textMesh);
+  }
 }
 
 export default Text;
