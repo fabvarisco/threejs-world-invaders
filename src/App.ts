@@ -5,7 +5,6 @@ import "./style.css";
 import { Asset } from "@/type";
 import { PREFABS } from "@/utils/utils.ts";
 import Prefab from "@/Assets/Prefab.ts";
-import Bee from "@/Assets/SceneObjects/Bee.ts";
 import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
 import {
   DirectionalLight,
@@ -17,6 +16,7 @@ import {
 } from "three";
 
 import TitleScreen from "@/TitleScreen/TitleScreen.ts";
+import BaseMonster from "@/Assets/SceneObjects/BaseMonster.ts";
 
 class App {
   private readonly camera: PerspectiveCamera;
@@ -28,8 +28,9 @@ class App {
   constructor() {
     this.assets = [
       {
-        asset: "Bee",
-        sceneObjectType: Bee,
+        asset: "BaseMonster",
+        sceneObjectType: BaseMonster,
+        hasAnimation: true,
       },
       {
         asset: "PlayerShoot",
@@ -78,8 +79,8 @@ class App {
   }
   private async _init() {
     console.log("Loading...");
-    for (const { asset } of this.assets) {
-      const prefab = new Prefab(asset);
+    for (const { asset, hasAnimation } of this.assets) {
+      const prefab = new Prefab(asset, hasAnimation);
       await prefab.Load();
       PREFABS[asset] = prefab;
     }

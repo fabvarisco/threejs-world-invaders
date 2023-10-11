@@ -1,11 +1,18 @@
 import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
 import { ISceneObjects } from "@/type";
 import { Vector3 } from "three";
-import { DEVICE_POSITION, getRandom, SCENE_OBJECTS } from "@/utils/utils.ts";
+import {
+  DEVICE_POSITION,
+  getRandom,
+  SCENE_OBJECTS,
+  STATES,
+} from "@/utils/utils.ts";
 import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
 
 class Monster extends SceneObject {
   private life: number;
+  protected initialState: STATES = STATES.CHASING;
+  protected state: STATES = STATES.CHASING;
   constructor({ object, scene, args }: ISceneObjects) {
     super({ object, scene, args });
     this.object.position.set(
@@ -13,9 +20,11 @@ class Monster extends SceneObject {
       this.args.position!.y,
       this.args.position!.z,
     );
+
     this.life = getRandom(1, 3);
   }
-  updatePos() {
+
+  chaseState() {
     const speed = 0.01;
 
     const direction = new Vector3();
@@ -33,9 +42,31 @@ class Monster extends SceneObject {
       console.log(this.object.position);
     }
   }
+  hitState() {}
+  damageState() {}
+  dieState() {}
+  attackState() {}
 
-  Render() {
-    this.updatePos();
+  update() {
+    switch (this.state) {
+      case STATES.CHASING:
+        this.chaseState();
+        break;
+      case STATES.HIT:
+        this.hitState();
+        break;
+      case STATES.ATTACKING:
+        this.attackState();
+        break;
+      case STATES.DIE:
+        this.dieState();
+        break;
+      default:
+        break;
+    }
+  }
+
+  collision() {
     SCENE_OBJECTS.filter((obj) => obj instanceof PlayerShoot).forEach(
       (playerShoot) => {
         const distance = playerShoot
@@ -50,6 +81,10 @@ class Monster extends SceneObject {
     if (this.life <= 0) {
       this.Destroy();
     }
+  }
+  Render() {
+    this.update();
+    this.collision();
   }
 }
 export default Monster;

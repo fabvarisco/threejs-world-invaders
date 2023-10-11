@@ -32,3 +32,9 @@ export function getRandom(min: number, max: number): number {
 }
 
 export const DEVICE_POSITION: Vector3 = new Vector3(0, 0, 0);
+export enum STATES {
+  CHASING,
+  HIT,
+  ATTACKING,
+  DIE,
+}

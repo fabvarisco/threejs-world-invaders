@@ -17,4 +17,5 @@ interface ISceneObjects {
 type Asset = {
   asset: string;
   sceneObjectType: typeof SceneObject;
+  hasAnimation?: boolean;
 };

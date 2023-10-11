@@ -4,7 +4,7 @@ import {
   instanceNewSceneObject,
   SCENE_OBJECTS,
 } from "@/utils/utils.ts";
-import Bee from "@/Assets/SceneObjects/Bee.ts";
+import BaseMonster from "@/Assets/SceneObjects/BaseMonster.ts";
 import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
 import ArOverlay from "@/Overlay/AR/ArOverlay.ts";
 
@@ -17,11 +17,12 @@ class AR {
   private spawnTimer: number;
   private readonly initSpawnTimer: number;
   private arOverlay: ArOverlay;
+  private lastFrameTimestamp: number;
   constructor(scene: Scene, renderer: WebGLRenderer) {
     this.scene = scene;
     this.renderer = renderer;
     this.xrSession = null;
-
+    this.lastFrameTimestamp = 0;
     this.initSpawnTimer = 1000;
     this.spawnTimer = this.initSpawnTimer;
 
@@ -66,24 +67,27 @@ class AR {
     position.x = Math.random() * (maxX - minX) + minX;
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
-    instanceNewSceneObject("Bee", Bee, this.scene, { position: position });
+    instanceNewSceneObject("BaseMonster", BaseMonster, this.scene, {
+      position: position,
+    });
+  }
+  private _resetSpawnTimer() {
+    this.spawnTimer = Math.random() * (1000 - 3000) + 3000;
   }
 
   //@ts-ignore
   Render(timestamp: any, frame: any) {
+    const deltaTime = timestamp - this.lastFrameTimestamp;
+    this.lastFrameTimestamp = timestamp;
+
     SCENE_OBJECTS.forEach((obj) => {
       obj.Render();
     });
 
     if (this.spawnTimer <= 0) {
       this.spawnMonster();
-      this.spawnMonster();
-      this.spawnMonster();
-      this.spawnMonster();
-      this.spawnMonster();
-      this.spawnMonster();
 
-      this.spawnTimer = this.initSpawnTimer;
+      this._resetSpawnTimer();
     }
     if (!this.xrSession) {
       const session = this.renderer.xr.getSession();
@@ -108,8 +112,9 @@ class AR {
         DEVICE_POSITION.set(position.x, position.y, position.z);
       }
     }
-    this.spawnTimer -= 1;
-    this.arOverlay.Render();
+    this.spawnTimer -= deltaTime;
+    console.log(this.spawnTimer);
+    //this.arOverlay.Render();
   }
 
   Destroy() {}
