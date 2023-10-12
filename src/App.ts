@@ -28,6 +28,10 @@ class App {
   private loading: boolean = true;
   private readonly assets: Asset[];
   constructor() {
+    
+    const container = document.createElement( 'div' );
+    document.body.appendChild( container );
+
     this.assets = [
       {
         asset: "BaseMonster",
@@ -60,12 +64,13 @@ class App {
     this.scene.add(light);
 
     this.renderer = new WebGLRenderer({
-      canvas: document.getElementById("app") as HTMLCanvasElement,
       antialias: true,
       alpha: true,
     });
+
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    //this.renderer.shadowMap.enabled = true;
 
     this.activeGame = new TitleScreen(this.scene);
     this.renderer.setAnimationLoop(this._render.bind(this));
@@ -73,6 +78,8 @@ class App {
     this._createLoading();
 
     window.addEventListener("resize", this._resize.bind(this));
+    container.appendChild( this.renderer.domElement );
+
   }
 
   public Start() {

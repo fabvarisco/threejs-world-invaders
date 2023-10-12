@@ -49,7 +49,7 @@ class AR {
   _onSelectStart(event: any) {
     console.log(event)
     const controller = event.target;
-debugger
+    debugger
     const intersections = this._getIntersections(controller);
 
     if (intersections.length > 0) {
@@ -59,7 +59,6 @@ debugger
       const object = intersection.object;
       //object.material.emissive.b = 1;
       controller.attach(object);
-      console.log(object)
       controller.userData.selected = object;
 
     }
@@ -124,11 +123,13 @@ debugger
     //   }
     // });
 
-    this.controller.addEventListener( 'selectstart', this._onSelectStart.bind(this) );
-    this.controller.addEventListener( 'selectend', this._onSelectEnd.bind(this) );
+    this.controller.addEventListener('selectstart', this._onSelectStart.bind(this));
+    this.controller.addEventListener('selectend', this._onSelectEnd.bind(this));
 
-    this.controller2.addEventListener( 'selectstart', this._onSelectStart.bind(this) );
-    this.controller2.addEventListener( 'selectend', this._onSelectEnd.bind(this) );
+    this.controller2.addEventListener('selectstart', this._onSelectStart.bind(this));
+    this.controller2.addEventListener('selectend', this._onSelectEnd.bind(this));
+
+
 
     DEVICE_POSITION.set(
       this.controller.position.x,
@@ -170,7 +171,7 @@ debugger
     return this.raycaster.intersectObjects(PARENT_GROUP.children, false);
   }
 
-  private _intersectObjects(controller: Group) {
+  private _intersectObjects(controller: Group): void {
     const geometry = new BufferGeometry().setFromPoints([new Vector3(0, 0, 0), new Vector3(0, 0, - 1)]);
     let line = new Line(geometry);
     line.name = 'line';
@@ -202,17 +203,14 @@ debugger
 
   }
 
-  private _cleanIntersected() {
+  private _cleanIntersected(): void {
     while (this.intersected.length) {
       const object = this.intersected.pop();
       if (object) {
         //object.material.emissive.r = 0;
       }
     }
-
   }
-
-
 
   spawnMonster(): void {
     const minX = -10;
@@ -232,12 +230,12 @@ debugger
   }
 
   spawnDraggable(): void {
-    const minX = -3;
-    const maxX = 3;
+    const minX = -2;
+    const maxX = 2;
     const minY = 0;
-    const maxY = 3;
-    const minZ = -3;
-    const maxZ = 3;
+    const maxY = 2;
+    const minZ = -2;
+    const maxZ = 2;
 
     const position: Vector3 = new Vector3(0, 0, 0);
     position.x = Math.random() * (maxX - minX) + minX;
@@ -292,7 +290,6 @@ debugger
       }
     }
     this.spawnTimer -= deltaTime;
-    //this.arOverlay.Render();
   }
 
   Destroy(): void { }

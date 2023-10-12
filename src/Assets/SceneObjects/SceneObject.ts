@@ -17,7 +17,6 @@ class SceneObject {
     this.collisionBox.getSize(new Vector3());
     this.scene = scene;
     this.args = { ...args };
-    console.log("asadssa")
     this.uid = uuidv4();
 
     this.scene.add(this.object);
