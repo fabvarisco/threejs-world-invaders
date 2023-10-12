@@ -38,8 +38,6 @@ class Monster extends SceneObject {
     const distance = DEVICE_POSITION.distanceTo(this.object.position);
     if (distance <= 1.0) {
       this.Destroy();
-      console.log(DEVICE_POSITION);
-      console.log(this.object.position);
     }
   }
   hitState() {}

@@ -1,10 +1,10 @@
 import Prefab from "@/Assets/Prefab.ts";
-import { Scene, Vector3 } from "three";
+import { Group, Scene, Vector3 } from "three";
 import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
 import { ISceneObjectsArgs } from "@/type";
 export const PREFABS: { [k: string]: Prefab } = {};
 export const SCENE_OBJECTS: SceneObject[] = [];
-
+export const PARENT_GROUP: Group = new Group();
 export function instanceNewSceneObject(
   prefabName: string,
   sceneObjectType: typeof SceneObject,
@@ -24,7 +24,6 @@ export function removeSceneObject(object: SceneObject, scene: Scene): void {
   );
   scene.remove(SCENE_OBJECTS[objIndex].GetObject());
   SCENE_OBJECTS.splice(objIndex, 1);
-  console.log(SCENE_OBJECTS);
 }
 
 export function getRandom(min: number, max: number): number {

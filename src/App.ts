@@ -8,6 +8,7 @@ import Prefab from "@/Assets/Prefab.ts";
 import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
 import {
   DirectionalLight,
+  Group,
   HemisphereLight,
   PerspectiveCamera,
   Scene,
@@ -17,13 +18,14 @@ import {
 
 import TitleScreen from "@/TitleScreen/TitleScreen.ts";
 import BaseMonster from "@/Assets/SceneObjects/BaseMonster.ts";
+import DraggableObject from "./Assets/SceneObjects/DraggableObject.ts";
 
 class App {
   private readonly camera: PerspectiveCamera;
   private readonly scene: Scene;
   private readonly renderer: WebGLRenderer;
   private activeGame: Web | AR | TitleScreen | undefined;
-  private loading: boolean;
+  private loading: boolean = true;
   private readonly assets: Asset[];
   constructor() {
     this.assets = [
@@ -36,8 +38,11 @@ class App {
         asset: "PlayerShoot",
         sceneObjectType: PlayerShoot,
       },
+      {
+        asset: "DraggableObject",
+        sceneObjectType: DraggableObject,
+      },
     ];
-    this.loading = true;
     this.camera = new PerspectiveCamera(
       70,
       window.innerWidth / window.innerHeight,
@@ -47,7 +52,7 @@ class App {
     this.camera.position.set(0, 0, 20);
     this.camera.lookAt(new Vector3(0, 0, 0));
     this.scene = new Scene();
-
+    
     this.scene.add(new HemisphereLight(0x606060, 0x404040));
 
     const light = new DirectionalLight(0xffffff);
@@ -87,7 +92,7 @@ class App {
     console.log("All prefabs were created!");
   }
 
-  private _createLoading() {
+  private _createLoading(): void {
     const app = document.getElementById("container");
     const loadingContainer = document.createElement("div");
     loadingContainer.id = "loadingContainer";
@@ -98,24 +103,24 @@ class App {
     app?.appendChild(loadingContainer);
   }
 
-  private _removeLoading() {
+  private _removeLoading(): void {
     this.loading = false;
     const container = document.getElementById("loadingContainer");
     container?.remove();
   }
 
-  private _createButtons() {
+  private _createButtons(): void {
     const startArButton = ARButton.createButton(this.renderer, {});
     startArButton.addEventListener("click", this._onStartAr.bind(this));
     document.body.appendChild(startArButton);
 
-    const startWebButton = document.createElement("button");
-    startWebButton.addEventListener("click", this._onStartWeb.bind(this));
+    // const startWebButton = document.createElement("button");
+    // startWebButton.addEventListener("click", this._onStartWeb.bind(this));
 
-    startWebButton.id = "WebButton";
-    startWebButton.textContent = "START WEB";
-    startWebButton.className = "WebButton";
-    document.body.appendChild(startWebButton);
+    // startWebButton.id = "WebButton";
+    // startWebButton.textContent = "START WEB";
+    // startWebButton.className = "WebButton";
+    // document.body.appendChild(startWebButton);
 
     // const startVrButton = VRButton.createButton(this.renderer);
     // startVrButton.addEventListener("click", this._onStartVr.bind(this));
@@ -123,24 +128,24 @@ class App {
     // document.body.appendChild(startVrButton);
   }
 
-  private _onStartAr() {
+  private _onStartAr(): void {
     this.activeGame?.Destroy();
     this.activeGame = new AR(this.scene, this.renderer);
   }
 
   // private _onStartVr() {}
 
-  private _onStartWeb() {
+  private _onStartWeb(): void {
     //this.activeGame = new Web(this.scene, this.camera);
   }
 
-  private _resize() {
+  private _resize(): void {
     this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  private _render(timestamp: any, frame: any) {
+  private _render(timestamp: any, frame: any): void {
     if (!this.loading) {
       if (this.activeGame) {
         this.activeGame.Render(timestamp, frame);

@@ -1,6 +1,6 @@
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { AnimationMixer, Group, LoadingManager } from "three";
-import { STATES } from "@/utils/utils.ts";
+import { PARENT_GROUP, STATES } from "@/utils/utils.ts";
 
 class Prefab {
   private loader: FBXLoader;
@@ -32,9 +32,9 @@ class Prefab {
     await this.loader
       .loadAsync(`/models/${this.fileName}.fbx`)
       .then((object) => {
-        object.scale.set(0.01 / 5, 0.01 / 5, 0.01 / 5);
+        object.scale.set(0.001 , 0.001 , 0.001 );
         this.object = object;
-
+        PARENT_GROUP.add(this.object);
         if (this.hasAnimation) {
           this.mixer = new AnimationMixer(this.object);
           this.manager = new LoadingManager();
