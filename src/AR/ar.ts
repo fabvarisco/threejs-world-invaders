@@ -1,4 +1,15 @@
-import { BufferGeometry, Group, Intersection, Line, Matrix4, Object3D, Raycaster, Scene, Vector3, WebGLRenderer } from "three";
+import {
+  BufferGeometry,
+  Group,
+  Intersection,
+  Line,
+  Matrix4,
+  Object3D,
+  Raycaster,
+  Scene,
+  Vector3,
+  WebGLRenderer,
+} from "three";
 import {
   DEVICE_POSITION,
   instanceNewSceneObject,
@@ -27,7 +38,7 @@ class AR {
   private tempMatrix: Matrix4 = new Matrix4();
   private intersected: any[] = [];
   private parentGroup: Group = new Group();
-
+  private line: Object3D;
 
   constructor(scene: Scene, renderer: WebGLRenderer) {
     this.scene = scene;
@@ -38,6 +49,17 @@ class AR {
     this.isDragging = false;
     this.xrSession = null;
     this.dragObject = null;
+
+    //Raycast line
+    const geometry = new BufferGeometry().setFromPoints([
+      new Vector3(0, 0, 0),
+      new Vector3(0, 0, -1),
+    ]);
+
+    this.line = new Line(geometry);
+    this.line.name = "line";
+    this.line.scale.z = 40;
+
     //Controllers
     this.controller = this.renderer.xr.getController(0) as Group;
     this.controller2 = this.renderer.xr.getController(1) as Group;
@@ -47,42 +69,34 @@ class AR {
   }
 
   _onSelectStart(event: any) {
-    console.log(event)
+    console.log(event);
     const controller = event.target;
-    debugger
+
     const intersections = this._getIntersections(controller);
 
     if (intersections.length > 0) {
-
       const intersection = intersections[0];
 
       const object = intersection.object;
       //object.material.emissive.b = 1;
       controller.attach(object);
       controller.userData.selected = object;
-
     }
 
     controller.userData.targetRayMode = event.data.targetRayMode;
-
   }
 
   _onSelectEnd(event: any) {
-
     const controller = event.target;
 
     if (controller.userData.selected !== undefined) {
-
       const object = controller.userData.selected;
       object.material.emissive.b = 0;
       PARENT_GROUP.attach(object);
 
       controller.userData.selected = undefined;
-
     }
-
   }
-
 
   private _initControllers(): void {
     this.controller.userData.position = this.controller.position;
@@ -106,7 +120,6 @@ class AR {
     //     isDragging = false;
     //   });
 
-
     //   this.controller2.addEventListener('squeezemove', (event) => {
     //     if (this.isDragging && this.dragObject) {
     //       const { controller } = event;
@@ -123,13 +136,23 @@ class AR {
     //   }
     // });
 
-    this.controller.addEventListener('selectstart', this._onSelectStart.bind(this));
-    this.controller.addEventListener('selectend', this._onSelectEnd.bind(this));
+    this.controller.add(this.line.clone());
+    this.controller2.add(this.line.clone());
 
-    this.controller2.addEventListener('selectstart', this._onSelectStart.bind(this));
-    this.controller2.addEventListener('selectend', this._onSelectEnd.bind(this));
+    this.controller.addEventListener(
+      "selectstart",
+      this._onSelectStart.bind(this),
+    );
+    this.controller.addEventListener("selectend", this._onSelectEnd.bind(this));
 
-
+    this.controller2.addEventListener(
+      "selectstart",
+      this._onSelectStart.bind(this),
+    );
+    this.controller2.addEventListener(
+      "selectend",
+      this._onSelectEnd.bind(this),
+    );
 
     DEVICE_POSITION.set(
       this.controller.position.x,
@@ -141,7 +164,8 @@ class AR {
     this.scene.add(this.controller2);
   }
 
-  private _onSelect(): void {
+  private _onSelect(event: any): void {
+    console.log(event);
     const position = new Vector3()
       .set(0, 0, -0.3)
       .applyMatrix4(this.controller.matrixWorld);
@@ -157,8 +181,9 @@ class AR {
     });
   }
 
-
-  private _getIntersections(controller: Group): Intersection<Object3D<Event>>[] {
+  private _getIntersections(
+    controller: Group,
+  ): Intersection<Object3D<Event>>[] {
     const tempMatrix = new Matrix4();
 
     controller.updateMatrixWorld();
@@ -166,41 +191,30 @@ class AR {
     tempMatrix.identity().extractRotation(controller.matrixWorld);
 
     this.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
-    this.raycaster.ray.direction.set(0, 0, - 1).applyMatrix4(tempMatrix);
+    this.raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
 
     return this.raycaster.intersectObjects(PARENT_GROUP.children, false);
   }
 
   private _intersectObjects(controller: Group): void {
-    const geometry = new BufferGeometry().setFromPoints([new Vector3(0, 0, 0), new Vector3(0, 0, - 1)]);
-    let line = new Line(geometry);
-    line.name = 'line';
-    line.scale.z = 5;
+    if (controller.userData.targetRayMode === "screen") return;
 
-
-    if (controller.userData.targetRayMode === 'screen') return;
-
+    // Do not highlight when already selected
 
     if (controller.userData.selected !== undefined) return;
-
     const intersections = this._getIntersections(controller);
 
     if (intersections.length > 0) {
-
       const intersection = intersections[0];
 
       const object = intersection.object;
       //object.material.emissive.r = 1;
       this.intersected.push(object);
 
-      line.scale.z = intersection.distance;
-
+      this.line.scale!.z = intersection.distance;
     } else {
-
-      line.scale.z = 5;
-
+      this.line.scale!.z = 40;
     }
-
   }
 
   private _cleanIntersected(): void {
@@ -292,7 +306,7 @@ class AR {
     this.spawnTimer -= deltaTime;
   }
 
-  Destroy(): void { }
+  Destroy(): void {}
 }
 
 export default AR;
