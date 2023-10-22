@@ -3,7 +3,7 @@ import {
   TextGeometry,
   TextGeometryParameters,
 } from "three/examples/jsm/geometries/TextGeometry.js";
-import { Mesh, MeshPhongMaterial, Scene } from "three";
+import { Mesh, MeshPhongMaterial, Scene, Vector3 } from "three";
 
 class Text {
   private readonly text: string;
@@ -11,6 +11,7 @@ class Text {
   private scene: Scene;
   private loader: FontLoader;
   private textMesh: Mesh;
+  private readonly position: Vector3 | undefined;
   private readonly textGeometryParameters?: Omit<
     TextGeometryParameters,
     "font"
@@ -19,6 +20,7 @@ class Text {
     font: string,
     text: string,
     scene: Scene,
+    position?: Vector3,
     textGeometryParameters?: Omit<TextGeometryParameters, "font">,
   ) {
     this.font = font;
@@ -26,6 +28,7 @@ class Text {
     this.scene = scene;
     this.loader = new FontLoader();
     this.textMesh = new Mesh();
+    this.position = position;
     this.textGeometryParameters = textGeometryParameters;
     if (!this.textGeometryParameters) {
       this.textGeometryParameters = {
@@ -56,13 +59,20 @@ class Text {
       new MeshPhongMaterial({ color: 0x0000ff }),
     ];
     this.textMesh = new Mesh(geometry, materials);
-    this.textMesh.position.y = 5;
-    this.textMesh.position.x = -7;
-    this.textMesh.rotation.y = 0;
-    this.textMesh.updateMatrixWorld();
+    this.textMesh.geometry.center();
+    if (this.position) {
+      this.textMesh.position.set(
+        this.position.x,
+        this.position.y,
+        this.position.z,
+      );
+    }
+
     this.scene.add(this.textMesh);
   }
-
+  public GetTextMesh() {
+    return this.textMesh;
+  }
   Destroy() {
     this.scene.remove(this.textMesh);
   }

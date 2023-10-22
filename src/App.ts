@@ -1,14 +1,12 @@
 import { ARButton } from "three/addons/webxr/ARButton.js";
-import Web from "./Web/web.ts";
 import AR from "./AR/ar.ts";
 import "./style.css";
 import { Asset } from "@/type";
-import { PREFABS } from "@/utils/utils.ts";
+import { ACTIVE_GAME, PREFABS } from "@/utils/utils.ts";
 import Prefab from "@/Assets/Prefab.ts";
 import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
 import {
   DirectionalLight,
-  Group,
   HemisphereLight,
   PerspectiveCamera,
   Scene,
@@ -16,22 +14,18 @@ import {
   WebGLRenderer,
 } from "three";
 
-import TitleScreen from "@/TitleScreen/TitleScreen.ts";
 import BaseMonster from "@/Assets/SceneObjects/BaseMonster.ts";
 import DraggableObject from "./Assets/SceneObjects/DraggableObject.ts";
+import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
 
 class App {
   private readonly camera: PerspectiveCamera;
   private readonly scene: Scene;
   private readonly renderer: WebGLRenderer;
-  private activeGame: Web | AR | TitleScreen | undefined;
   private loading: boolean = true;
   private readonly assets: Asset[];
-  constructor() {
-    
-    const container = document.createElement( 'div' );
-    document.body.appendChild( container );
 
+  constructor() {
     this.assets = [
       {
         asset: "BaseMonster",
@@ -56,7 +50,7 @@ class App {
     this.camera.position.set(0, 0, 20);
     this.camera.lookAt(new Vector3(0, 0, 0));
     this.scene = new Scene();
-    
+
     this.scene.add(new HemisphereLight(0x606060, 0x404040));
 
     const light = new DirectionalLight(0xffffff);
@@ -64,22 +58,18 @@ class App {
     this.scene.add(light);
 
     this.renderer = new WebGLRenderer({
+      canvas: document.getElementById("app") as HTMLCanvasElement,
       antialias: true,
       alpha: true,
     });
 
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    //this.renderer.shadowMap.enabled = true;
-
-    this.activeGame = new TitleScreen(this.scene);
     this.renderer.setAnimationLoop(this._render.bind(this));
 
     this._createLoading();
 
     window.addEventListener("resize", this._resize.bind(this));
-    container.appendChild( this.renderer.domElement );
-
   }
 
   public Start() {
@@ -117,30 +107,36 @@ class App {
   }
 
   private _createButtons(): void {
+    const startButtonContainer = document.getElementById("start-buttons");
+
     const startArButton = ARButton.createButton(this.renderer, {});
     startArButton.addEventListener("click", this._onStartAr.bind(this));
-    document.body.appendChild(startArButton);
+    startArButton.className = "button";
+    startArButton.removeAttribute("style");
 
-    // const startWebButton = document.createElement("button");
-    // startWebButton.addEventListener("click", this._onStartWeb.bind(this));
+    const startWebButton = document.createElement("button");
+    startWebButton.addEventListener("click", this._onStartWeb.bind(this));
+    startWebButton.id = "WebButton";
+    startWebButton.removeAttribute("style");
+    startWebButton.textContent = "START WEB";
+    startWebButton.className = "button";
 
-    // startWebButton.id = "WebButton";
-    // startWebButton.textContent = "START WEB";
-    // startWebButton.className = "WebButton";
-    // document.body.appendChild(startWebButton);
+    const startVrButton = VRButton.createButton(this.renderer);
+    startVrButton.addEventListener("click", this._onStartVr.bind(this));
+    startVrButton.removeAttribute("style");
+    startVrButton.className = "button";
 
-    // const startVrButton = VRButton.createButton(this.renderer);
-    // startVrButton.addEventListener("click", this._onStartVr.bind(this));
-    // startVrButton.className = "VRButton";
-    // document.body.appendChild(startVrButton);
+    startButtonContainer?.appendChild(startArButton);
+    startButtonContainer?.appendChild(startWebButton);
+    startButtonContainer?.appendChild(startVrButton);
   }
 
   private _onStartAr(): void {
-    this.activeGame?.Destroy();
-    this.activeGame = new AR(this.scene, this.renderer);
+    ACTIVE_GAME?.Destroy();
+    ACTIVE_GAME = new AR(this.scene, this.renderer);
   }
 
-  // private _onStartVr() {}
+  private _onStartVr() {}
 
   private _onStartWeb(): void {
     //this.activeGame = new Web(this.scene, this.camera);

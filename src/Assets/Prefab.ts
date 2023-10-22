@@ -32,7 +32,7 @@ class Prefab {
     await this.loader
       .loadAsync(`/models/${this.fileName}.fbx`)
       .then((object) => {
-        object.scale.set(0.001 , 0.001 , 0.001 );
+        object.scale.set(0.001, 0.001, 0.001);
         this.object = object;
         PARENT_GROUP.add(this.object);
         if (this.hasAnimation) {
@@ -40,7 +40,6 @@ class Prefab {
           this.manager = new LoadingManager();
 
           const _OnLoad = (animName: string, objAnim: Group): void => {
-            debugger;
             const clip = objAnim.animations[0];
             if (objAnim.animations.length === 0) return;
             const action = this.mixer?.clipAction(clip);

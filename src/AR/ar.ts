@@ -287,7 +287,9 @@ class AR {
         .then((xrReferenceSpace) => {
           this.xrReferenceSpace = xrReferenceSpace;
           this.xrSession = session;
-          this.xrSession.addEventListener("end", (event) => console.log(event));
+          this.xrSession.addEventListener("end", (event) =>
+            console.log("end " + event),
+          );
         })
         .catch((error) => {
           console.error("Failed to create XR session: ", error);
