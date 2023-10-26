@@ -30,7 +30,6 @@ class AR {
   private renderer: WebGLRenderer;
   private xrReferenceSpace: XRReferenceSpace | null | undefined;
   private spawnTimer: number;
-  private arOverlay: ArOverlay;
   private lastFrameTimestamp: number;
   private isDragging: boolean;
   private dragObject: DraggableObject | null;
@@ -49,7 +48,6 @@ class AR {
     this.isDragging = false;
     this.xrSession = null;
     this.dragObject = null;
-
     //Raycast line
     const geometry = new BufferGeometry().setFromPoints([
       new Vector3(0, 0, 0),
@@ -100,7 +98,7 @@ class AR {
 
   private _initControllers(): void {
     this.controller.userData.position = this.controller.position;
-    this.controller.addEventListener("select", this._onSelect.bind(this));
+    //this.controller.addEventListener("select", this._onSelect.bind(this));
 
     let isDragging = false;
 
@@ -202,6 +200,7 @@ class AR {
     // Do not highlight when already selected
 
     if (controller.userData.selected !== undefined) return;
+    const line = controller.getObjectByName("line");
     const intersections = this._getIntersections(controller);
 
     if (intersections.length > 0) {
@@ -211,9 +210,9 @@ class AR {
       //object.material.emissive.r = 1;
       this.intersected.push(object);
 
-      this.line.scale!.z = intersection.distance;
+      line!.scale!.z = intersection.distance;
     } else {
-      this.line.scale!.z = 40;
+      line!.scale!.z = 40;
     }
   }
 
@@ -221,7 +220,7 @@ class AR {
     while (this.intersected.length) {
       const object = this.intersected.pop();
       if (object) {
-        //object.material.emissive.r = 0;
+        object.material.emissive.r = 0;
       }
     }
   }
@@ -267,7 +266,6 @@ class AR {
   Render(timestamp: any, frame: any): void {
     const deltaTime = timestamp - this.lastFrameTimestamp;
     this.lastFrameTimestamp = timestamp;
-
     SCENE_OBJECTS.forEach((obj) => {
       obj.Render();
     });
@@ -287,25 +285,27 @@ class AR {
         .then((xrReferenceSpace) => {
           this.xrReferenceSpace = xrReferenceSpace;
           this.xrSession = session;
-          this.xrSession.addEventListener("end", (event) =>
-            console.log("end " + event),
-          );
+          this.xrSession.addEventListener("end", this.endSession.bind(this));
         })
         .catch((error) => {
           console.error("Failed to create XR session: ", error);
         });
     }
 
-    if (this.xrReferenceSpace) {
+    if (this.xrReferenceSpace && this.xrSession && frame) {
       const {
         transform: { position },
-      } = frame.getViewerPose(this.xrReferenceSpace);
-
+      } = frame?.getViewerPose(this.xrReferenceSpace);
       if (position) {
         DEVICE_POSITION.set(position.x, position.y, position.z);
       }
     }
     this.spawnTimer -= deltaTime;
+  }
+
+  private endSession() {
+    document.write("");
+    location.reload();
   }
 
   Destroy(): void {}

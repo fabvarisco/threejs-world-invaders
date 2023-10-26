@@ -2,7 +2,7 @@ import { ARButton } from "three/addons/webxr/ARButton.js";
 import AR from "./AR/ar.ts";
 import "./style.css";
 import { Asset } from "@/type";
-import { ACTIVE_GAME, PREFABS } from "@/utils/utils.ts";
+import { PREFABS } from "@/utils/utils.ts";
 import Prefab from "@/Assets/Prefab.ts";
 import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
 import {
@@ -17,6 +17,8 @@ import {
 import BaseMonster from "@/Assets/SceneObjects/BaseMonster.ts";
 import DraggableObject from "./Assets/SceneObjects/DraggableObject.ts";
 import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
+import Web from "@/Web/web.ts";
+import TitleScreen from "@/TitleScreen/TitleScreen.ts";
 
 class App {
   private readonly camera: PerspectiveCamera;
@@ -24,7 +26,7 @@ class App {
   private readonly renderer: WebGLRenderer;
   private loading: boolean = true;
   private readonly assets: Asset[];
-
+  private activeGame: Web | AR | TitleScreen | undefined = undefined;
   constructor() {
     this.assets = [
       {
@@ -73,6 +75,7 @@ class App {
   }
 
   public Start() {
+    this.activeGame = new TitleScreen(this.scene, this.camera, this.renderer);
     this._init().finally(() => {
       this.renderer.xr.enabled = true;
       this._createButtons();
@@ -132,13 +135,16 @@ class App {
   }
 
   private _onStartAr(): void {
-    ACTIVE_GAME?.Destroy();
-    ACTIVE_GAME = new AR(this.scene, this.renderer);
+    this.activeGame?.Destroy();
+    this.activeGame = new AR(this.scene, this.renderer);
   }
 
-  private _onStartVr() {}
+  private _onStartVr() {
+    this.activeGame = undefined;
+  }
 
   private _onStartWeb(): void {
+    this.activeGame = undefined;
     //this.activeGame = new Web(this.scene, this.camera);
   }
 
