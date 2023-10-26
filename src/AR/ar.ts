@@ -17,8 +17,6 @@ import {
   SCENE_OBJECTS,
 } from "@/utils/utils.ts";
 import BaseMonster from "@/Assets/SceneObjects/BaseMonster.ts";
-import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
-import ArOverlay from "@/Overlay/AR/ArOverlay.ts";
 import DraggableObject from "@/Assets/SceneObjects/DraggableObject";
 
 class AR {
@@ -31,12 +29,12 @@ class AR {
   private xrReferenceSpace: XRReferenceSpace | null | undefined;
   private spawnTimer: number;
   private lastFrameTimestamp: number;
-  private isDragging: boolean;
-  private dragObject: DraggableObject | null;
+  //private isDragging: boolean;
+  //private dragObject: DraggableObject | null;
   private raycaster: Raycaster = new Raycaster();
-  private tempMatrix: Matrix4 = new Matrix4();
+  // tempMatrix: Matrix4 = new Matrix4();
   private intersected: any[] = [];
-  private parentGroup: Group = new Group();
+  //private parentGroup: Group = new Group();
   private line: Object3D;
 
   constructor(scene: Scene, renderer: WebGLRenderer) {
@@ -45,9 +43,9 @@ class AR {
     this.spawnTimer = this.initSpawnTimer;
     this.renderer = renderer;
     this.lastFrameTimestamp = 0;
-    this.isDragging = false;
+    //this.isDragging = false;
     this.xrSession = null;
-    this.dragObject = null;
+    //this.dragObject = null;
     //Raycast line
     const geometry = new BufferGeometry().setFromPoints([
       new Vector3(0, 0, 0),
@@ -62,8 +60,6 @@ class AR {
     this.controller = this.renderer.xr.getController(0) as Group;
     this.controller2 = this.renderer.xr.getController(1) as Group;
     this._initControllers();
-
-    this.arOverlay = new ArOverlay();
   }
 
   _onSelectStart(event: any) {
@@ -100,7 +96,7 @@ class AR {
     this.controller.userData.position = this.controller.position;
     //this.controller.addEventListener("select", this._onSelect.bind(this));
 
-    let isDragging = false;
+    //let isDragging = false;
 
     //   this.controller.addEventListener('squeezestart', () => {
     //     isDragging = true;
@@ -162,22 +158,22 @@ class AR {
     this.scene.add(this.controller2);
   }
 
-  private _onSelect(event: any): void {
-    console.log(event);
-    const position = new Vector3()
-      .set(0, 0, -0.3)
-      .applyMatrix4(this.controller.matrixWorld);
-    const velocity = new Vector3(0, 0, -0.1);
-    velocity.x = (Math.random() - 0.5) * 0.02;
-    velocity.y = (Math.random() - 0.5) * 0.02;
-    velocity.z = Math.random() * 0.01 - 0.05;
-    velocity.applyQuaternion(this.controller.quaternion);
-    instanceNewSceneObject("PlayerShoot", PlayerShoot, this.scene, {
-      position,
-      velocity,
-      controller: this.controller,
-    });
-  }
+  // private _onSelect(event: any): void {
+  //   console.log(event);
+  //   const position = new Vector3()
+  //     .set(0, 0, -0.3)
+  //     .applyMatrix4(this.controller.matrixWorld);
+  //   const velocity = new Vector3(0, 0, -0.1);
+  //   velocity.x = (Math.random() - 0.5) * 0.02;
+  //   velocity.y = (Math.random() - 0.5) * 0.02;
+  //   velocity.z = Math.random() * 0.01 - 0.05;
+  //   velocity.applyQuaternion(this.controller.quaternion);
+  //   instanceNewSceneObject("PlayerShoot", PlayerShoot, this.scene, {
+  //     position,
+  //     velocity,
+  //     controller: this.controller,
+  //   });
+  // }
 
   private _getIntersections(
     controller: Group,

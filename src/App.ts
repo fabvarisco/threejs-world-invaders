@@ -19,6 +19,7 @@ import DraggableObject from "./Assets/SceneObjects/DraggableObject.ts";
 import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
 import Web from "@/Web/web.ts";
 import TitleScreen from "@/TitleScreen/TitleScreen.ts";
+import VR from "@/VR/vr.ts";
 
 class App {
   private readonly camera: PerspectiveCamera;
@@ -26,7 +27,8 @@ class App {
   private readonly renderer: WebGLRenderer;
   private loading: boolean = true;
   private readonly assets: Asset[];
-  private activeGame: Web | AR | TitleScreen | undefined = undefined;
+  private activeGame: Web | AR | VR | TitleScreen | undefined = undefined;
+  private startButtonContainer: HTMLElement | null = null;
   constructor() {
     this.assets = [
       {
@@ -81,6 +83,8 @@ class App {
       this._createButtons();
       this._removeLoading();
     });
+    const teste = document.getElementById("ARButton");
+    console.log(teste);
   }
   private async _init() {
     console.log("Loading...");
@@ -109,13 +113,22 @@ class App {
     container?.remove();
   }
 
+  private _destroyStartButtonsContainer() {
+    if (!this.startButtonContainer) return;
+    document.removeChild(this.startButtonContainer);
+  }
   private _createButtons(): void {
-    const startButtonContainer = document.getElementById("start-buttons");
+    this.startButtonContainer = document.getElementById("start-buttons");
 
     const startArButton = ARButton.createButton(this.renderer, {});
     startArButton.addEventListener("click", this._onStartAr.bind(this));
     startArButton.className = "button";
     startArButton.removeAttribute("style");
+
+    if (startArButton!.textContent!.toLowerCase().includes("not supported")) {
+      const att = startArButton.getAttribute("button");
+      console.log(att);
+    }
 
     const startWebButton = document.createElement("button");
     startWebButton.addEventListener("click", this._onStartWeb.bind(this));
@@ -129,21 +142,23 @@ class App {
     startVrButton.removeAttribute("style");
     startVrButton.className = "button";
 
-    startButtonContainer?.appendChild(startArButton);
-    startButtonContainer?.appendChild(startWebButton);
-    startButtonContainer?.appendChild(startVrButton);
+    this.startButtonContainer?.appendChild(startArButton);
+    this.startButtonContainer?.appendChild(startWebButton);
+    this.startButtonContainer?.appendChild(startVrButton);
   }
 
   private _onStartAr(): void {
-    this.activeGame?.Destroy();
+    document.getElementById("title-container")?.remove();
     this.activeGame = new AR(this.scene, this.renderer);
   }
 
   private _onStartVr() {
-    this.activeGame = undefined;
+    document.getElementById("title-container")?.remove();
+    this.activeGame = new VR(this.scene, this.renderer);
   }
 
   private _onStartWeb(): void {
+    this._destroyStartButtonsContainer();
     this.activeGame = undefined;
     //this.activeGame = new Web(this.scene, this.camera);
   }
