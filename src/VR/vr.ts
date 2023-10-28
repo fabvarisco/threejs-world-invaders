@@ -118,6 +118,9 @@ class VR {
   public Render() {
     // Render logic here
   }
+
+  public Destroy() {
+   }
 }
 
 export default VR;

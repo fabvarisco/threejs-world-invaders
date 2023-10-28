@@ -36,6 +36,10 @@ class TitleScreen {
 
   Destroy() {
     this.titleText.Destroy();
+    this.controls.dispose();
+
+    this.titleText = null;
+    this.controls = null;
   }
 }
 

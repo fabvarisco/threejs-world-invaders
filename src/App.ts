@@ -27,7 +27,7 @@ class App {
   private readonly renderer: WebGLRenderer;
   private loading: boolean = true;
   private readonly assets: Asset[];
-  private activeGame: Web | AR | VR | TitleScreen | undefined = undefined;
+  private activeGame: Web | AR | VR | TitleScreen | undefined | null = null;
   private startButtonContainer: HTMLElement | null = null;
   constructor() {
     this.assets = [
@@ -115,7 +115,7 @@ class App {
 
   private _destroyStartButtonsContainer() {
     if (!this.startButtonContainer) return;
-    document.removeChild(this.startButtonContainer);
+    //document.removeChild(this.startButtonContainer);
   }
   private _createButtons(): void {
     this.startButtonContainer = document.getElementById("start-buttons");
@@ -159,8 +159,9 @@ class App {
 
   private _onStartWeb(): void {
     this._destroyStartButtonsContainer();
-    this.activeGame = undefined;
-    //this.activeGame = new Web(this.scene, this.camera);
+    this.activeGame?.Destroy();
+    this.activeGame = null;
+    this.activeGame = new Web(this.scene, this.camera, this.renderer);
   }
 
   private _resize(): void {
