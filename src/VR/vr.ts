@@ -163,7 +163,7 @@ class VR {
 
   //@ts-ignore
   public Render(timestamp: any, frame: any) {
-    //this.intersection = undefined;
+    this.intersection = undefined;
     this.controllers.forEach((controller: Group) => {
       if (controller.userData.selectPressed === true) {
         this.tempMatrix.identity().extractRotation(controller.matrixWorld);
