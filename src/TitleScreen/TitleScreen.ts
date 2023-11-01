@@ -38,7 +38,9 @@ class TitleScreen {
     this.titleText.Destroy();
     this.controls.dispose();
 
+    //@ts-ignore
     this.titleText = null;
+    //@ts-ignore
     this.controls = null;
   }
 }

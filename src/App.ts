@@ -115,7 +115,7 @@ class App {
 
   private _destroyStartButtonsContainer() {
     if (!this.startButtonContainer) return;
-    //document.removeChild(this.startButtonContainer);
+    this.startButtonContainer.remove();
   }
   private _createButtons(): void {
     this.startButtonContainer = document.getElementById("start-buttons");

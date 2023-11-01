@@ -10,13 +10,13 @@ import {
 
 class BulletVR extends EventDispatcher {
   private mesh: Mesh;
-  private offset: Vector3;
+  private readonly offset: Vector3;
   private gun: Object3D;
-  private targets: Object3D[];
-  private distanceLimit: number;
-  private workingVec3: Vector3;
-  private workingQuat: Quaternion;
-  private workingMat4: Matrix4;
+  private readonly targets: Object3D[];
+  private readonly distanceLimit: number;
+  private readonly workingVec3: Vector3;
+  private readonly workingQuat: Quaternion;
+  private readonly workingMat4: Matrix4;
   private raycaster: Raycaster;
   private firing: boolean;
   private distanceTravelled: number;
