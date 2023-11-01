@@ -154,7 +154,7 @@ class App {
 
   private _onStartVr() {
     document.getElementById("title-container")?.remove();
-    this.activeGame = new VR(this.scene, this.renderer);
+    this.activeGame = new VR(this.camera, this.renderer);
   }
 
   private _onStartWeb(): void {
@@ -175,7 +175,6 @@ class App {
       if (this.activeGame) {
         this.activeGame.Render(timestamp, frame);
       }
-      this.renderer.render(this.scene, this.camera);
     }
   }
 }

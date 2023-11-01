@@ -1,13 +1,18 @@
 import {
   BufferGeometry,
-  CircleGeometry,
+  Camera,
+  DirectionalLight,
   Group,
+  HemisphereLight,
   Line,
+  LineBasicMaterial,
+  LineSegments,
   Matrix4,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
   PlaneGeometry,
+  Quaternion,
   Raycaster,
   Scene,
   SphereGeometry,
@@ -15,62 +20,45 @@ import {
   WebGLRenderer,
 } from "three";
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
+import { BoxLineGeometry } from "three/examples/jsm/geometries/BoxLineGeometry.js";
 
 class VR {
-  private scene: Scene;
+  private readonly scene: Scene;
+  private readonly camera: Camera;
   private renderer: WebGLRenderer;
   private controllers: Group[] = [];
-  private teleports: Mesh[];
-  private userData: any;
   private intersection: any;
   private tempMatrix: Matrix4 = new Matrix4();
   private raycaster: Raycaster = new Raycaster();
-  private floor: Mesh = new Mesh();
-  constructor(scene: Scene, renderer: WebGLRenderer) {
-    this.scene = scene;
+  private readonly floor: Mesh;
+  constructor(camera: Camera, renderer: WebGLRenderer) {
+    this.scene = new Scene();
+    this.camera = camera;
     this.renderer = renderer;
 
-    const locations = [
-      new Vector3(-0.409, 0.086, 4.038),
-      new Vector3(-0.846, 0.112, 5.777),
-      new Vector3(5.22, 0.176, 2.677),
-      new Vector3(1.49, 2.305, -1.599),
-      new Vector3(7.565, 2.694, 0.008),
-      new Vector3(-8.417, 2.676, 0.192),
-      new Vector3(-6.644, 2.6, -4.114),
-    ];
+    this.scene.add(new HemisphereLight(0x606060, 0x404040));
 
-    const self = this;
+    const light = new DirectionalLight(0xffffff);
+    light.position.set(1, 1, 1).normalize();
+    this.scene.add(light);
 
-    this.teleports = [];
-    locations.forEach((location) => {
-      const teleport = new Mesh(
-        new CircleGeometry(0.25, 32).rotateX(-Math.PI / 2),
-        new MeshBasicMaterial({ color: 0xbcbcbc }),
-      );
-      teleport.position.copy(location);
-      self.scene.add(teleport);
-      self.teleports.push(teleport);
-    });
+    const room = new LineSegments(
+      new BoxLineGeometry(6, 6, 6, 10, 10, 10).translate(0, 3, 0),
+      new LineBasicMaterial({ color: 0xbcbcbc }),
+    );
+    this.scene.add(room);
 
-    this.loadEnvironment();
-    this.buildControllers();
-  }
-
-  setEnvironment(): void {
-    // Set environment logic here
-  }
-
-  loadEnvironment(): void {
-    const floorGeometry = new PlaneGeometry(4, 4);
+    const floorGeometry = new PlaneGeometry(6, 6);
     const floorMaterial = new MeshStandardMaterial({ color: 0x666666 });
     this.floor = new Mesh(floorGeometry, floorMaterial);
     this.floor.rotation.x = -Math.PI / 2;
     this.floor.receiveShadow = true;
     this.scene.add(this.floor);
+    this.buildControllers();
   }
 
   buildControllers(): void {
+    const self = this;
     const controllerModelFactory = new XRControllerModelFactory();
 
     const geometry = new BufferGeometry().setFromPoints([
@@ -102,41 +90,65 @@ class VR {
 
     this.controllers = controllers;
 
+    function onSelectStart(this: any, event: any): void {
+      console.log(this);
+      this.userData.selectPressed = true;
+      console.log(this);
+      console.log(event);
+    }
+
+    function onSelectEnd(this: any, event: any): void {
+      this.userData.selectPressed = false;
+      console.log(event);
+      console.log(this);
+      if (self.intersection) {
+        const offsetPosition = {
+          x: -self.intersection.x,
+          y: -self.intersection.y,
+          z: -self.intersection.z,
+          w: 1,
+        };
+        const offsetRotation = new Quaternion();
+        const transform = new XRRigidTransform(offsetPosition, offsetRotation);
+        const teleportSpaceOffset = self.renderer.xr
+          .getReferenceSpace()
+          ?.getOffsetReferenceSpace(transform);
+
+        console.log("aaaa " + teleportSpaceOffset);
+        if (teleportSpaceOffset) {
+          self.renderer.xr.setReferenceSpace(teleportSpaceOffset);
+        }
+      }
+      console.log(self.intersection);
+    }
+
+    function onSqueezeStart(this: any, event: any): void {
+      this.userData.squeezePressed = true;
+      console.log(event);
+    }
+
+    function onSqueezeEnd(this: any, event: any): void {
+      this.userData.squeezePressed = false;
+
+      console.log(event);
+    }
+
     this.controllers.forEach((controller: Group): void => {
-      controller.addEventListener("selectstart", this.onSelectStart);
-      controller.addEventListener("selectend", this.onSelectEnd);
-      controller.addEventListener("squeezestart", this.onSqueezeStart);
-      controller.addEventListener("squeezeend", this.onSqueezeEnd);
+      controller.addEventListener("selectstart", onSelectStart);
+      controller.addEventListener("selectend", onSelectEnd);
+      controller.addEventListener("squeezestart", onSqueezeStart);
+      controller.addEventListener("squeezeend", onSqueezeEnd);
       this.scene.add(controller.userData.grip);
+      this.scene.add(controller.userData.marker);
       this.scene.add(controller);
     });
   }
 
   private createMarker(geometry: SphereGeometry, material: MeshBasicMaterial) {
     const mesh = new Mesh(geometry, material);
-    mesh.visible = false;
+    mesh.visible = true;
     this.scene.add(mesh);
     return mesh;
-  }
-  onSelectStart(event: any): void {
-    this.userData.selectPressed = true;
-
-    console.log(event);
-  }
-  onSelectEnd(event: any): void {
-    this.userData.selectPressed = false;
-    console.log(event);
-  }
-
-  onSqueezeStart(event: any): void {
-    this.userData.squeezePressed = true;
-    console.log(event);
-  }
-
-  onSqueezeEnd(event: any): void {
-    this.userData.squeezePressed = false;
-
-    console.log(event);
   }
 
   // pickupGun(controller = this.controllers[0]) {
@@ -151,27 +163,27 @@ class VR {
 
   //@ts-ignore
   public Render(timestamp: any, frame: any) {
-    this.intersection = undefined;
-
-    this.controllers.forEach((controller) => {
-      if (controller.userData.isSelecting === true) {
+    //this.intersection = undefined;
+    this.controllers.forEach((controller: Group) => {
+      if (controller.userData.selectPressed === true) {
         this.tempMatrix.identity().extractRotation(controller.matrixWorld);
-
+        debugger;
         this.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
         this.raycaster.ray.direction
           .set(0, 0, -1)
           .applyMatrix4(this.tempMatrix);
 
         const intersects = this.raycaster.intersectObjects([this.floor]);
-
         if (intersects.length > 0) {
           this.intersection = intersects[0].point;
         }
       }
       controller.userData.marker.visible = this.intersection !== undefined;
+      debugger;
       if (this.intersection)
         controller.userData.marker.position.copy(this.intersection);
     });
+    this.renderer.render(this.scene, this.camera);
   }
 
   public Destroy() {}
