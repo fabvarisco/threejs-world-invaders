@@ -8,6 +8,8 @@ import {
   WebGLRenderer,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { instanceNewSceneObject } from "@/utils/utils.ts";
+import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
 
 class TitleScreen {
   private titleText: Text;
@@ -43,6 +45,8 @@ class TitleScreen {
     this.controls.dampingFactor = 0.05;
     this.controls.screenSpacePanning = false;
     this.controls.autoRotate = false;
+
+    instanceNewSceneObject("Earth", SceneObject, this.scene, {});
   }
 
   //@ts-ignore

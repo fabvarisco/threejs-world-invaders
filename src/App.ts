@@ -20,6 +20,7 @@ import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
 import Web from "@/Web/web.ts";
 import TitleScreen from "@/TitleScreen/TitleScreen.ts";
 import VR from "@/VR/vr.ts";
+import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
 
 class App {
   private readonly camera: PerspectiveCamera;
@@ -43,6 +44,10 @@ class App {
       {
         asset: "DraggableObject",
         sceneObjectType: DraggableObject,
+      },
+      {
+        asset: "Earth",
+        sceneObjectType: SceneObject,
       },
     ];
     this.camera = new PerspectiveCamera(
@@ -77,11 +82,11 @@ class App {
   }
 
   public Start() {
-    this.activeGame = new TitleScreen(this.camera, this.renderer);
     this._init().finally(() => {
       this.renderer.xr.enabled = true;
       this._createButtons();
       this._removeLoading();
+      this.activeGame = new TitleScreen(this.camera, this.renderer);
     });
     const teste = document.getElementById("ARButton");
     console.log(teste);
