@@ -31,6 +31,7 @@ class VR {
   private tempMatrix: Matrix4 = new Matrix4();
   private raycaster: Raycaster = new Raycaster();
   private readonly floor: Mesh;
+  private baseReferenceSpace: XRReferenceSpace | null | undefined;
   constructor(camera: Camera, renderer: WebGLRenderer) {
     this.scene = new Scene();
     this.camera = camera;
@@ -54,7 +55,18 @@ class VR {
     this.floor.rotation.x = -Math.PI / 2;
     this.floor.receiveShadow = true;
     this.scene.add(this.floor);
+
+    this.renderer.xr.addEventListener(
+      "sessionstart",
+      this.onSessionStart.bind(this),
+    );
+
     this.buildControllers();
+  }
+
+  private onSessionStart(): void {
+    this.baseReferenceSpace = this.renderer.xr.getReferenceSpace();
+    console.log("base " + this.baseReferenceSpace);
   }
 
   buildControllers(): void {
@@ -93,7 +105,6 @@ class VR {
     function onSelectStart(this: any, event: any): void {
       console.log(this);
       this.userData.selectPressed = true;
-      this.intersection = undefined;
       console.log(this);
       console.log(event);
     }
@@ -101,7 +112,7 @@ class VR {
     function onSelectEnd(this: any, event: any): void {
       this.userData.selectPressed = false;
       console.log(event);
-      console.log(this);
+      console.log(this.intersection);
       if (self.intersection) {
         const offsetPosition = {
           x: -self.intersection.x,
@@ -111,11 +122,11 @@ class VR {
         };
         const offsetRotation = new Quaternion();
         const transform = new XRRigidTransform(offsetPosition, offsetRotation);
-        const teleportSpaceOffset = self.renderer.xr
-          .getReferenceSpace()
-          ?.getOffsetReferenceSpace(transform);
+        const teleportSpaceOffset =
+          self.baseReferenceSpace?.getOffsetReferenceSpace(transform);
 
-        console.log("aaaa " + teleportSpaceOffset);
+        console.log("base 2 " + this.baseReferenceSpace);
+
         if (teleportSpaceOffset) {
           self.renderer.xr.setReferenceSpace(teleportSpaceOffset);
         }
@@ -168,7 +179,6 @@ class VR {
     this.controllers.forEach((controller: Group) => {
       if (controller.userData.selectPressed === true) {
         this.tempMatrix.identity().extractRotation(controller.matrixWorld);
-        debugger;
         this.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
         this.raycaster.ray.direction
           .set(0, 0, -1)
@@ -180,9 +190,9 @@ class VR {
         }
       }
       controller.userData.marker.visible = this.intersection !== undefined;
-      debugger;
-      if (this.intersection)
+      if (this.intersection) {
         controller.userData.marker.position.copy(this.intersection);
+      }
     });
     this.renderer.render(this.scene, this.camera);
   }
