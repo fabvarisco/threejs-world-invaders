@@ -93,6 +93,7 @@ class VR {
     function onSelectStart(this: any, event: any): void {
       console.log(this);
       this.userData.selectPressed = true;
+      this.intersection = undefined;
       console.log(this);
       console.log(event);
     }
@@ -162,7 +163,7 @@ class VR {
   // }
 
   //@ts-ignore
-  public Render(timestamp: any, frame: any) {
+  public Render(timestamp: any, frame: any): void {
     this.intersection = undefined;
     this.controllers.forEach((controller: Group) => {
       if (controller.userData.selectPressed === true) {

@@ -77,7 +77,7 @@ class App {
   }
 
   public Start() {
-    this.activeGame = new TitleScreen(this.scene, this.camera, this.renderer);
+    this.activeGame = new TitleScreen(this.camera, this.renderer);
     this._init().finally(() => {
       this.renderer.xr.enabled = true;
       this._createButtons();
