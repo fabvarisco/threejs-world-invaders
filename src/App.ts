@@ -149,7 +149,7 @@ class App {
 
   private _onStartAr(): void {
     document.getElementById("title-container")?.remove();
-    this.activeGame = new AR(this.scene, this.renderer);
+    this.activeGame = new AR(this.camera, this.renderer);
   }
 
   private _onStartVr() {

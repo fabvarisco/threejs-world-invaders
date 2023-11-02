@@ -1,5 +1,6 @@
 import {
   BufferGeometry,
+  Camera,
   Group,
   Intersection,
   Line,
@@ -21,6 +22,7 @@ import DraggableObject from "@/Assets/SceneObjects/DraggableObject";
 
 class AR {
   private readonly scene: Scene;
+  private camera: Camera;
   private readonly initSpawnTimer: number;
   private readonly controller: Group;
   private readonly controller2: Group;
@@ -37,8 +39,9 @@ class AR {
   //private parentGroup: Group = new Group();
   private line: Object3D;
 
-  constructor(scene: Scene, renderer: WebGLRenderer) {
-    this.scene = scene;
+  constructor(camera: Camera, renderer: WebGLRenderer) {
+    this.scene = new Scene();
+    this.camera = camera;
     this.initSpawnTimer = 1000;
     this.spawnTimer = this.initSpawnTimer;
     this.renderer = renderer;
@@ -297,10 +300,11 @@ class AR {
       }
     }
     this.spawnTimer -= deltaTime;
+
+    this.renderer.render(this.scene, this.camera);
   }
 
   private endSession() {
-    document.write("");
     location.reload();
   }
 
