@@ -21,10 +21,11 @@ import {
 } from "@/utils/utils.ts";
 import BaseMonster from "@/Assets/SceneObjects/BaseMonster.ts";
 import DraggableObject from "@/Assets/SceneObjects/DraggableObject";
+import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
 
 class AR {
   private readonly scene: Scene;
-  private camera: Camera;
+  private readonly camera: Camera;
   private readonly initSpawnTimer: number;
   private readonly controller: Group;
   private readonly controller2: Group;
@@ -105,7 +106,7 @@ class AR {
 
   private _initControllers(): void {
     this.controller.userData.position = this.controller.position;
-    //this.controller.addEventListener("select", this._onSelect.bind(this));
+    this.controller.addEventListener("select", this._onSelect.bind(this));
 
     //let isDragging = false;
 
@@ -169,22 +170,22 @@ class AR {
     this.scene.add(this.controller2);
   }
 
-  // private _onSelect(event: any): void {
-  //   console.log(event);
-  //   const position = new Vector3()
-  //     .set(0, 0, -0.3)
-  //     .applyMatrix4(this.controller.matrixWorld);
-  //   const velocity = new Vector3(0, 0, -0.1);
-  //   velocity.x = (Math.random() - 0.5) * 0.02;
-  //   velocity.y = (Math.random() - 0.5) * 0.02;
-  //   velocity.z = Math.random() * 0.01 - 0.05;
-  //   velocity.applyQuaternion(this.controller.quaternion);
-  //   instanceNewSceneObject("PlayerShoot", PlayerShoot, this.scene, {
-  //     position,
-  //     velocity,
-  //     controller: this.controller,
-  //   });
-  // }
+  private _onSelect(event: any): void {
+    console.log(event);
+    const position = new Vector3()
+      .set(0, 0, -0.3)
+      .applyMatrix4(this.controller.matrixWorld);
+    const velocity = new Vector3(0, 0, -0.1);
+    velocity.x = (Math.random() - 0.5) * 0.02;
+    velocity.y = (Math.random() - 0.5) * 0.02;
+    velocity.z = Math.random() * 0.01 - 0.05;
+    velocity.applyQuaternion(this.controller.quaternion);
+    instanceNewSceneObject("PlayerShoot", PlayerShoot, this.scene, {
+      position,
+      velocity,
+      controller: this.controller,
+    });
+  }
 
   private _getIntersections(
     controller: Group,
@@ -281,17 +282,18 @@ class AR {
     this._intersectObjects(this.controller2);
 
     if (this.spawnTimer <= 0) {
-      //this.spawnMonster();
+      this.spawnMonster();
       this.spawnDraggable();
       this._resetSpawnTimer();
     }
     if (!this.xrSession) {
       const session = this.renderer.xr.getSession();
       session
-        ?.requestReferenceSpace("local")
+        ?.requestReferenceSpace("viewer")
         .then((xrReferenceSpace) => {
           this.xrReferenceSpace = xrReferenceSpace;
           this.xrSession = session;
+          debugger;
           this.xrSession.addEventListener("end", this.endSession.bind(this));
         })
         .catch((error) => {
