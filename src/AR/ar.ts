@@ -1,7 +1,9 @@
 import {
   BufferGeometry,
   Camera,
+  DirectionalLight,
   Group,
+  HemisphereLight,
   Intersection,
   Line,
   Matrix4,
@@ -49,6 +51,12 @@ class AR {
     //this.isDragging = false;
     this.xrSession = null;
     //this.dragObject = null;
+
+    this.scene.add(new HemisphereLight(0x606060, 0x404040));
+    const light = new DirectionalLight(0xffffff);
+    light.position.set(1, 1, 1).normalize();
+    this.scene.add(light);
+
     //Raycast line
     const geometry = new BufferGeometry().setFromPoints([
       new Vector3(0, 0, 0),
