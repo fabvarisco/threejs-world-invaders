@@ -293,7 +293,6 @@ class AR {
         .then((xrReferenceSpace) => {
           this.xrReferenceSpace = xrReferenceSpace;
           this.xrSession = session;
-          debugger;
           this.xrSession.addEventListener("end", this.endSession.bind(this));
         })
         .catch((error) => {

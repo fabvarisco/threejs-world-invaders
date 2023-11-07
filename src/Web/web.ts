@@ -95,7 +95,6 @@ class Web {
     this.vector1 = new THREE.Vector3();
     this.vector2 = new THREE.Vector3();
     this.vector3 = new THREE.Vector3();
-    this._createSpheres();
     document.addEventListener("keydown", (event) => {
       this.keyStates[event.code] = true;
     });
@@ -151,26 +150,27 @@ class Web {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  private _createSpheres() {
-    for (let i = 0; i < this.NUM_SPHERES; i++) {
-      const sphere = new THREE.Mesh(this.sphereGeometry, this.sphereMaterial);
-      sphere.castShadow = true;
-      sphere.receiveShadow = true;
+  private _createSphere() {
+    const sphere = new THREE.Mesh(this.sphereGeometry, this.sphereMaterial);
+    sphere.castShadow = true;
+    sphere.receiveShadow = true;
 
-      this.scene.add(sphere);
+    this.scene.add(sphere);
 
-      this.spheres.push({
-        mesh: sphere,
-        collider: new THREE.Sphere(
-          new THREE.Vector3(0, -100, 0),
-          this.SPHERE_RADIUS,
-        ),
-        velocity: new THREE.Vector3(),
-      });
-    }
+    this.spheres.push({
+      mesh: sphere,
+      collider: new THREE.Sphere(
+        new THREE.Vector3(0, -100, 0),
+        this.SPHERE_RADIUS,
+      ),
+      velocity: new THREE.Vector3(),
+    });
+    
   }
 
+
   private throwBall(): void {
+    this._createSphere();
     const sphere = this.spheres[this.sphereIdx];
     this.camera.getWorldDirection(this.playerDirection);
     sphere.collider.center
@@ -178,8 +178,9 @@ class Web {
       .addScaledVector(this.playerDirection, this.playerCollider.radius * 1.5);
     const impulse =
       15 + 30 * (1 - Math.exp((this.mouseTime - performance.now()) * 0.001));
-    sphere.velocity.copy(this.playerDirection).multiplyScalar(impulse);
-    sphere.velocity.addScaledVector(this.playerVelocity, 2);
+
+    sphere.velocity.copy(this.camera.getWorldDirection(this.playerDirection).clone().multiplyScalar(impulse));
+    
     this.sphereIdx = (this.sphereIdx + 1) % this.spheres.length;
   }
 
@@ -198,6 +199,17 @@ class Web {
     }
   }
 
+
+  private spheresCollisions(): void {
+    for (let i = 0, length = this.spheres.length; i < length; i++) {
+      const s1 = this.spheres[i];
+      const result = this.worldOctree.sphereIntersect(s1.collider);
+      if(result){
+        this.scene.remove(s1.mesh);
+      } 
+    }
+  }
+
   private updatePlayer(deltaTime: number): void {
     let damping = Math.exp(-4 * deltaTime) - 1;
     if (!this.playerOnFloor) {
@@ -211,84 +223,19 @@ class Web {
     this.camera.position.copy(this.playerCollider.end);
   }
 
-  private playerSphereCollision(sphere: {
-    collider: THREE.Sphere;
-    velocity: THREE.Vector3;
-  }): void {
-    const center = this.vector1
-      .addVectors(this.playerCollider.start, this.playerCollider.end)
-      .multiplyScalar(0.5);
-    const sphere_center = sphere.collider.center;
-    const r = this.playerCollider.radius + sphere.collider.radius;
-    const r2 = r * r;
-    for (const point of [
-      this.playerCollider.start,
-      this.playerCollider.end,
-      center,
-    ]) {
-      const d2 = point.distanceToSquared(sphere_center);
-      if (d2 < r2) {
-        const normal = this.vector1
-          .subVectors(point, sphere_center)
-          .normalize();
-        const v1 = this.vector2
-          .copy(normal)
-          .multiplyScalar(normal.dot(this.playerVelocity));
-        const v2 = this.vector3
-          .copy(normal)
-          .multiplyScalar(normal.dot(sphere.velocity));
-        this.playerVelocity.add(v2).sub(v1);
-        sphere.velocity.add(v1).sub(v2);
-        const d = (r - Math.sqrt(d2)) / 2;
-        sphere_center.addScaledVector(normal, -d);
-      }
-    }
-  }
-
-  private spheresCollisions(): void {
-    for (let i = 0, length = this.spheres.length; i < length; i++) {
-      const s1 = this.spheres[i];
-      for (let j = i + 1; j < length; j++) {
-        const s2 = this.spheres[j];
-        const d2 = s1.collider.center.distanceToSquared(s2.collider.center);
-        const r = s1.collider.radius + s2.collider.radius;
-        const r2 = r * r;
-        if (d2 < r2) {
-          const normal = this.vector1
-            .subVectors(s1.collider.center, s2.collider.center)
-            .normalize();
-          const v1 = this.vector2
-            .copy(normal)
-            .multiplyScalar(normal.dot(s1.velocity));
-          const v2 = this.vector3
-            .copy(normal)
-            .multiplyScalar(normal.dot(s2.velocity));
-          s1.velocity.add(v2).sub(v1);
-          s2.velocity.add(v1).sub(v2);
-          const d = (r - Math.sqrt(d2)) / 2;
-          s1.collider.center.addScaledVector(normal, d);
-          s2.collider.center.addScaledVector(normal, -d);
-        }
-      }
-    }
-  }
-
   private updateSpheres(deltaTime: number): void {
     this.spheres.forEach((sphere) => {
       sphere.collider.center.addScaledVector(sphere.velocity, deltaTime);
-      const result = this.worldOctree.sphereIntersect(sphere.collider);
-      if (result) {
-        sphere.velocity.addScaledVector(
-          result.normal,
-          -result.normal.dot(sphere.velocity) * 1.5,
-        );
-        sphere.collider.center.add(result.normal.multiplyScalar(result.depth));
-      } else {
-        sphere.velocity.y -= this.GRAVITY * deltaTime;
-      }
-      const damping = Math.exp(-1.5 * deltaTime) - 1;
-      sphere.velocity.addScaledVector(sphere.velocity, damping);
-      this.playerSphereCollision(sphere);
+      //const result = this.worldOctree.sphereIntersect(sphere.collider);
+      // if (result) {
+      //   sphere.velocity.addScaledVector(
+      //     result.normal,
+      //     -result.normal.dot(sphere.velocity) * 1.5,
+      //   );
+      //   sphere.collider.center.add(result.normal.multiplyScalar(result.depth));
+      // }
+      // const damping = Math.exp(-1.5 * deltaTime) - 1;
+      // sphere.velocity.addScaledVector(sphere.velocity, damping);
     });
     this.spheresCollisions();
     for (const sphere of this.spheres) {
