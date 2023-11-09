@@ -32,6 +32,8 @@ class VR {
   private tempMatrix: Matrix4 = new Matrix4();
   private raycaster: Raycaster = new Raycaster();
   private readonly floor: Mesh;
+  private projectiles: { mesh: Mesh, velocity: Vector3 }[] = [];
+  private gunAttached: boolean = false;
   private baseReferenceSpace: XRReferenceSpace | null | undefined;
   constructor(camera: Camera, renderer: WebGLRenderer) {
     this.scene = new Scene();
@@ -159,6 +161,20 @@ class VR {
       this.scene.add(controller);
     });
   }
+  private shoot(position: Vector3, direction: Vector3): void {
+    const projectileGeometry = new SphereGeometry(1);
+    const projectileMaterial = new MeshBasicMaterial({ color: 0xff0000 });
+    const projectile = new Mesh(projectileGeometry, projectileMaterial);
+    projectile.position.copy(position);
+
+    this.projectiles.push({ mesh: projectile, velocity: direction.multiplyScalar(5) })
+
+    this.scene.add(projectile);
+  }
+
+  private updateProjectile() {
+    this.projectiles.forEach(el => el.mesh.position.add(el.velocity))
+  }
 
   private createGun() {
     const loader = new FBXLoader();
@@ -173,10 +189,19 @@ class VR {
       self.controllers.forEach((controller: Group): void => {
         controller.addEventListener('squeezestart', function () {
           controller.attach(gun);
+          self.gunAttached = true
         });
         controller.addEventListener('squeezeend', function () {
           self.scene.attach(gun);
+          self.gunAttached = false
         });
+        controller.addEventListener('selectstart', function () {
+          if (self.gunAttached) {
+            self.shoot(gun.getWorldPosition(new Vector3()), gun.getWorldDirection(new Vector3()));
+
+          }
+
+        })
       });
 
     }).catch(err => console.log(err));
@@ -221,6 +246,7 @@ class VR {
         controller.userData.marker.position.copy(this.intersection);
       }
     });
+    this.updateProjectile();
     this.renderer.render(this.scene, this.camera);
   }
 
