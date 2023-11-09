@@ -74,7 +74,6 @@ class App {
 
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setAnimationLoop(this._render.bind(this));
 
     this._createLoading();
 
@@ -154,11 +153,15 @@ class App {
 
   private _onStartAr(): void {
     document.getElementById("title-container")?.remove();
+    this.activeGame?.Destroy();
+    this.activeGame = null;
     this.activeGame = new AR(this.camera, this.renderer);
   }
 
   private _onStartVr() {
     document.getElementById("title-container")?.remove();
+    this.activeGame?.Destroy();
+    this.activeGame = null;
     this.activeGame = new VR(this.camera, this.renderer);
   }
 
@@ -175,13 +178,7 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  private _render(timestamp: any, frame: any): void {
-    if (!this.loading) {
-      if (this.activeGame) {
-        this.activeGame.Render(timestamp, frame);
-      }
-    }
-  }
+
 }
 
 export default App;

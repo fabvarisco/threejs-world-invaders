@@ -21,6 +21,7 @@ import {
 } from "three";
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 import { BoxLineGeometry } from "three/examples/jsm/geometries/BoxLineGeometry.js";
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 
 class VR {
   private readonly scene: Scene;
@@ -62,6 +63,9 @@ class VR {
     );
 
     this.buildControllers();
+    this.createGun();
+
+    this.renderer.setAnimationLoop(this.Render.bind(this));
   }
 
   private onSessionStart(): void {
@@ -156,6 +160,29 @@ class VR {
     });
   }
 
+  private createGun() {
+    const loader = new FBXLoader();
+    const self = this;
+    loader.loadAsync("/models/Earth.fbx").then(gun => {
+      gun.scale.set(0.0001, 0.0001, 0.0001);
+      gun.rotation.set(0, Math.PI, 0);
+      gun.position.set(-0.50, 1.50, -1.00);
+
+      self.scene.add(gun);
+
+      self.controllers.forEach((controller: Group): void => {
+        controller.addEventListener('squeezestart', function () {
+          controller.attach(gun);
+        });
+        controller.addEventListener('squeezeend', function () {
+          self.scene.attach(gun);
+        });
+      });
+
+    }).catch(err => console.log(err));
+  }
+
+
   private createMarker(geometry: SphereGeometry, material: MeshBasicMaterial) {
     const mesh = new Mesh(geometry, material);
     mesh.visible = true;
@@ -197,7 +224,7 @@ class VR {
     this.renderer.render(this.scene, this.camera);
   }
 
-  public Destroy() {}
+  public Destroy() { }
 }
 
 export default VR;

@@ -47,6 +47,8 @@ class TitleScreen {
     this.controls.autoRotate = false;
 
     instanceNewSceneObject("Earth", SceneObject, this.scene, {});
+    this.renderer.setAnimationLoop(this.Render.bind(this));
+
   }
 
   //@ts-ignore
@@ -58,6 +60,7 @@ class TitleScreen {
   Destroy() {
     this.titleText.Destroy();
     this.controls.dispose();
+    this.renderer.setAnimationLoop(null);
   }
 }
 
