@@ -35,6 +35,7 @@ class VR {
   private projectiles: { mesh: Mesh, velocity: Vector3 }[] = [];
   private gunAttached: boolean = false;
   private baseReferenceSpace: XRReferenceSpace | null | undefined;
+  private gun: any;
   constructor(camera: Camera, renderer: WebGLRenderer) {
     this.scene = new Scene();
     this.camera = camera;
@@ -200,11 +201,14 @@ class VR {
             self.shoot(gun.getWorldPosition(new Vector3()), gun.getWorldDirection(new Vector3()));
 
           }
-
         })
+
+        console.log(gun)
+        self.gun = gun;
+        debugger;
       });
 
-    }).catch(err => console.log(err));
+    }).catch(err => console.log("asasa "+ err));
   }
 
 
@@ -225,6 +229,28 @@ class VR {
   //   const grip = controller.userData.grip;
   // }
 
+  private _intersectIntaractables(){
+    this.intersection = undefined;
+    this.controllers.forEach((controller: Group) => {
+      if (controller.userData.selectPressed === true) {
+        this.tempMatrix.identity().extractRotation(controller.matrixWorld);
+        this.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+        this.raycaster.ray.direction
+          .set(0, 0, -1)
+          .applyMatrix4(this.tempMatrix);
+
+        const intersects = this.raycaster.intersectObjects([this.floor,this.gun]);
+        if (intersects.length > 0) {
+          this.intersection = intersects[0].point;
+        }
+      }
+      controller.userData.marker.visible = this.intersection !== undefined;
+      if (this.intersection) {
+        controller.userData.marker.position.copy(this.intersection);
+      }
+    });
+  }
+
   //@ts-ignore
   public Render(timestamp: any, frame: any): void {
     this.intersection = undefined;
@@ -236,7 +262,7 @@ class VR {
           .set(0, 0, -1)
           .applyMatrix4(this.tempMatrix);
 
-        const intersects = this.raycaster.intersectObjects([this.floor]);
+        const intersects = this.raycaster.intersectObjects([this.floor,this.gun]);
         if (intersects.length > 0) {
           this.intersection = intersects[0].point;
         }
