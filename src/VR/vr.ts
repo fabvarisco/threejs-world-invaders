@@ -35,7 +35,7 @@ class VR {
   private projectiles: { mesh: Mesh, velocity: Vector3 }[] = [];
   private gunAttached: boolean = false;
   private baseReferenceSpace: XRReferenceSpace | null | undefined;
-  private gun: any;
+  private gun: Group = new Group();
   constructor(camera: Camera, renderer: WebGLRenderer) {
     this.scene = new Scene();
     this.camera = camera;
@@ -58,6 +58,7 @@ class VR {
     this.floor = new Mesh(floorGeometry, floorMaterial);
     this.floor.rotation.x = -Math.PI / 2;
     this.floor.receiveShadow = true;
+    this.floor.name = "floor"
     this.scene.add(this.floor);
 
     this.renderer.xr.addEventListener(
@@ -100,6 +101,7 @@ class VR {
       controller.userData.selectPressed = false;
       controller.add(line.clone());
       controller.userData.marker = this.createMarker(geometry2, material);
+      controller.userData.hasGun = false;
       controllers.push(controller);
 
       const grip = this.renderer.xr.getControllerGrip(i);
@@ -110,35 +112,28 @@ class VR {
     this.controllers = controllers;
 
     function onSelectStart(this: any, event: any): void {
-      console.log(this);
       this.userData.selectPressed = true;
-      console.log(this);
-      console.log(event);
     }
 
     function onSelectEnd(this: any, event: any): void {
       this.userData.selectPressed = false;
-      console.log(event);
-      console.log(this.intersection);
+      if (this.userData.hasGun) return;
+
       if (self.intersection) {
         const offsetPosition = {
-          x: -self.intersection.x,
-          y: -self.intersection.y,
-          z: -self.intersection.z,
+          x: -self.intersection.point.x,
+          y: -self.intersection.point.y,
+          z: -self.intersection.point.z,
           w: 1,
         };
         const offsetRotation = new Quaternion();
         const transform = new XRRigidTransform(offsetPosition, offsetRotation);
         const teleportSpaceOffset =
           self.baseReferenceSpace?.getOffsetReferenceSpace(transform);
-
-        console.log("base 2 " + this.baseReferenceSpace);
-
         if (teleportSpaceOffset) {
           self.renderer.xr.setReferenceSpace(teleportSpaceOffset);
         }
       }
-      console.log(self.intersection);
     }
 
     function onSqueezeStart(this: any, event: any): void {
@@ -162,15 +157,41 @@ class VR {
       this.scene.add(controller);
     });
   }
-  private shoot(position: Vector3, direction: Vector3): void {
-    const projectileGeometry = new SphereGeometry(1);
-    const projectileMaterial = new MeshBasicMaterial({ color: 0xff0000 });
-    const projectile = new Mesh(projectileGeometry, projectileMaterial);
-    projectile.position.copy(position);
+  private shoot(): void {
+ // Loop through controllers to find the one with the gun
+ const controllerWithGun = this.controllers.find(controller => controller.userData.hasGun);
 
-    this.projectiles.push({ mesh: projectile, velocity: direction.multiplyScalar(5) })
+ if (controllerWithGun) {
+   // Get the gun from the controller
+   const gun = controllerWithGun.userData.grip;
 
-    this.scene.add(projectile);
+   // Create a projectile mesh
+   const projectileGeometry = new SphereGeometry(0.05, 8, 6);
+   const projectileMaterial = new MeshBasicMaterial({ color: 0x00ff00 });
+   const projectile = new Mesh(projectileGeometry, projectileMaterial);
+
+   // Set the projectile position and velocity based on gun direction
+   const gunDirection = new Vector3(0,0,1);
+   const gunPosition = new Vector3();
+   
+   // Get the gun position and direction in world coordinates
+   gun.getWorldPosition(gunPosition);
+   gun.getWorldDirection(gunDirection);
+
+   // Set the projectile position at the tip of the gun
+   const projectileStartPosition = gunPosition.clone().add(gunDirection.clone().multiplyScalar(0.1));
+
+   projectile.position.copy(projectileStartPosition);
+
+   // Set the velocity based on the gun direction
+   const projectileVelocity = gunDirection.clone().multiplyScalar(0.1); // Adjust the speed as needed
+
+   // Add the projectile to the scene
+   this.scene.add(projectile);
+
+   // Store the projectile and its velocity for later updates
+   this.projectiles.push({ mesh: projectile, velocity: projectileVelocity });
+ }
   }
 
   private updateProjectile() {
@@ -184,31 +205,43 @@ class VR {
       gun.scale.set(0.0001, 0.0001, 0.0001);
       gun.rotation.set(0, Math.PI, 0);
       gun.position.set(-0.50, 1.50, -1.00);
-
+      gun.children[1].name = "gun";
+      self.gun = gun;
       self.scene.add(gun);
 
+      // self.controllers.forEach((controller: Group): void => {
+      //   controller.addEventListener('squeezestart', function () {
+      //     controller.attach(gun);
+      //     self.gunAttached = true
+      //   });
+      //   controller.addEventListener('squeezeend', function () {
+      //     self.scene.attach(gun);
+      //     self.gunAttached = false
+      //   });
+      //   controller.addEventListener('selectstart', function () {
+      //     if (self.gunAttached) {
+      //       self.shoot(gun.getWorldPosition(new Vector3()), gun.getWorldDirection(new Vector3()));
+
+      //     }
+      //   })
+
+      //   console.log(gun)
+      //   debugger;
+      // });
       self.controllers.forEach((controller: Group): void => {
-        controller.addEventListener('squeezestart', function () {
-          controller.attach(gun);
-          self.gunAttached = true
-        });
         controller.addEventListener('squeezeend', function () {
           self.scene.attach(gun);
-          self.gunAttached = false
+          controller.userData.hasGun = false
         });
-        controller.addEventListener('selectstart', function () {
-          if (self.gunAttached) {
-            self.shoot(gun.getWorldPosition(new Vector3()), gun.getWorldDirection(new Vector3()));
-
+        controller.addEventListener('selectend', function () {
+          if (controller.userData.hasGun) {
+            self.shoot();
           }
         })
-
-        console.log(gun)
-        self.gun = gun;
-        debugger;
       });
 
-    }).catch(err => console.log("asasa "+ err));
+
+    }).catch(err => console.log("asasa " + err));
   }
 
 
@@ -229,47 +262,42 @@ class VR {
   //   const grip = controller.userData.grip;
   // }
 
-  private _intersectIntaractables(){
-    this.intersection = undefined;
-    this.controllers.forEach((controller: Group) => {
-      if (controller.userData.selectPressed === true) {
-        this.tempMatrix.identity().extractRotation(controller.matrixWorld);
-        this.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
-        this.raycaster.ray.direction
-          .set(0, 0, -1)
-          .applyMatrix4(this.tempMatrix);
+  private _intersectIntaractables() {
 
-        const intersects = this.raycaster.intersectObjects([this.floor,this.gun]);
-        if (intersects.length > 0) {
-          this.intersection = intersects[0].point;
-        }
-      }
-      controller.userData.marker.visible = this.intersection !== undefined;
-      if (this.intersection) {
-        controller.userData.marker.position.copy(this.intersection);
-      }
-    });
   }
 
   //@ts-ignore
   public Render(timestamp: any, frame: any): void {
+
     this.intersection = undefined;
     this.controllers.forEach((controller: Group) => {
-      if (controller.userData.selectPressed === true) {
-        this.tempMatrix.identity().extractRotation(controller.matrixWorld);
-        this.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
-        this.raycaster.ray.direction
-          .set(0, 0, -1)
-          .applyMatrix4(this.tempMatrix);
+      this.tempMatrix.identity().extractRotation(controller.matrixWorld);
+      this.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+      this.raycaster.ray.direction
+        .set(0, 0, -1)
+        .applyMatrix4(this.tempMatrix);
 
-        const intersects = this.raycaster.intersectObjects([this.floor,this.gun]);
-        if (intersects.length > 0) {
-          this.intersection = intersects[0].point;
+      const intersects = this.raycaster.intersectObjects([this.floor, this.gun]);
+      if (intersects.length > 0) {
+        this.intersection = intersects[0];
+      }
+      if (controller.userData.selectPressed === true && this.intersection) {
+        if (this.intersection.object.name === "floor") {
+
+        }
+        if (this.intersection.object.name === "gun") {
+          this.gun.position.set(0, 0, 0);
+          this.gun.quaternion.identity();
+          this.gun.rotateY( Math.PI )
+          controller.add(this.gun);
+          controller.userData.hasGun = true;
+          controller.userData.grip = this.gun;
         }
       }
+
       controller.userData.marker.visible = this.intersection !== undefined;
-      if (this.intersection) {
-        controller.userData.marker.position.copy(this.intersection);
+      if (this.intersection && !controller.userData.hasGun) {
+        controller.userData.marker.position.copy(this.intersection?.point);
       }
     });
     this.updateProjectile();
