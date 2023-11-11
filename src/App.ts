@@ -26,10 +26,10 @@ class App {
   private readonly camera: PerspectiveCamera;
   private readonly scene: Scene;
   private readonly renderer: WebGLRenderer;
-  private loading: boolean = true;
   private readonly assets: Asset[];
   private activeGame: Web | AR | VR | TitleScreen | undefined | null = null;
   private startButtonContainer: HTMLElement | null = null;
+
   constructor() {
     this.assets = [
       {
@@ -51,10 +51,10 @@ class App {
       },
     ];
     this.camera = new PerspectiveCamera(
-      70,
-      window.innerWidth / window.innerHeight,
-      0.01,
-      400,
+        70,
+        window.innerWidth / window.innerHeight,
+        0.01,
+        400,
     );
     this.camera.position.set(0, 0, 20);
     this.camera.lookAt(new Vector3(0, 0, 0));
@@ -90,9 +90,10 @@ class App {
     const teste = document.getElementById("ARButton");
     console.log(teste);
   }
+
   private async _init() {
     console.log("Loading...");
-    for (const { asset, hasAnimation } of this.assets) {
+    for (const {asset, hasAnimation} of this.assets) {
       const prefab = new Prefab(asset, hasAnimation);
       await prefab.Load();
       PREFABS[asset] = prefab;
@@ -112,7 +113,6 @@ class App {
   }
 
   private _removeLoading(): void {
-    this.loading = false;
     const container = document.getElementById("loadingContainer");
     container?.remove();
   }

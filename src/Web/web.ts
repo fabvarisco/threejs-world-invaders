@@ -17,7 +17,6 @@ class Web {
   private directionalLight: THREE.DirectionalLight;
   private renderer: THREE.WebGLRenderer;
   private GRAVITY: number;
-  private NUM_SPHERES: number;
   private SPHERE_RADIUS: number;
   private STEPS_PER_FRAME: number;
   private sphereGeometry: THREE.IcosahedronGeometry;
@@ -35,9 +34,6 @@ class Web {
   private playerOnFloor: boolean;
   private mouseTime: number;
   private keyStates: { [key: string]: boolean };
-  private vector1: THREE.Vector3;
-  private vector2: THREE.Vector3;
-  private vector3: THREE.Vector3;
 
   constructor(
     scene: THREE.Scene,
@@ -74,7 +70,6 @@ class Web {
     this.renderer.shadowMap.type = THREE.VSMShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.GRAVITY = 30;
-    this.NUM_SPHERES = 100;
     this.SPHERE_RADIUS = 0.2;
     this.STEPS_PER_FRAME = 5;
     this.sphereGeometry = new THREE.IcosahedronGeometry(this.SPHERE_RADIUS, 5);
@@ -92,9 +87,6 @@ class Web {
     this.playerOnFloor = false;
     this.mouseTime = 0;
     this.keyStates = {};
-    this.vector1 = new THREE.Vector3();
-    this.vector2 = new THREE.Vector3();
-    this.vector3 = new THREE.Vector3();
     document.addEventListener("keydown", (event) => {
       this.keyStates[event.code] = true;
     });

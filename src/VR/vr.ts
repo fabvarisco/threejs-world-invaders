@@ -33,7 +33,6 @@ class VR {
   private raycaster: Raycaster = new Raycaster();
   private readonly floor: Mesh;
   private projectiles: { mesh: Mesh, velocity: Vector3 }[] = [];
-  private gunAttached: boolean = false;
   private baseReferenceSpace: XRReferenceSpace | null | undefined;
   private gun: Group = new Group();
   constructor(camera: Camera, renderer: WebGLRenderer) {
@@ -111,10 +110,13 @@ class VR {
 
     this.controllers = controllers;
 
+
+    //@ts-ignore
     function onSelectStart(this: any, event: any): void {
       this.userData.selectPressed = true;
     }
 
+    //@ts-ignore
     function onSelectEnd(this: any, event: any): void {
       this.userData.selectPressed = false;
       if (this.userData.hasGun) return;
@@ -261,10 +263,6 @@ class VR {
   //   controller.userData.gun = true;
   //   const grip = controller.userData.grip;
   // }
-
-  private _intersectIntaractables() {
-
-  }
 
   //@ts-ignore
   public Render(timestamp: any, frame: any): void {
