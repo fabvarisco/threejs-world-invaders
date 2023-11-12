@@ -1,4 +1,6 @@
 import {
+  Box3,
+  BoxGeometry,
   BufferGeometry,
   Camera,
   DirectionalLight,
@@ -22,6 +24,8 @@ import {
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 import { BoxLineGeometry } from "three/examples/jsm/geometries/BoxLineGeometry.js";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
+import {DEVICE_POSITION, instanceNewSceneObject} from "@/utils/utils.ts";
+import BaseMonster from "@/Assets/SceneObjects/BaseMonster.ts";
 
 class VR {
   private readonly scene: Scene;
@@ -32,7 +36,12 @@ class VR {
   private tempMatrix: Matrix4 = new Matrix4();
   private raycaster: Raycaster = new Raycaster();
   private readonly floor: Mesh;
-  private projectiles: { mesh: Mesh, velocity: Vector3 }[] = [];
+  private projectiles: { mesh: Mesh, velocity: Vector3,box: Box3 }[] = [];
+  private monsters:{ mesh: Mesh, velocity: Vector3, box: Box3 }[] = [];
+  private spawnTime: number = 1000;
+  private timer: number = 1000;
+  private lastFrameTimestamp: number = 0;
+
   private baseReferenceSpace: XRReferenceSpace | null | undefined;
   private gun: Group = new Group();
   constructor(camera: Camera, renderer: WebGLRenderer) {
@@ -145,7 +154,6 @@ class VR {
 
     function onSqueezeEnd(this: any, event: any): void {
       this.userData.squeezePressed = false;
-
       console.log(event);
     }
 
@@ -163,41 +171,72 @@ class VR {
  // Loop through controllers to find the one with the gun
  const controllerWithGun = this.controllers.find(controller => controller.userData.hasGun);
 
- if (controllerWithGun) {
-   // Get the gun from the controller
-   const gun = controllerWithGun.userData.grip;
+   if (controllerWithGun) {
+     // Get the gun from the controller
+     const gun = controllerWithGun.userData.grip;
 
-   // Create a projectile mesh
-   const projectileGeometry = new SphereGeometry(0.05, 8, 6);
-   const projectileMaterial = new MeshBasicMaterial({ color: 0x00ff00 });
-   const projectile = new Mesh(projectileGeometry, projectileMaterial);
+     // Create a projectile mesh
+     const projectileGeometry = new SphereGeometry(0.05, 8, 6);
+     const projectileMaterial = new MeshBasicMaterial({ color: 0x00ff00 });
+     const projectile = new Mesh(projectileGeometry, projectileMaterial);
 
-   // Set the projectile position and velocity based on gun direction
-   const gunDirection = new Vector3(0,0,1);
-   const gunPosition = new Vector3();
-   
-   // Get the gun position and direction in world coordinates
-   gun.getWorldPosition(gunPosition);
-   gun.getWorldDirection(gunDirection);
+     // Set the projectile position and velocity based on gun direction
+     const gunDirection = new Vector3(0,0,1);
+     const gunPosition = new Vector3();
 
-   // Set the projectile position at the tip of the gun
-   const projectileStartPosition = gunPosition.clone().add(gunDirection.clone().multiplyScalar(0.1));
+     // Get the gun position and direction in world coordinates
+     gun.getWorldPosition(gunPosition);
+     gun.getWorldDirection(gunDirection);
 
-   projectile.position.copy(projectileStartPosition);
+     // Set the projectile position at the tip of the gun
+     const projectileStartPosition = gunPosition.clone().add(gunDirection.clone().multiplyScalar(0.1));
 
-   // Set the velocity based on the gun direction
-   const projectileVelocity = gunDirection.clone().multiplyScalar(0.1); // Adjust the speed as needed
+     projectile.position.copy(projectileStartPosition);
 
-   // Add the projectile to the scene
-   this.scene.add(projectile);
+     // Set the velocity based on the gun direction
+     const projectileVelocity = gunDirection.clone().multiplyScalar(0.1); // Adjust the speed as needed
 
-   // Store the projectile and its velocity for later updates
-   this.projectiles.push({ mesh: projectile, velocity: projectileVelocity });
- }
+     // Add the projectile to the scene
+     this.scene.add(projectile);
+
+     // Store the projectile and its velocity for later updates
+     this.projectiles.push({ mesh: projectile, velocity: projectileVelocity, box: new Box3().setFromObject(projectile) });
+   }
   }
 
   private updateProjectile() {
     this.projectiles.forEach(el => el.mesh.position.add(el.velocity))
+  }
+
+  private collisions(){
+      for (let i = 0; i < this.projectiles.length; i++) {
+        for (let j = 0; j < this.monsters.length; j++) {
+          if (this.projectiles[i].box.intersectsBox(this.monsters[j].box)) {
+            this.scene.remove(this.monsters[j].mesh);
+            this.monsters.splice(j, 1);
+            this.scene.remove(this.projectiles[i].mesh);
+            this.projectiles.splice(i, 1);
+            break;
+          }
+        }
+      }
+  }
+
+  private updateMonsters() {
+    this.monsters.forEach(el =>{
+      const speed = 0.01;
+
+      const direction = new Vector3();
+      direction.subVectors(DEVICE_POSITION, el.mesh.position);
+      direction.normalize();
+      el.mesh.position.addScaledVector(direction, speed);
+
+      el.mesh.position.add(el.velocity);
+
+      const distance = DEVICE_POSITION.distanceTo(el.mesh.position);
+      if (distance <= 1.0) {
+       }
+    })
   }
 
   private createGun() {
@@ -211,25 +250,6 @@ class VR {
       self.gun = gun;
       self.scene.add(gun);
 
-      // self.controllers.forEach((controller: Group): void => {
-      //   controller.addEventListener('squeezestart', function () {
-      //     controller.attach(gun);
-      //     self.gunAttached = true
-      //   });
-      //   controller.addEventListener('squeezeend', function () {
-      //     self.scene.attach(gun);
-      //     self.gunAttached = false
-      //   });
-      //   controller.addEventListener('selectstart', function () {
-      //     if (self.gunAttached) {
-      //       self.shoot(gun.getWorldPosition(new Vector3()), gun.getWorldDirection(new Vector3()));
-
-      //     }
-      //   })
-
-      //   console.log(gun)
-      //   debugger;
-      // });
       self.controllers.forEach((controller: Group): void => {
         controller.addEventListener('squeezeend', function () {
           self.scene.attach(gun);
@@ -246,6 +266,34 @@ class VR {
     }).catch(err => console.log("asasa " + err));
   }
 
+  private spawnMonster():void {
+    debugger
+    const minX = -10;
+    const maxX = 10;
+    const minY = -10;
+    const maxY = 10;
+    const minZ = -10;
+    const maxZ = 10;
+
+    const position: Vector3 = new Vector3(0, 0, 0);
+    position.x = Math.random() * (maxX - minX) + minX;
+    position.y = Math.random() * (maxY - minY) + minY;
+    position.z = Math.random() * (maxZ - minZ) + minZ;
+
+
+    const monsterGeometry = new BoxGeometry(0.3, 0.3, 0.3);
+    const monsterMaterial = new MeshBasicMaterial({ color: 0x00ff00 });
+    const monsterMesh = new Mesh(monsterGeometry, monsterMaterial);
+    const monster = {
+      mesh: monsterMesh,
+      velocity: new Vector3(0,0,0),
+      box: new Box3().setFromObject(monsterMesh)};
+    monster.mesh.position.set(position.x,position.y,position.y);
+    this.monsters.push(monster);
+
+    this.scene.add(monster.mesh);
+  }
+
 
   private createMarker(geometry: SphereGeometry, material: MeshBasicMaterial) {
     const mesh = new Mesh(geometry, material);
@@ -254,18 +302,15 @@ class VR {
     return mesh;
   }
 
-  // pickupGun(controller = this.controllers[0]) {
-  //   this.gun.position.set(0, 0, 0);
-  //   this.gun.quaternion.identity();
-  //   //this.gun.rotateY( -Math.PI/2 )
-  //   controller.children[0].visible = false;
-  //   controller.add(this.gun);
-  //   controller.userData.gun = true;
-  //   const grip = controller.userData.grip;
-  // }
-
   //@ts-ignore
   public Render(timestamp: any, frame: any): void {
+    const deltaTime = timestamp - this.lastFrameTimestamp;
+    this.lastFrameTimestamp = timestamp;
+
+    if(this.spawnTime <= 0) {
+      this.spawnTime = this.timer;
+      this.spawnMonster();
+    }
 
     this.intersection = undefined;
     this.controllers.forEach((controller: Group) => {
@@ -275,7 +320,7 @@ class VR {
         .set(0, 0, -1)
         .applyMatrix4(this.tempMatrix);
 
-      const intersects = this.raycaster.intersectObjects([this.floor, this.gun]);
+        const intersects = this.raycaster.intersectObjects([this.floor, this.gun]);
       if (intersects.length > 0) {
         this.intersection = intersects[0];
       }
@@ -298,7 +343,15 @@ class VR {
         controller.userData.marker.position.copy(this.intersection?.point);
       }
     });
+    DEVICE_POSITION.set(
+        this.controllers[0].position.x,
+        this.controllers[0].position.y,
+        this.controllers[0].position.z,
+    );
+    this.spawnTime -= deltaTime;
     this.updateProjectile();
+    this.updateMonsters();
+    this.collisions();
     this.renderer.render(this.scene, this.camera);
   }
 
