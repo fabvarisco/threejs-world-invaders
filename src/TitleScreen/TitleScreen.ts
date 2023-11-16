@@ -1,43 +1,38 @@
-import Text from "@/Assets/Text.ts";
 import {
-  DirectionalLight,
+  DirectionalLight, Event,
   HemisphereLight,
+  Object3D,
   PerspectiveCamera,
   Scene,
   Vector3,
   WebGLRenderer,
 } from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { instanceNewSceneObject } from "@/utils/utils.ts";
-import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
+
+import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader.js";
+import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader.js";
 
 class TitleScreen {
-  private titleText: Text;
   private readonly scene: Scene;
   private readonly camera: PerspectiveCamera;
   private renderer: WebGLRenderer;
   private controls: OrbitControls;
+  private earth: Object3D<Event> | null | undefined;
+  private invader: any;
+  private invaders: any[] = [];
+  private spawnTime: number = 2000;
+  private timer: number = 2000;
+  private lastFrameTimestamp: number = 0;
+
   constructor(camera: PerspectiveCamera, renderer: WebGLRenderer) {
     this.scene = new Scene();
     this.camera = camera;
     this.renderer = renderer;
-
     this.scene.add(new HemisphereLight(0x606060, 0x404040));
 
     const light = new DirectionalLight(0xffffff);
     light.position.set(1, 1, 1).normalize();
     this.scene.add(light);
-
-    this.titleText = new Text(
-      "./fonts/Pixel.json",
-      "World Invaders",
-      this.scene,
-      new Vector3(-4, 3, 10),
-    );
-    this.titleText.GetTextMesh().position.set(-20, 0, 0);
-    this.titleText.GetTextMesh().updateMatrixWorld();
-    console.log(this.titleText.GetTextMesh());
-    console.log(this.titleText);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.target.set(0, 0, 0);
@@ -45,20 +40,86 @@ class TitleScreen {
     this.controls.dampingFactor = 0.05;
     this.controls.screenSpacePanning = false;
     this.controls.autoRotate = false;
-
-    instanceNewSceneObject("Earth", SceneObject, this.scene, {});
+    this.loadTitleScreen();
     this.renderer.setAnimationLoop(this.Render.bind(this));
+  }
 
+  private loadTitleScreen() {
+    const fbxLoader = new FBXLoader();
+    const gltfLoader = new GLTFLoader();
+
+
+    const self = this;
+    fbxLoader.loadAsync("/models/earth.fbx").then((earth: Object3D<Event>) => {
+        earth.scale.set(0.01, 0.01, 0.01);
+        self.earth = earth;
+        self.scene.add(earth);
+      }).catch((err: string) => console.log("asasa " + err));
+
+    gltfLoader.loadAsync("/models/invader.glb").then((gltf) => {
+      gltf.scene.scale.set(4, 4, 4);
+      self.invader = gltf.scene.clone();
+    }).catch((err: string) => console.log("asasa " + err));
+    }
+
+
+  private spawnInvader(): void {
+    const minX = -40;
+    const maxX = 40;
+    const minY = 0;
+    const maxY = 40;
+    const minZ = -40;
+    const maxZ = 40;
+
+    const position: Vector3 = new Vector3(0, 0, 0);
+    position.x = Math.random() * (maxX - minX) + minX;
+    position.y = Math.random() * (maxY - minY) + minY;
+    position.z = Math.random() * (maxZ - minZ) + minZ;
+    const newInvader = this.invader.clone();
+    newInvader.position.set(position.x,position.y,position.z);
+
+    this.invaders.push(newInvader);
+    this.scene.add(newInvader);
+  }
+
+  private updateInvaders() {
+    if(!this.invader) return;
+    this.invaders.forEach(el =>{
+      const speed = 0.05;
+
+      const direction = new Vector3();
+      direction.subVectors(this.earth!.position, el.position);
+      direction.normalize();
+      el.position.addScaledVector(direction, speed);
+
+      el.position.add(new Vector3(0,0,0));
+      el.lookAt(this.earth?.position)
+      const distance = this.earth!.position.distanceTo(el.position);
+      if (distance <= 5.0) {
+        this.scene.remove(el);
+      }
+    })
   }
 
   //@ts-ignore
   Render(timestamp: any, frame: any) {
+    const deltaTime = timestamp - this.lastFrameTimestamp;
+    this.lastFrameTimestamp = timestamp;
+
+    if(this.spawnTime <= 0) {
+      this.spawnTime = this.timer;
+      this.spawnInvader();
+    }
+
     this.controls.update();
+    this.updateInvaders();
     this.renderer.render(this.scene, this.camera);
+
+    this.spawnTime -= deltaTime;
+
   }
 
   Destroy() {
-    this.titleText.Destroy();
     this.controls.dispose();
     this.renderer.setAnimationLoop(null);
   }

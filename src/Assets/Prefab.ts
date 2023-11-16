@@ -69,6 +69,10 @@ class Prefab {
   GetObject() {
     return this.object;
   }
+
+  GetFileName() {
+    return this.fileName;
+  }
 }
 
 export default Prefab;

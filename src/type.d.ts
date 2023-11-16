@@ -7,6 +7,7 @@ interface ISceneObjectsArgs {
   position?: Vector3;
   velocity?: Vector3;
   controller?: Group;
+  target?: any;
   intersections?: any;
 }
 interface ISceneObjects {

@@ -35,6 +35,8 @@ class VR {
   private intersection: any;
   private tempMatrix: Matrix4 = new Matrix4();
   private raycaster: Raycaster = new Raycaster();
+  private raycaster2: Raycaster = new Raycaster();
+
   private readonly floor: Mesh;
   private projectiles: { mesh: Mesh, velocity: Vector3,box: Box3 }[] = [];
   private monsters:{ mesh: Mesh, velocity: Vector3, box: Box3 }[] = [];
@@ -168,38 +170,29 @@ class VR {
     });
   }
   private shoot(): void {
- // Loop through controllers to find the one with the gun
  const controllerWithGun = this.controllers.find(controller => controller.userData.hasGun);
 
    if (controllerWithGun) {
-     // Get the gun from the controller
      const gun = controllerWithGun.userData.grip;
 
-     // Create a projectile mesh
      const projectileGeometry = new SphereGeometry(0.05, 8, 6);
      const projectileMaterial = new MeshBasicMaterial({ color: 0x00ff00 });
      const projectile = new Mesh(projectileGeometry, projectileMaterial);
 
-     // Set the projectile position and velocity based on gun direction
      const gunDirection = new Vector3(0,0,1);
      const gunPosition = new Vector3();
 
-     // Get the gun position and direction in world coordinates
      gun.getWorldPosition(gunPosition);
      gun.getWorldDirection(gunDirection);
 
-     // Set the projectile position at the tip of the gun
      const projectileStartPosition = gunPosition.clone().add(gunDirection.clone().multiplyScalar(0.1));
 
      projectile.position.copy(projectileStartPosition);
 
-     // Set the velocity based on the gun direction
      const projectileVelocity = gunDirection.clone().multiplyScalar(0.1); // Adjust the speed as needed
 
-     // Add the projectile to the scene
      this.scene.add(projectile);
 
-     // Store the projectile and its velocity for later updates
      this.projectiles.push({ mesh: projectile, velocity: projectileVelocity, box: new Box3().setFromObject(projectile) });
    }
   }
@@ -208,20 +201,29 @@ class VR {
     this.projectiles.forEach(el => el.mesh.position.add(el.velocity))
   }
 
-  private collisions(){
-      for (let i = 0; i < this.projectiles.length; i++) {
-        for (let j = 0; j < this.monsters.length; j++) {
-          if (this.projectiles[i].box.intersectsBox(this.monsters[j].box)) {
-            this.scene.remove(this.monsters[j].mesh);
-            this.monsters.splice(j, 1);
-            this.scene.remove(this.projectiles[i].mesh);
-            this.projectiles.splice(i, 1);
-            break;
-          }
-        }
-      }
+  private checkCollision(projectile:any, monster:any) {
+    this.raycaster2.set(projectile.position, new Vector3(0, 0, -1).normalize());
+
+    const collisions = this.raycaster2.intersectObjects([monster]);
+
+    return collisions.length > 0;
   }
 
+  private updateCollisions() {
+    for (let i = 0; i < this.projectiles.length; i++) {
+      for (let j = 0; j < this.monsters.length; j++) {
+        if (this.checkCollision(this.projectiles[i], this.monsters[j])) {
+          this.scene.remove(this.monsters[j].mesh);
+          this.scene.remove(this.projectiles[i].mesh);
+
+          this.monsters.splice(j, 1);
+          this.projectiles.splice(i, 1);
+
+          j--;
+        }
+      }
+    }
+  }
   private updateMonsters() {
     this.monsters.forEach(el =>{
       const speed = 0.01;
@@ -267,7 +269,6 @@ class VR {
   }
 
   private spawnMonster():void {
-    debugger
     const minX = -10;
     const maxX = 10;
     const minY = -10;
@@ -351,7 +352,7 @@ class VR {
     this.spawnTime -= deltaTime;
     this.updateProjectile();
     this.updateMonsters();
-    this.collisions();
+    this.updateCollisions();
     this.renderer.render(this.scene, this.camera);
   }
 

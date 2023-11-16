@@ -46,7 +46,7 @@ class App {
         sceneObjectType: DraggableObject,
       },
       {
-        asset: "Earth",
+        asset: "earth",
         sceneObjectType: SceneObject,
       },
     ];
