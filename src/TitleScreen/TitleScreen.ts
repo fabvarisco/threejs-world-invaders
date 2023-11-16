@@ -71,12 +71,12 @@ class TitleScreen {
         earth.scale.set(0.01, 0.01, 0.01);
         self.earth = earth;
         self.scene.add(earth);
-      }).catch((err: string) => console.log("asasa " + err));
+      }).catch((err: string) => console.log(err));
 
     gltfLoader.loadAsync("/models/invader.glb").then((gltf) => {
       gltf.scene.scale.set(4, 4, 4);
       self.invader = gltf.scene.clone();
-    }).catch((err: string) => console.log("asasa " + err));
+    }).catch((err: string) => console.log(err));
     }
 
 
@@ -94,9 +94,7 @@ class TitleScreen {
     position.z = Math.random() * (maxZ - minZ) + minZ;
     const newInvader = this.invader.clone();
     newInvader.position.set(position.x,position.y,position.z);
-
-
-
+    
     this.invaders.push(newInvader);
     this.scene.add(newInvader);
   }
