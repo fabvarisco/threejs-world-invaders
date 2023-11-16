@@ -1,4 +1,3 @@
-import * as THREE from "three";
 import {
   DirectionalLight,
   Event,
@@ -13,6 +12,7 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
 
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader.js";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader.js";
+import Text from "@/Assets/Text.ts";
 
 class TitleScreen {
   private readonly scene: Scene;
@@ -25,8 +25,8 @@ class TitleScreen {
   private spawnTime: number = 2000;
   private timer: number = 2000;
   private lastFrameTimestamp: number = 0;
-  private par: any;
-  private parList: any[] = [];
+  private titleText: Text;
+
   constructor(camera: PerspectiveCamera, renderer: WebGLRenderer) {
     this.scene = new Scene();
     this.camera = camera;
@@ -45,6 +45,20 @@ class TitleScreen {
     this.controls.enabled = false
     this.controls.minDistance = 40
     this.loadTitleScreen();
+
+    this.titleText = new Text(
+        "./fonts/Pixel.json",
+        "World",
+        this.scene,
+        new Vector3(0, 4, 30),
+    );
+    this.titleText = new Text(
+        "./fonts/Pixel.json",
+        "Invaders",
+        this.scene,
+        new Vector3(0, 3, 30),
+    );
+    this.titleText.GetTextMesh().updateMatrixWorld();
 
     this.renderer.setAnimationLoop(this.Render.bind(this));
   }
@@ -81,6 +95,8 @@ class TitleScreen {
     const newInvader = this.invader.clone();
     newInvader.position.set(position.x,position.y,position.z);
 
+
+
     this.invaders.push(newInvader);
     this.scene.add(newInvader);
   }
@@ -99,9 +115,6 @@ class TitleScreen {
       el.lookAt(this.earth?.position)
       const distance = this.earth!.position.distanceTo(el.position);
       if (distance <= 5.0) {
-        console.log(this.par)
-        const newPar = this.par;
-        this.parList.push(newPar);
         this.scene.remove(el);
       }
     })
@@ -125,7 +138,6 @@ class TitleScreen {
     this.controls.update();
     this.updateInvaders();
     this.updateEarth(deltaTime);
-    this.parList.forEach(particle => particle.update())
     this.renderer.render(this.scene, this.camera);
 
     this.spawnTime -= deltaTime;
