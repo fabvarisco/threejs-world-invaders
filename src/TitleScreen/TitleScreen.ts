@@ -1,5 +1,7 @@
+import * as THREE from "three";
 import {
-  DirectionalLight, Event,
+  DirectionalLight,
+  Event,
   HemisphereLight,
   Object3D,
   PerspectiveCamera,
@@ -17,13 +19,14 @@ class TitleScreen {
   private readonly camera: PerspectiveCamera;
   private renderer: WebGLRenderer;
   private controls: OrbitControls;
-  private earth: Object3D<Event> | null | undefined;
+  private earth: Object3D<Event> = new Object3D<Event>();
   private invader: any;
   private invaders: any[] = [];
   private spawnTime: number = 2000;
   private timer: number = 2000;
   private lastFrameTimestamp: number = 0;
-
+  private par: any;
+  private parList: any[] = [];
   constructor(camera: PerspectiveCamera, renderer: WebGLRenderer) {
     this.scene = new Scene();
     this.camera = camera;
@@ -36,19 +39,19 @@ class TitleScreen {
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.target.set(0, 0, 0);
-    this.controls.enableDamping = true;
-    this.controls.dampingFactor = 0.05;
     this.controls.screenSpacePanning = false;
     this.controls.autoRotate = false;
+    this.controls.enableZoom = false;
+    this.controls.enabled = false
+    this.controls.minDistance = 40
     this.loadTitleScreen();
+
     this.renderer.setAnimationLoop(this.Render.bind(this));
   }
 
   private loadTitleScreen() {
     const fbxLoader = new FBXLoader();
     const gltfLoader = new GLTFLoader();
-
-
     const self = this;
     fbxLoader.loadAsync("/models/earth.fbx").then((earth: Object3D<Event>) => {
         earth.scale.set(0.01, 0.01, 0.01);
@@ -96,9 +99,17 @@ class TitleScreen {
       el.lookAt(this.earth?.position)
       const distance = this.earth!.position.distanceTo(el.position);
       if (distance <= 5.0) {
+        console.log(this.par)
+        const newPar = this.par;
+        this.parList.push(newPar);
         this.scene.remove(el);
       }
     })
+  }
+
+  private updateEarth(deltaTime:number){
+    if(!this.earth) return
+    this.earth.rotation.y += 0.0001 * deltaTime; // Rotate around the y-axis
   }
 
   //@ts-ignore
@@ -113,6 +124,8 @@ class TitleScreen {
 
     this.controls.update();
     this.updateInvaders();
+    this.updateEarth(deltaTime);
+    this.parList.forEach(particle => particle.update())
     this.renderer.render(this.scene, this.camera);
 
     this.spawnTime -= deltaTime;
