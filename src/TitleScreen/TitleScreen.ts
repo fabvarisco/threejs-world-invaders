@@ -142,12 +142,12 @@ class TitleScreen {
   }
 
   private spawnInvader(): void {
-    const minX = -40;
-    const maxX = 40;
-    const minY = 0;
-    const maxY = 40;
-    const minZ = -40;
-    const maxZ = 40;
+    const minX = -60;
+    const maxX = 60;
+    const minY = -60;
+    const maxY = 60;
+    const minZ = -60;
+    const maxZ = 60;
 
     const position: Vector3 = new Vector3(0, 0, 0);
     position.x = Math.random() * (maxX - minX) + minX;
@@ -163,6 +163,7 @@ class TitleScreen {
   private updateInvaders() {
     if (!this.invader) return;
     this.invaders.forEach((el, index, object) => {
+
       const speed = 0.05;
 
       const direction = new Vector3();

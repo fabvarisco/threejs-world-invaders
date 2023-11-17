@@ -168,7 +168,6 @@ class VR {
     });
   }
   private shoot(): void {
-    debugger
  const controllerWithGun = this.controllers.find(controller => controller.userData.hasGun);
 
    if (controllerWithGun) {
