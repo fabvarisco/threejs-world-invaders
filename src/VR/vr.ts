@@ -209,6 +209,8 @@ class VR {
         const monster = this.monsters[j];
   
         if (this.checkCollision(projectile, monster)) {
+          this.handleCollision(projectile, monster);
+  
           this.scene.remove(projectile.mesh);
           this.projectiles.splice(i, 1);
   
@@ -226,7 +228,9 @@ class VR {
     return projectile.box.intersectsBox(monster.box);
   }
   
-
+  private handleCollision(projectile: any, monster: any): void {
+    console.log("Collision detected!" + projectile + monster);
+  }
   
   private updateMonsters() {
     this.monsters.forEach(el =>{
