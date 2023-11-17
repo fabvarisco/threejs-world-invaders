@@ -235,12 +235,10 @@ class VR {
   private updateMonsters() {
     this.monsters.forEach(el =>{
       const speed = 0.01;
-
       const direction = new Vector3();
       direction.subVectors(DEVICE_POSITION, el.mesh.position);
       direction.normalize();
       el.mesh.position.addScaledVector(direction, speed);
-
       el.mesh.position.add(el.velocity);
       el.box.setFromObject(el.mesh)
       const distance = DEVICE_POSITION.distanceTo(el.mesh.position);
