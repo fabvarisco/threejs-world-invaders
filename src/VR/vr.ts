@@ -23,7 +23,6 @@ import {
 } from "three";
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 import { BoxLineGeometry } from "three/examples/jsm/geometries/BoxLineGeometry.js";
-import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import {DEVICE_POSITION} from "@/utils/utils.ts";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
@@ -36,8 +35,6 @@ class VR {
   private intersection: any;
   private tempMatrix: Matrix4 = new Matrix4();
   private raycaster: Raycaster = new Raycaster();
-  private raycaster2: Raycaster = new Raycaster();
-
   private readonly floor: Mesh;
   private projectiles: { mesh: Mesh, velocity: Vector3,box: Box3 }[] = [];
   private monsters:{ mesh: Mesh, velocity: Vector3, box: Box3 }[] = [];
@@ -213,17 +210,12 @@ class VR {
         const monster = this.monsters[j];
   
         if (this.checkCollision(projectile, monster)) {
-          // Collision detected, handle it as needed
-          this.handleCollision(projectile, monster);
-  
-          // Remove the projectile and monster from the scene and arrays
           this.scene.remove(projectile.mesh);
           this.projectiles.splice(i, 1);
   
           this.scene.remove(monster.mesh);
           this.monsters.splice(j, 1);
   
-          // Adjust the loop counters and lengths
           i--;
           j--;
         }
@@ -232,13 +224,10 @@ class VR {
   }
   
   private checkCollision(projectile: any, monster: any): boolean {
-    debugger
     return projectile.box.intersectsBox(monster.box);
   }
   
-  private handleCollision(projectile: any, monster: any): void {
-    console.log("Collision detected!");
-  }
+
   
   private updateMonsters() {
     this.monsters.forEach(el =>{
