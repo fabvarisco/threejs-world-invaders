@@ -67,7 +67,7 @@ class TitleScreen {
     const fbxLoader = new FBXLoader();
     const gltfLoader = new GLTFLoader();
     const self = this;
-    fbxLoader.loadAsync("/models/earth.fbx").then((earth: Object3D<Event>) => {
+    fbxLoader.loadAsync("/models/Earth.fbx").then((earth: Object3D<Event>) => {
         earth.scale.set(0.01, 0.01, 0.01);
         self.earth = earth;
         self.scene.add(earth);
@@ -101,7 +101,7 @@ class TitleScreen {
 
   private updateInvaders() {
     if(!this.invader) return;
-    this.invaders.forEach(el =>{
+    this.invaders.forEach((el,index,object) =>{
       const speed = 0.05;
 
       const direction = new Vector3();
@@ -112,8 +112,10 @@ class TitleScreen {
       el.position.add(new Vector3(0,0,0));
       el.lookAt(this.earth?.position)
       const distance = this.earth!.position.distanceTo(el.position);
-      if (distance <= 5.0) {
+      if (distance <= 8.0) {
         this.scene.remove(el);
+        object.splice(index,1)
+        console.log(this.invaders)
       }
     })
   }

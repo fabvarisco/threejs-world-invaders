@@ -55,8 +55,8 @@ class Text {
       ...this.textGeometryParameters,
     });
     const materials = [
-      new MeshPhongMaterial({ color: 0xff6600 }),
-      new MeshPhongMaterial({ color: 0x0000ff }),
+      new MeshPhongMaterial({ color: 0xffffff }),
+      new MeshPhongMaterial({ color: 0x000000 }),
     ];
     this.textMesh = new Mesh(geometry, materials);
     this.textMesh.geometry.center();
