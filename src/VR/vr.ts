@@ -24,8 +24,9 @@ import {
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 import { BoxLineGeometry } from "three/examples/jsm/geometries/BoxLineGeometry.js";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
-import {DEVICE_POSITION, instanceNewSceneObject} from "@/utils/utils.ts";
-import BaseMonster from "@/Assets/SceneObjects/BaseMonster.ts";
+import {DEVICE_POSITION} from "@/utils/utils.ts";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+
 
 class VR {
   private readonly scene: Scene;
@@ -170,6 +171,7 @@ class VR {
     });
   }
   private shoot(): void {
+    debugger
  const controllerWithGun = this.controllers.find(controller => controller.userData.hasGun);
 
    if (controllerWithGun) {
@@ -193,37 +195,51 @@ class VR {
 
      this.scene.add(projectile);
 
-     this.projectiles.push({ mesh: projectile, velocity: projectileVelocity, box: new Box3().setFromObject(projectile) });
+      this.projectiles.push({ mesh: projectile, velocity: projectileVelocity, box: new Box3().setFromObject(projectile) });
    }
   }
 
   private updateProjectile() {
-    this.projectiles.forEach(el => el.mesh.position.add(el.velocity))
+    this.projectiles.forEach(el => {
+      el.mesh.position.add(el.velocity)
+        el.box.setFromObject(el.mesh);
+    })
   }
 
-  private checkCollision(projectile:any, monster:any) {
-    this.raycaster2.set(projectile.position, new Vector3(0, 0, -1).normalize());
-
-    const collisions = this.raycaster2.intersectObjects([monster]);
-
-    return collisions.length > 0;
-  }
-
-  private updateCollisions() {
+  private updateCollisions(): void {
     for (let i = 0; i < this.projectiles.length; i++) {
       for (let j = 0; j < this.monsters.length; j++) {
-        if (this.checkCollision(this.projectiles[i], this.monsters[j])) {
-          this.scene.remove(this.monsters[j].mesh);
-          this.scene.remove(this.projectiles[i].mesh);
-
-          this.monsters.splice(j, 1);
+        const projectile = this.projectiles[i];
+        const monster = this.monsters[j];
+  
+        if (this.checkCollision(projectile, monster)) {
+          // Collision detected, handle it as needed
+          this.handleCollision(projectile, monster);
+  
+          // Remove the projectile and monster from the scene and arrays
+          this.scene.remove(projectile.mesh);
           this.projectiles.splice(i, 1);
-
+  
+          this.scene.remove(monster.mesh);
+          this.monsters.splice(j, 1);
+  
+          // Adjust the loop counters and lengths
+          i--;
           j--;
         }
       }
     }
   }
+  
+  private checkCollision(projectile: any, monster: any): boolean {
+    debugger
+    return projectile.box.intersectsBox(monster.box);
+  }
+  
+  private handleCollision(projectile: any, monster: any): void {
+    console.log("Collision detected!");
+  }
+  
   private updateMonsters() {
     this.monsters.forEach(el =>{
       const speed = 0.01;
@@ -234,7 +250,7 @@ class VR {
       el.mesh.position.addScaledVector(direction, speed);
 
       el.mesh.position.add(el.velocity);
-
+      el.box.setFromObject(el.mesh)
       const distance = DEVICE_POSITION.distanceTo(el.mesh.position);
       if (distance <= 1.0) {
        }
@@ -242,30 +258,35 @@ class VR {
   }
 
   private createGun() {
-    const loader = new FBXLoader();
+    const gltfLoader = new GLTFLoader();
+
     const self = this;
-    loader.loadAsync("/models/Earth.fbx").then(gun => {
-      gun.scale.set(0.0001, 0.0001, 0.0001);
-      gun.rotation.set(0, Math.PI, 0);
-      gun.position.set(-0.50, 1.50, -1.00);
-      gun.children[1].name = "gun";
-      self.gun = gun;
-      self.scene.add(gun);
 
-      self.controllers.forEach((controller: Group): void => {
-        controller.addEventListener('squeezeend', function () {
-          self.scene.attach(gun);
-          controller.userData.hasGun = false
-        });
-        controller.addEventListener('selectend', function () {
-          if (controller.userData.hasGun) {
-            self.shoot();
-          }
-        })
-      });
+    gltfLoader
+      .loadAsync("/models/blasterB.glb")
+      .then((gltf) => {
+        gltf.scene.rotation.set(0, Math.PI, 0);
+        gltf.scene.position.set(-0.50, 1.50, -1.00);
+        console.log(gltf.scene)
+        gltf.scene.children[0].children[0].name = "gun";
+        console.log(gltf.scene.children[0].children[0])
 
-
-    }).catch(err => console.log("asasa " + err));
+        self.gun = gltf.scene;
+        self.scene.add(self.gun);
+  
+        self.controllers.forEach((controller: Group): void => {
+          controller.addEventListener('squeezeend', function () {
+            self.scene.attach(self.gun);
+            controller.userData.hasGun = false
+          });
+          controller.addEventListener('selectstart', function () {
+            if (controller.userData.hasGun) {
+              self.shoot();
+            }
+          })
+      })
+    })
+      .catch((err: string) => console.log(err));
   }
 
   private spawnMonster():void {
