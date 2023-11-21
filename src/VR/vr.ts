@@ -22,9 +22,8 @@ import {
 } from "three";
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 import { BoxLineGeometry } from "three/examples/jsm/geometries/BoxLineGeometry.js";
-import {DEVICE_POSITION} from "@/utils/utils.ts";
+import { DEVICE_POSITION } from "@/utils/utils.ts";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-
 
 class VR {
   private readonly scene: Scene;
@@ -36,8 +35,8 @@ class VR {
   private tempMatrix: Matrix4 = new Matrix4();
   private raycaster: Raycaster = new Raycaster();
   private readonly floor: Mesh;
-  private projectiles: { mesh: Mesh, velocity: Vector3,box: Box3 }[] = [];
-  private monsters:{ mesh: Mesh, velocity: Vector3, box: Box3 }[] = [];
+  private projectiles: { mesh: Mesh; velocity: Vector3; box: Box3 }[] = [];
+  private monsters: { mesh: Mesh; velocity: Vector3; box: Box3 }[] = [];
   private spawnTime: number = 1000;
   private timer: number = 1000;
   private lastFrameTimestamp: number = 0;
@@ -55,23 +54,17 @@ class VR {
     light.position.set(1, 1, 1).normalize();
     this.scene.add(light);
 
-    const room = new LineSegments(
-      new BoxLineGeometry(6, 6, 6, 10, 10, 10).translate(0, 3, 0),
-      new LineBasicMaterial({ color: 0xbcbcbc }),
-    );
-    this.scene.add(room);
-
     const floorGeometry = new PlaneGeometry(6, 6);
     const floorMaterial = new MeshStandardMaterial({ color: 0x666666 });
     this.floor = new Mesh(floorGeometry, floorMaterial);
     this.floor.rotation.x = -Math.PI / 2;
     this.floor.receiveShadow = true;
-    this.floor.name = "floor"
+    this.floor.name = "floor";
     this.scene.add(this.floor);
 
     this.renderer.xr.addEventListener(
       "sessionstart",
-      this.onSessionStart.bind(this),
+      this.onSessionStart.bind(this)
     );
 
     this.buildControllers();
@@ -119,7 +112,6 @@ class VR {
 
     this.controllers = controllers;
 
-
     //@ts-ignore
     function onSelectStart(this: any, event: any): void {
       this.userData.selectPressed = true;
@@ -149,12 +141,10 @@ class VR {
 
     function onSqueezeStart(this: any, event: any): void {
       this.userData.squeezePressed = true;
-      console.log(event);
     }
 
     function onSqueezeEnd(this: any, event: any): void {
       this.userData.squeezePressed = false;
-      console.log(event);
     }
 
     this.controllers.forEach((controller: Group): void => {
@@ -168,38 +158,46 @@ class VR {
     });
   }
   private shoot(): void {
- const controllerWithGun = this.controllers.find(controller => controller.userData.hasGun);
+    const controllerWithGun = this.controllers.find(
+      (controller) => controller.userData.hasGun
+    );
 
-   if (controllerWithGun) {
-     const gun = controllerWithGun.userData.grip;
+    if (controllerWithGun) {
+      const gun = controllerWithGun.userData.grip;
 
-     const projectileGeometry = new SphereGeometry(0.05, 8, 6);
-     const projectileMaterial = new MeshBasicMaterial({ color: 0x00ff00 });
-     const projectile = new Mesh(projectileGeometry, projectileMaterial);
+      const projectileGeometry = new SphereGeometry(0.05, 8, 6);
+      const projectileMaterial = new MeshBasicMaterial({ color: 0x00ff00 });
+      const projectile = new Mesh(projectileGeometry, projectileMaterial);
 
-     const gunDirection = new Vector3(0,0,1);
-     const gunPosition = new Vector3();
+      const gunDirection = new Vector3(0, 0, 1);
+      const gunPosition = new Vector3();
 
-     gun.getWorldPosition(gunPosition);
-     gun.getWorldDirection(gunDirection);
+      gun.getWorldPosition(gunPosition);
+      gun.getWorldDirection(gunDirection);
 
-     const projectileStartPosition = gunPosition.clone().add(gunDirection.clone().multiplyScalar(0.1));
+      const projectileStartPosition = gunPosition
+        .clone()
+        .add(gunDirection.clone().multiplyScalar(0.1));
 
-     projectile.position.copy(projectileStartPosition);
+      projectile.position.copy(projectileStartPosition);
 
-     const projectileVelocity = gunDirection.clone().multiplyScalar(0.1); // Adjust the speed as needed
+      const projectileVelocity = gunDirection.clone().multiplyScalar(0.1); // Adjust the speed as needed
 
-     this.scene.add(projectile);
+      this.scene.add(projectile);
 
-      this.projectiles.push({ mesh: projectile, velocity: projectileVelocity, box: new Box3().setFromObject(projectile) });
-   }
+      this.projectiles.push({
+        mesh: projectile,
+        velocity: projectileVelocity,
+        box: new Box3().setFromObject(projectile),
+      });
+    }
   }
 
   private updateProjectile() {
-    this.projectiles.forEach(el => {
-      el.mesh.position.add(el.velocity)
-        el.box.setFromObject(el.mesh);
-    })
+    this.projectiles.forEach((el) => {
+      el.mesh.position.add(el.velocity);
+      el.box.setFromObject(el.mesh);
+    });
   }
 
   private updateCollisions(): void {
@@ -207,47 +205,46 @@ class VR {
       for (let j = 0; j < this.monsters.length; j++) {
         const projectile = this.projectiles[i];
         const monster = this.monsters[j];
-  
+
         if (this.checkCollision(projectile, monster)) {
           this.handleCollision(projectile, monster);
-  
+
           this.scene.remove(projectile.mesh);
           this.projectiles.splice(i, 1);
-  
+
           this.scene.remove(monster.mesh);
           this.monsters.splice(j, 1);
-  
+
           i--;
           j--;
         }
       }
     }
   }
-  
+
   private checkCollision(projectile: any, monster: any): boolean {
     return projectile.box.intersectsBox(monster.box);
   }
-  
+
   private handleCollision(projectile: any, monster: any): void {
     console.log("Collision detected!" + projectile + monster);
   }
-  
+
   private updateMonsters() {
-    this.monsters.forEach(el =>{
+    this.monsters.forEach((el) => {
       const speed = 0.01;
       const direction = new Vector3();
-      direction.subVectors(DEVICE_POSITION, el.mesh.position);
+      direction.subVectors(this.camera.position, el.mesh.position);
       direction.normalize();
       el.mesh.position.addScaledVector(direction, speed);
       el.mesh.position.add(el.velocity);
-      el.box.setFromObject(el.mesh)
-      el.mesh.lookAt(DEVICE_POSITION);
-      const distance = DEVICE_POSITION.distanceTo(el.mesh.position);
+      el.box.setFromObject(el.mesh);
+      el.mesh.lookAt(this.camera.position);
+      const distance = this.camera.position.distanceTo(el.mesh.position);
       if (distance <= 1.0) {
-       }
-    })
+      }
+    });
   }
-
 
   private loadModels() {
     const gltfLoader = new GLTFLoader();
@@ -258,43 +255,42 @@ class VR {
       .loadAsync("/models/blasterB.glb")
       .then((gltf) => {
         gltf.scene.rotation.set(0, Math.PI, 0);
-        gltf.scene.position.set(-0.50, 1.50, -1.00);
-        console.log(gltf.scene)
+        gltf.scene.position.set(-0.5, 1.5, -1.0);
+        console.log(gltf.scene);
         gltf.scene.children[0].children[0].name = "gun";
-        console.log(gltf.scene.children[0].children[0])
+        console.log(gltf.scene.children[0].children[0]);
 
         self.gun = gltf.scene;
         self.scene.add(self.gun);
-  
+
         self.controllers.forEach((controller: Group): void => {
-          controller.addEventListener('squeezeend', function () {
+          controller.addEventListener("squeezeend", function () {
             self.scene.attach(self.gun);
-            controller.userData.hasGun = false
+            controller.userData.hasGun = false;
           });
-          controller.addEventListener('selectstart', function () {
+          controller.addEventListener("selectstart", function () {
             if (controller.userData.hasGun) {
               self.shoot();
             }
-          })
+          });
+        });
       })
-    })
       .catch((err: string) => console.log(err));
 
     gltfLoader
-        .loadAsync("/models/invader.glb")
-        .then((gltf) => {
-          gltf.scene.scale.set(1, 1, 1);
-          self.invaderModel = gltf.scene.clone();
-        })
-        .catch((err: string) => console.log(err));
-
+      .loadAsync("/models/invader.glb")
+      .then((gltf) => {
+        gltf.scene.scale.set(1, 1, 1);
+        self.invaderModel = gltf.scene.clone();
+      })
+      .catch((err: string) => console.log(err));
   }
 
   private spawnMonster(): void {
     if (!this.invaderModel) return;
     const minX = -60;
     const maxX = 60;
-    const minY = -60;
+    const minY = 0;
     const maxY = 60;
     const minZ = -60;
     const maxZ = 60;
@@ -303,14 +299,13 @@ class VR {
     position.x = Math.random() * (maxX - minX) + minX;
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
-    console.log(this.invaderModel)
-    debugger
     const newInvader = this.invaderModel.clone();
     const monster = {
       mesh: newInvader,
-      velocity: new Vector3(0,0,0),
-      box: new Box3().setFromObject(newInvader)};
-    monster.mesh.position.set(position.x,position.y,position.y);
+      velocity: new Vector3(0, 0, 0),
+      box: new Box3().setFromObject(newInvader),
+    };
+    monster.mesh.position.set(position.x, position.y, position.y);
 
     this.monsters.push(monster);
     this.scene.add(monster.mesh);
@@ -328,7 +323,7 @@ class VR {
     const deltaTime = timestamp - this.lastFrameTimestamp;
     this.lastFrameTimestamp = timestamp;
 
-    if(this.spawnTime <= 0) {
+    if (this.spawnTime <= 0) {
       this.spawnTime = this.timer;
       this.spawnMonster();
     }
@@ -337,22 +332,22 @@ class VR {
     this.controllers.forEach((controller: Group) => {
       this.tempMatrix.identity().extractRotation(controller.matrixWorld);
       this.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
-      this.raycaster.ray.direction
-        .set(0, 0, -1)
-        .applyMatrix4(this.tempMatrix);
+      this.raycaster.ray.direction.set(0, 0, -1).applyMatrix4(this.tempMatrix);
 
-        const intersects = this.raycaster.intersectObjects([this.floor, this.gun]);
+      const intersects = this.raycaster.intersectObjects([
+        this.floor,
+        this.gun,
+      ]);
       if (intersects.length > 0) {
         this.intersection = intersects[0];
       }
       if (controller.userData.selectPressed === true && this.intersection) {
         if (this.intersection.object.name === "floor") {
-
         }
         if (this.intersection.object.name === "gun") {
           this.gun.position.set(0, 0, 0);
           this.gun.quaternion.identity();
-          this.gun.rotateY( Math.PI )
+          this.gun.rotateY(Math.PI);
           controller.add(this.gun);
           controller.userData.hasGun = true;
           controller.userData.grip = this.gun;
@@ -365,9 +360,9 @@ class VR {
       }
     });
     DEVICE_POSITION.set(
-        this.controllers[0].position.x,
-        this.controllers[0].position.y,
-        this.controllers[0].position.z,
+      this.controllers[0].position.x,
+      this.controllers[0].position.y,
+      this.controllers[0].position.z
     );
     this.spawnTime -= deltaTime;
     this.updateProjectile();
@@ -376,7 +371,7 @@ class VR {
     this.renderer.render(this.scene, this.camera);
   }
 
-  public Destroy() { }
+  public Destroy() {}
 }
 
 export default VR;
