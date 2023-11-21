@@ -187,7 +187,7 @@ class VR {
 
      projectile.position.copy(projectileStartPosition);
 
-     const projectileVelocity = gunDirection.clone().multiplyScalar(0.1); // Adjust the speed as needed
+     const projectileVelocity = gunDirection.clone().multiplyScalar(0.1);
 
      this.scene.add(projectile);
 
@@ -197,7 +197,7 @@ class VR {
 
   private updateProjectile() {
     this.projectiles.forEach(el => {
-      el.mesh.position.add(el.velocity)
+        el.mesh.position.add(el.velocity)
         el.box.setFromObject(el.mesh);
     })
   }
@@ -231,8 +231,8 @@ class VR {
   private handleCollision(projectile: any, monster: any): void {
     console.log("Collision detected!" + projectile + monster);
   }
-  
-  private updateMonsters() {
+
+  private updateMonsters(): void {
     this.monsters.forEach(el =>{
       const speed = 0.01;
       const direction = new Vector3();

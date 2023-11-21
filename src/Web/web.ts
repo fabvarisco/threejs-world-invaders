@@ -8,32 +8,40 @@ import { OctreeHelper } from "three/addons/helpers/OctreeHelper.js";
 import { Capsule } from "three/addons/math/Capsule.js";
 
 import { GUI } from "three/addons/libs/lil-gui.module.min.js";
+import { Group, Vector3} from "three";
 
 class Web {
   private clock: THREE.Clock;
-  private scene: THREE.Scene;
-  private camera: THREE.PerspectiveCamera;
-  private fillLight1: THREE.HemisphereLight;
-  private directionalLight: THREE.DirectionalLight;
+  private readonly scene: THREE.Scene;
+  private readonly camera: THREE.PerspectiveCamera;
+  private readonly fillLight1: THREE.HemisphereLight;
+  private readonly directionalLight: THREE.DirectionalLight;
   private renderer: THREE.WebGLRenderer;
-  private GRAVITY: number;
-  private SPHERE_RADIUS: number;
-  private STEPS_PER_FRAME: number;
-  private sphereGeometry: THREE.IcosahedronGeometry;
-  private sphereMaterial: THREE.MeshLambertMaterial;
-  private spheres: {
+  private readonly GRAVITY: number;
+  private readonly SPHERE_RADIUS: number;
+  private readonly STEPS_PER_FRAME: number;
+  private readonly sphereGeometry: THREE.IcosahedronGeometry;
+  private readonly sphereMaterial: THREE.MeshLambertMaterial;
+  private readonly spheres: {
     mesh: THREE.Mesh;
     collider: THREE.Sphere;
     velocity: THREE.Vector3;
-  }[];
-  private sphereIdx: number;
-  private worldOctree: Octree;
-  private playerCollider: Capsule;
-  private playerVelocity: THREE.Vector3;
-  private playerDirection: THREE.Vector3;
+  }[] = [];
+  private readonly worldOctree: Octree;
+  private readonly playerCollider: Capsule;
+  private readonly playerVelocity: THREE.Vector3;
+  private readonly playerDirection: THREE.Vector3;
   private playerOnFloor: boolean;
   private mouseTime: number;
-  private keyStates: { [key: string]: boolean };
+  private readonly keyStates: { [key: string]: boolean };
+  private invaderModel: Group = new Group();
+  private monsters: {
+    mesh: THREE.Mesh | THREE.Group;
+    collider: THREE.Sphere;
+    velocity: THREE.Vector3;
+  }[] = [];
+  private spawnTime: number = 0.5;
+  private timer: number = 0.5;
 
   constructor(
     scene: THREE.Scene,
@@ -75,7 +83,6 @@ class Web {
     this.sphereGeometry = new THREE.IcosahedronGeometry(this.SPHERE_RADIUS, 5);
     this.sphereMaterial = new THREE.MeshLambertMaterial({ color: 0xdede8d });
     this.spheres = [];
-    this.sphereIdx = 0;
     this.worldOctree = new Octree();
     this.playerCollider = new Capsule(
       new THREE.Vector3(0, 0.35, 0),
@@ -134,6 +141,61 @@ class Web {
       });
       this.animate();
     });
+  const self = this;
+    loader
+        .loadAsync("invader.glb")
+        .then((gltf) => {
+          gltf.scene.scale.set(1, 1, 1);
+          self.invaderModel = gltf.scene.clone();
+        })
+        .catch((err: string) => console.log(err));
+  }
+
+  private spawnMonster(): void {
+    if (!this.invaderModel) return;
+    const minX = -60;
+    const maxX = 60;
+    const minY = 100;
+    const maxY = 100;
+    const minZ = -60;
+    const maxZ = 60;
+
+    const position: Vector3 = new Vector3(0, 0, 0);
+    position.x = Math.random() * (maxX - minX) + minX;
+    position.y = Math.random() * (maxY - minY) + minY;
+    position.z = Math.random() * (maxZ - minZ) + minZ;
+    const newInvader: Group = this.invaderModel.clone();
+    const monster = {
+      mesh: newInvader,
+      velocity: new Vector3(0,0,0),
+      collider: new THREE.Sphere(
+          new THREE.Vector3(0, -100, 0),
+          0.4)
+    }
+
+    monster.mesh.position.set(position.x,position.y,position.y);
+    this.monsters.push(monster);
+    this.scene.add(monster.mesh);
+  }
+
+  private updateMonsters(deltaTime:number):void {
+    this.monsters.forEach(el =>{
+      const speed = 0.01;
+      const direction = new Vector3();
+      direction.subVectors(this.camera.position, el.mesh.position);
+      direction.normalize();
+      el.mesh.position.addScaledVector(direction, speed);
+      el.mesh.position.add(el.velocity);
+      el.mesh.lookAt(this.camera.position);
+      el.collider.center.copy(el.mesh.position)
+
+      const distance = this.camera.position.distanceTo(el.mesh.position);
+      if (distance <= 1.0) {
+      }
+    })
+
+    this.invadersCollisions()
+
   }
 
   private onWindowResize(): void {
@@ -143,37 +205,36 @@ class Web {
   }
 
   private _createSphere() {
-    const sphere = new THREE.Mesh(this.sphereGeometry, this.sphereMaterial);
-    sphere.castShadow = true;
-    sphere.receiveShadow = true;
+    const meshSphere = new THREE.Mesh(this.sphereGeometry, this.sphereMaterial);
+    meshSphere.castShadow = true;
+    meshSphere.receiveShadow = true;
 
-    this.scene.add(sphere);
-
-    this.spheres.push({
-      mesh: sphere,
+    const sphere = {
+      mesh: meshSphere,
       collider: new THREE.Sphere(
         new THREE.Vector3(0, -100, 0),
         this.SPHERE_RADIUS,
       ),
       velocity: new THREE.Vector3(),
-    });
-    
+    }
+    this.spheres.push(sphere)
+    this.scene.add(sphere.mesh);
+    return sphere;
   }
 
 
   private throwBall(): void {
-    this._createSphere();
-    const sphere = this.spheres[this.sphereIdx];
+
+    const { velocity, collider} = this._createSphere();
     this.camera.getWorldDirection(this.playerDirection);
-    sphere.collider.center
+    collider.center
       .copy(this.playerCollider.end)
       .addScaledVector(this.playerDirection, this.playerCollider.radius * 1.5);
     const impulse =
       15 + 30 * (1 - Math.exp((this.mouseTime - performance.now()) * 0.001));
 
-    sphere.velocity.copy(this.camera.getWorldDirection(this.playerDirection).clone().multiplyScalar(impulse));
-    
-    this.sphereIdx = (this.sphereIdx + 1) % this.spheres.length;
+    velocity.copy(this.camera.getWorldDirection(this.playerDirection).clone().multiplyScalar(impulse));
+
   }
 
   private playerCollisions(): void {
@@ -202,6 +263,27 @@ class Web {
     }
   }
 
+  private invadersCollisions(): void {
+    for (let i = 0; i < this.spheres.length; i++) {
+      for (let j = 0; j < this.monsters.length; j++) {
+        const sphere = this.spheres[i];
+        const monster = this.monsters[j];
+
+        if (monster.collider.intersectsSphere(sphere.collider)) {
+          debugger
+          this.scene.remove(sphere.mesh);
+          this.spheres.splice(i, 1);
+
+          this.scene.remove(monster.mesh);
+          this.monsters.splice(j, 1);
+
+          i--;
+          j--;
+        }
+      }
+    }
+  }
+
   private updatePlayer(deltaTime: number): void {
     let damping = Math.exp(-4 * deltaTime) - 1;
     if (!this.playerOnFloor) {
@@ -218,23 +300,12 @@ class Web {
   private updateSpheres(deltaTime: number): void {
     this.spheres.forEach((sphere) => {
       sphere.collider.center.addScaledVector(sphere.velocity, deltaTime);
-      //const result = this.worldOctree.sphereIntersect(sphere.collider);
-      // if (result) {
-      //   sphere.velocity.addScaledVector(
-      //     result.normal,
-      //     -result.normal.dot(sphere.velocity) * 1.5,
-      //   );
-      //   sphere.collider.center.add(result.normal.multiplyScalar(result.depth));
-      // }
-      // const damping = Math.exp(-1.5 * deltaTime) - 1;
-      // sphere.velocity.addScaledVector(sphere.velocity, damping);
     });
     this.spheresCollisions();
     for (const sphere of this.spheres) {
       sphere.mesh.position.copy(sphere.collider.center);
     }
   }
-
   private getForwardVector(): THREE.Vector3 {
     this.camera.getWorldDirection(this.playerDirection);
     this.playerDirection.y = 0;
@@ -292,8 +363,14 @@ class Web {
       this.controls(deltaTime);
       this.updatePlayer(deltaTime);
       this.updateSpheres(deltaTime);
+      this.updateMonsters(deltaTime)
       this.teleportPlayerIfOob();
     }
+    if(this.spawnTime <= 0) {
+      this.spawnTime = this.timer;
+      this.spawnMonster();
+    }
+    this.spawnTime -= deltaTime;
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(() => this.animate());
   }
