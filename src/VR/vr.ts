@@ -1,6 +1,5 @@
 import {
   Box3,
-  BoxGeometry,
   BufferGeometry,
   Camera,
   DirectionalLight,
@@ -33,6 +32,7 @@ class VR {
   private renderer: WebGLRenderer;
   private controllers: Group[] = [];
   private intersection: any;
+  private invaderModel: any;
   private tempMatrix: Matrix4 = new Matrix4();
   private raycaster: Raycaster = new Raycaster();
   private readonly floor: Mesh;
@@ -75,7 +75,7 @@ class VR {
     );
 
     this.buildControllers();
-    this.createGun();
+    this.loadModels();
 
     this.renderer.setAnimationLoop(this.Render.bind(this));
   }
@@ -241,13 +241,15 @@ class VR {
       el.mesh.position.addScaledVector(direction, speed);
       el.mesh.position.add(el.velocity);
       el.box.setFromObject(el.mesh)
+      el.mesh.lookAt(DEVICE_POSITION);
       const distance = DEVICE_POSITION.distanceTo(el.mesh.position);
       if (distance <= 1.0) {
        }
     })
   }
 
-  private createGun() {
+
+  private loadModels() {
     const gltfLoader = new GLTFLoader();
 
     const self = this;
@@ -277,35 +279,42 @@ class VR {
       })
     })
       .catch((err: string) => console.log(err));
+
+    gltfLoader
+        .loadAsync("/models/invader.glb")
+        .then((gltf) => {
+          gltf.scene.scale.set(1, 1, 1);
+          self.invaderModel = gltf.scene.clone();
+        })
+        .catch((err: string) => console.log(err));
+
   }
 
-  private spawnMonster():void {
-    const minX = -10;
-    const maxX = 10;
-    const minY = -10;
-    const maxY = 10;
-    const minZ = -10;
-    const maxZ = 10;
+  private spawnMonster(): void {
+    if (!this.invaderModel) return;
+    const minX = -60;
+    const maxX = 60;
+    const minY = -60;
+    const maxY = 60;
+    const minZ = -60;
+    const maxZ = 60;
 
     const position: Vector3 = new Vector3(0, 0, 0);
     position.x = Math.random() * (maxX - minX) + minX;
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
-
-
-    const monsterGeometry = new BoxGeometry(0.3, 0.3, 0.3);
-    const monsterMaterial = new MeshBasicMaterial({ color: 0x00ff00 });
-    const monsterMesh = new Mesh(monsterGeometry, monsterMaterial);
+    console.log(this.invaderModel)
+    debugger
+    const newInvader = this.invaderModel.clone();
     const monster = {
-      mesh: monsterMesh,
+      mesh: newInvader,
       velocity: new Vector3(0,0,0),
-      box: new Box3().setFromObject(monsterMesh)};
+      box: new Box3().setFromObject(newInvader)};
     monster.mesh.position.set(position.x,position.y,position.y);
-    this.monsters.push(monster);
 
+    this.monsters.push(monster);
     this.scene.add(monster.mesh);
   }
-
 
   private createMarker(geometry: SphereGeometry, material: MeshBasicMaterial) {
     const mesh = new Mesh(geometry, material);
