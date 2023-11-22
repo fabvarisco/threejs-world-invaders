@@ -5,19 +5,18 @@ import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
 
 interface ISceneObjectsArgs {
   position?: Vector3;
+  scale?:number;
   velocity?: Vector3;
   controller?: Group;
   target?: any;
   intersections?: any;
 }
 interface ISceneObjects {
-  object: Group;
+  fileName: string;
   scene: Scene;
   args: ISceneObjectsArgs;
 }
 
 type Asset = {
-  asset: string;
   sceneObjectType: typeof SceneObject;
-  hasAnimation?: boolean;
 };

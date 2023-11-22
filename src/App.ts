@@ -2,8 +2,6 @@ import { ARButton } from "three/addons/webxr/ARButton.js";
 import AR from "./AR/ar.ts";
 import "./style.css";
 import { Asset } from "@/type";
-import { PREFABS } from "@/utils/utils.ts";
-import Prefab from "@/Assets/Prefab.ts";
 import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
 import {
   DirectionalLight,
@@ -29,24 +27,20 @@ class App {
   private readonly assets: Asset[];
   private activeGame: Web | AR | VR | TitleScreen | undefined | null = null;
   private startButtonContainer: HTMLElement | null = null;
+  private sceneObjects: SceneObject[] = [];
 
   constructor() {
     this.assets = [
       {
-        asset: "BaseMonster",
         sceneObjectType: BaseMonster,
-        hasAnimation: true,
       },
       {
-        asset: "PlayerShoot",
         sceneObjectType: PlayerShoot,
       },
       {
-        asset: "DraggableObject",
         sceneObjectType: DraggableObject,
       },
       {
-        asset: "Earth",
         sceneObjectType: SceneObject,
       },
     ];
@@ -56,6 +50,7 @@ class App {
         0.01,
         400,
     );
+
     this.camera.position.set(0, 0, 20);
     this.camera.lookAt(new Vector3(0, 0, 0));
     this.scene = new Scene();
@@ -92,13 +87,9 @@ class App {
   }
 
   private async _init() {
-    console.log("Loading...");
-    for (const {asset, hasAnimation} of this.assets) {
-      const prefab = new Prefab(asset, hasAnimation);
-      await prefab.Load();
-      PREFABS[asset] = prefab;
-    }
-    console.log("All prefabs were created!");
+    // console.log("Loading...");
+
+    // console.log("All prefabs were created!");
   }
 
   private _createLoading(): void {
@@ -177,6 +168,12 @@ class App {
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
+
+  public AddNewSceneObject(sceneObjectType: typeof SceneObject):void{
+
+  }
+
+  public RemoveSceneObject():void{}
 
 
 }

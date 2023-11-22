@@ -1,46 +1,46 @@
-import { Box3, Group, Scene, Vector3 } from "three";
+import { Box3, Group, Scene, Sphere, Vector3 } from "three";
 import { ISceneObjects, ISceneObjectsArgs } from "@/type";
-import { v4 as uuidv4 } from "uuid";
-import { removeSceneObject } from "@/utils/utils.ts";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 class SceneObject {
-  protected object: Group;
+  protected fileName: string = "";
+  protected loader: GLTFLoader = new GLTFLoader().setPath("./models/");
+  protected object: Group = new Group();
   protected scene: Scene;
   protected direction: Vector3;
-  protected collisionBox: Box3;
+  protected collisionBox: Box3 = new Box3();
   protected args: ISceneObjectsArgs;
-  protected uid: any;
-  constructor({ object, scene, args }: ISceneObjects) {
-    this.object = object.clone();
+  constructor({ fileName, scene, args }: ISceneObjects) {
     this.direction = new Vector3(0, 0, 0);
-    this.collisionBox = new Box3().setFromObject(this.object);
-    this.collisionBox.getSize(new Vector3());
     this.scene = scene;
+    this.fileName = fileName;
     this.args = { ...args };
-    this.uid = uuidv4();
-
-    this.scene.add(this.object);
+    this._load()
   }
 
-  Render() {}
+  protected async _load(){
+    throw new Error("_load method not implemented!")
+  }
 
-  GetObject() {
+  private _setCollisionBox():void {
+    this.collisionBox = new Box3().setFromObject(this.object);
+    this.collisionBox.getSize(new Vector3());
+  }
+
+  Render():void {}
+
+
+  GetObject(): Group {
     return this.object;
   }
 
-  GetObjectBox() {
+  GetObjectBox():Box3 {
     return this.collisionBox;
   }
 
-  GetUID() {
-    return this.uid;
+  Destroy():void {
   }
-  Destroy() {
-    removeSceneObject(this, this.scene);
-  }
-  collidesWith(otherObject: SceneObject): boolean {
-    return this.GetObjectBox().intersectsBox(otherObject.GetObjectBox());
-  }
+
 }
 
 export default SceneObject;

@@ -131,14 +131,6 @@ class Web {
           }
         }
       });
-      const helper = new OctreeHelper(this.worldOctree);
-      helper.visible = false;
-      this.scene.add(helper);
-      const gui = new GUI({ width: 200 });
-      //@ts-ignore
-      gui.add({ debug: false }, "debug").onChange((value) => {
-        helper.visible = value;
-      });
       this.animate();
     });
   const self = this;
