@@ -3,11 +3,9 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 import { Octree } from "three/addons/math/Octree.js";
-import { OctreeHelper } from "three/addons/helpers/OctreeHelper.js";
 
 import { Capsule } from "three/addons/math/Capsule.js";
 
-import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 import { Group, Vector3} from "three";
 
 class Web {
@@ -164,13 +162,12 @@ class Web {
           new THREE.Vector3(0, -100, 0),
           0.4)
     }
-
     monster.mesh.position.set(position.x,position.y,position.y);
     this.monsters.push(monster);
     this.scene.add(monster.mesh);
   }
 
-  private updateMonsters(deltaTime:number):void {
+  private updateMonsters():void {
     this.monsters.forEach(el =>{
       const speed = 0.01;
       const direction = new Vector3();
@@ -262,7 +259,6 @@ class Web {
         const monster = this.monsters[j];
 
         if (monster.collider.intersectsSphere(sphere.collider)) {
-          debugger
           this.scene.remove(sphere.mesh);
           this.spheres.splice(i, 1);
 
@@ -355,7 +351,7 @@ class Web {
       this.controls(deltaTime);
       this.updatePlayer(deltaTime);
       this.updateSpheres(deltaTime);
-      this.updateMonsters(deltaTime)
+      this.updateMonsters();
       this.teleportPlayerIfOob();
     }
     if(this.spawnTime <= 0) {

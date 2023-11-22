@@ -1,8 +1,6 @@
 import { ARButton } from "three/addons/webxr/ARButton.js";
 import AR from "./AR/ar.ts";
 import "./style.css";
-import { Asset } from "@/type";
-import PlayerShoot from "@/Assets/SceneObjects/PlayerShoot.ts";
 import {
   DirectionalLight,
   HemisphereLight,
@@ -12,45 +10,35 @@ import {
   WebGLRenderer,
 } from "three";
 
-import BaseMonster from "@/Assets/SceneObjects/BaseMonster.ts";
-import DraggableObject from "./Assets/SceneObjects/DraggableObject.ts";
 import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
 import Web from "@/Web/web.ts";
 import TitleScreen from "@/TitleScreen/TitleScreen.ts";
 import VR from "@/VR/vr.ts";
-import SceneObject from "@/Assets/SceneObjects/SceneObject.ts";
+import Prefab from "./Assets/Prefabs/Prefab.ts";
+import WebWorldPrefab from "./Assets/Prefabs/WebWorldPrefab.ts";
+import InvaderPrefab from "./Assets/Prefabs/InvaderPrefab.ts";
+
+
 
 class App {
   private readonly camera: PerspectiveCamera;
   private readonly scene: Scene;
   private readonly renderer: WebGLRenderer;
-  private readonly assets: Asset[];
+  private readonly assets: {key:string} = [{key: "worldWeb", prefab: WebWorldPrefab},{key: "invader", prefab: InvaderPrefab} ];
+  private readonly prefabs:Map<string, Prefab> = new Map();
+
   private activeGame: Web | AR | VR | TitleScreen | undefined | null = null;
   private startButtonContainer: HTMLElement | null = null;
-  private sceneObjects: SceneObject[] = [];
 
   constructor() {
-    this.assets = [
-      {
-        sceneObjectType: BaseMonster,
-      },
-      {
-        sceneObjectType: PlayerShoot,
-      },
-      {
-        sceneObjectType: DraggableObject,
-      },
-      {
-        sceneObjectType: SceneObject,
-      },
-    ];
     this.camera = new PerspectiveCamera(
-        70,
-        window.innerWidth / window.innerHeight,
-        0.01,
-        400,
+      70,
+      window.innerWidth / window.innerHeight,
+      0.01,
+      400
     );
 
+    
     this.camera.position.set(0, 0, 20);
     this.camera.lookAt(new Vector3(0, 0, 0));
     this.scene = new Scene();
@@ -82,14 +70,16 @@ class App {
       this._removeLoading();
       this.activeGame = new TitleScreen(this.camera, this.renderer);
     });
-    const teste = document.getElementById("ARButton");
-    console.log(teste);
+    document.getElementById("ARButton");
   }
 
-  private async _init() {
-    // console.log("Loading...");
-
-    // console.log("All prefabs were created!");
+  private async _init(): Promise<void> {
+    console.log("Loading...");
+    this.assets.forEach((asset: typeof Prefab) => {
+      const _prefab = new asset(this.scene);
+      this.prefabs.push(_prefab);
+    });
+    console.log("All prefabs were created!");
   }
 
   private _createLoading(): void {
@@ -121,8 +111,7 @@ class App {
     startArButton.removeAttribute("style");
 
     if (startArButton!.textContent!.toLowerCase().includes("not supported")) {
-      const att = startArButton.getAttribute("button");
-      console.log(att);
+      startArButton.getAttribute("button");
     }
 
     const startWebButton = document.createElement("button");
@@ -169,13 +158,9 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  public AddNewSceneObject(sceneObjectType: typeof SceneObject):void{
+  public AddNewSceneObject(): void {}
 
-  }
-
-  public RemoveSceneObject():void{}
-
-
+  public RemoveSceneObject(): void {}
 }
 
 export default App;
