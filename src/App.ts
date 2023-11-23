@@ -30,7 +30,6 @@ class App {
     { key: "earth", prefab: EarthPrefab },
   ];
   private readonly prefabs: Map<string, Prefab> = new Map();
-
   private activeGame: Web | AR | VR | TitleScreen | undefined | null = null;
   private startButtonContainer: HTMLElement | null = null;
 
@@ -66,7 +65,7 @@ class App {
     window.addEventListener("resize", this._resize.bind(this));
   }
 
-  public async Start() {
+  public async Start(): Promise<void> {
     await this._init();
     this.renderer.xr.enabled = true;
     this._createButtons();
@@ -77,13 +76,11 @@ class App {
 
   private async _init(): Promise<void> {
     console.log("Loading...");
-
     for (const { key, prefab } of this.assets) {
       const instance = new prefab();
       await instance.Load();
       this.prefabs.set(key, instance);
     }
-
     console.log("All prefabs were created!");
   }
 
@@ -103,7 +100,7 @@ class App {
     container?.remove();
   }
 
-  private _destroyStartButtonsContainer() {
+  private _destroyStartButtonsContainer(): void {
     if (!this.startButtonContainer) return;
     this.startButtonContainer.remove();
   }
@@ -143,7 +140,7 @@ class App {
     this.activeGame = new AR(this.camera, this.renderer);
   }
 
-  private _onStartVr() {
+  private _onStartVr(): void {
     document.getElementById("title-container")?.remove();
     this.activeGame?.Destroy();
     this.activeGame = null;
@@ -154,7 +151,7 @@ class App {
     this._destroyStartButtonsContainer();
     this.activeGame?.Destroy();
     this.activeGame = null;
-    this.activeGame = new Web(this.scene, this.camera, this.renderer);
+    this.activeGame = new Web(this.camera, this.renderer, this.prefabs);
   }
 
   private _resize(): void {

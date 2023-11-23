@@ -7,6 +7,7 @@ import { Octree } from "three/addons/math/Octree.js";
 import { Capsule } from "three/addons/math/Capsule.js";
 
 import { Group, Vector3} from "three";
+import Prefab from "@/Assets/Prefabs/Prefab";
 
 class Web {
   private clock: THREE.Clock;
@@ -33,6 +34,7 @@ class Web {
   private mouseTime: number;
   private readonly keyStates: { [key: string]: boolean };
   private invaderModel: Group = new Group();
+  private worldWeb: Group = new Group();
   private monsters: {
     mesh: THREE.Mesh | THREE.Group;
     collider: THREE.Sphere;
@@ -42,12 +44,12 @@ class Web {
   private timer: number = 0.5;
 
   constructor(
-    scene: THREE.Scene,
     camera: THREE.PerspectiveCamera,
     renderer: THREE.WebGLRenderer,
+    prefabs: Map<string, Prefab>
   ) {
     this.clock = new THREE.Clock();
-    this.scene = scene;
+    this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x88ccee);
     this.scene.fog = new THREE.Fog(0x88ccee, 0, 50);
     this.camera = camera;
@@ -113,32 +115,15 @@ class Web {
     });
     window.addEventListener("resize", this.onWindowResize);
     this.onWindowResize();
-    const loader = new GLTFLoader().setPath("./models/");
-    loader.load("collision-world.glb", (gltf) => {
-      this.scene.add(gltf.scene);
-      this.worldOctree.fromGraphNode(gltf.scene);
-      gltf.scene.traverse((child) => {
-        //@ts-ignore
-        if (child.isMesh) {
-          child.castShadow = true;
-          child.receiveShadow = true;
-          //@ts-ignore
-          if (child.material.map) {
-            //@ts-ignore
-            child.material.map.anisotropy = 4;
-          }
-        }
-      });
-      this.animate();
-    });
-  const self = this;
-    loader
-        .loadAsync("invader.glb")
-        .then((gltf) => {
-          gltf.scene.scale.set(1, 1, 1);
-          self.invaderModel = gltf.scene.clone();
-        })
-        .catch((err: string) => console.log(err));
+
+    this.invaderModel = prefabs.get("invader")?.GetObject()!;
+    this.invaderModel.scale.set(1, 1, 1);
+    this.worldWeb = prefabs.get("worldWeb")?.GetObject()!; 
+    
+    this.scene.add(this.worldWeb);
+    this.worldOctree.fromGraphNode(this.worldWeb);
+  
+    this.animate();
   }
 
   private spawnMonster(): void {

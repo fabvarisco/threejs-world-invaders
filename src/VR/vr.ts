@@ -27,7 +27,7 @@ class VR {
   private renderer: WebGLRenderer;
   private controllers: Group[] = [];
   private intersection: any;
-  private invaderModel: any;
+  private invaderModel: Group = new Group();
   private tempMatrix: Matrix4 = new Matrix4();
   private raycaster: Raycaster = new Raycaster();
   private readonly floor: Mesh;
