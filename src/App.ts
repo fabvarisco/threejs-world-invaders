@@ -20,14 +20,15 @@ import InvaderPrefab from "./Assets/Prefabs/InvaderPrefab.ts";
 import { Asset } from "./type";
 import EarthPrefab from "./Assets/Prefabs/EarthPrefab.ts";
 
-
-
 class App {
   private readonly camera: PerspectiveCamera;
   private readonly scene: Scene;
   private readonly renderer: WebGLRenderer;
-  private readonly assets: Asset[] = [{ key: "worldWeb", prefab: WebWorldPrefab }, { key: "invader", prefab: InvaderPrefab },
-  { key: "earth", prefab: EarthPrefab }];
+  private readonly assets: Asset[] = [
+    { key: "worldWeb", prefab: WebWorldPrefab },
+    { key: "invader", prefab: InvaderPrefab },
+    { key: "earth", prefab: EarthPrefab },
+  ];
   private readonly prefabs: Map<string, Prefab> = new Map();
 
   private activeGame: Web | AR | VR | TitleScreen | undefined | null = null;
@@ -40,7 +41,6 @@ class App {
       0.01,
       400
     );
-
 
     this.camera.position.set(0, 0, 20);
     this.camera.lookAt(new Vector3(0, 0, 0));
@@ -66,29 +66,24 @@ class App {
     window.addEventListener("resize", this._resize.bind(this));
   }
 
-  public Start() {
-    this._init().then((data)=> {
-      console.log(data)
-      console.log("asdasasf")
-    }).finally(() => {
-      this.renderer.xr.enabled = true;
-      this._createButtons();
-      this._removeLoading();
-    });
-    setTimeout(() => {
-      this.activeGame = new TitleScreen(this.camera, this.renderer, this.prefabs);
-
-    }, 3000);
+  public async Start() {
+    await this._init();
+    this.renderer.xr.enabled = true;
+    this._createButtons();
+    this._removeLoading();
+    this.activeGame = new TitleScreen(this.camera, this.renderer, this.prefabs);
     document.getElementById("ARButton");
   }
 
   private async _init(): Promise<void> {
     console.log("Loading...");
+
     for (const { key, prefab } of this.assets) {
-      const _prefab = new prefab();
-      await _prefab.Load();
-      this.prefabs.set(key, _prefab);
+      const instance = new prefab();
+      await instance.Load();
+      this.prefabs.set(key, instance);
     }
+
     console.log("All prefabs were created!");
   }
 
@@ -168,9 +163,9 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  public AddNewSceneObject(): void { }
+  public AddNewSceneObject(): void {}
 
-  public RemoveSceneObject(): void { }
+  public RemoveSceneObject(): void {}
 }
 
 export default App;

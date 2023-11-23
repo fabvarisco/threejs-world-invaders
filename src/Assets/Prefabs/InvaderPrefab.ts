@@ -6,14 +6,13 @@ class InvaderPrefab extends Prefab {
   }
 
   async Load(){
-    const self = this;
-    this.gltfLoader
-        .loadAsync("invader.glb")
-        .then((gltf) => {
-          self.object = gltf.scene.clone();
-        })
-        .catch((err: string) => console.log(err))
-        .finally(()=> console.log("invader.glb loaded!" ));
+    try {
+      const gltf = await this.gltfLoader.loadAsync("invader.glb");
+      this.object = gltf.scene.clone();
+      console.log("invader.glb loaded!");
+    } catch (error) {
+      console.error(error);
+    }
   }
 
 }
