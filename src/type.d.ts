@@ -17,7 +17,8 @@ interface ISceneObjects {
   args: ISceneObjectsArgs;
 }
 
-type Asset = {
-  fileName:string
-  args: ISceneObjectsArgs;
+interface Asset {
+  key: string; 
+  prefab: typeof Prefab;
 };
+

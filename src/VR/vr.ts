@@ -201,16 +201,12 @@ class VR {
       for (let j = 0; j < this.monsters.length; j++) {
         const projectile = this.projectiles[i];
         const monster = this.monsters[j];
-
         if (this.checkCollision(projectile, monster)) {
           this.handleCollision(projectile, monster);
-
           this.scene.remove(projectile.mesh);
           this.projectiles.splice(i, 1);
-
           this.scene.remove(monster.mesh);
           this.monsters.splice(j, 1);
-
           i--;
           j--;
         }

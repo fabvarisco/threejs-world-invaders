@@ -1,20 +1,19 @@
 import Prefab from "./Prefab";
-import {
-    Scene
-  } from "three";
+
 class InvaderPrefab extends Prefab {
-  constructor(scene: Scene) {
-    super(scene)
+  constructor() {
+    super()
   }
 
-  protected async _load(){
+  async Load(){
     const self = this;
-    this.loader
+    this.gltfLoader
         .loadAsync("invader.glb")
         .then((gltf) => {
           self.object = gltf.scene.clone();
         })
-        .catch((err: string) => console.log(err));
+        .catch((err: string) => console.log(err))
+        .finally(()=> console.log("invader.glb loaded!" ));
   }
 
 }

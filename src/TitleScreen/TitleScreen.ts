@@ -11,27 +11,29 @@ import {
   Scene,
   Vector3,
   WebGLRenderer,
+  Group
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import Text from "@/Assets/Text.ts";
+import Prefab from "@/Assets/Prefabs/Prefab";
 
 class TitleScreen {
   private readonly scene: Scene;
   private readonly camera: PerspectiveCamera;
   private renderer: WebGLRenderer;
   private controls: OrbitControls;
-  private earth: Object3D<Event> = new Object3D<Event>();
-  private invader: any;
-  private invaders: any[] = [];
+  private earth: Group;
+  private invader: Group;
+  private invaders: Group[] = [];
   private spawnTime: number = 2000;
   private timer: number = 2000;
   private lastFrameTimestamp: number = 0;
   private titleText: Text;
 
-  constructor(camera: PerspectiveCamera, renderer: WebGLRenderer) {
+  constructor(camera: PerspectiveCamera, renderer: WebGLRenderer, prefabs: Map<string, Prefab>) {
     this.scene = new Scene();
     this.camera = camera;
     this.renderer = renderer;
@@ -48,8 +50,13 @@ class TitleScreen {
     this.controls.enableZoom = false;
     this.controls.enabled = false;
     this.controls.minDistance = 40;
-    this.loadTitleScreen();
+    
+    this.earth = prefabs.get("earth")?.GetObject()!;
+    this.earth.scale.set(0.01, 0.01, 0.01);
+    this.invader = prefabs.get("invader")?.GetObject()!;
+    this.invader.scale.set(4, 4, 4);
 
+  
     this.titleText = new Text(
       "./fonts/Pixel.json",
       "World",
@@ -63,31 +70,31 @@ class TitleScreen {
       new Vector3(0, 3, 30)
     );
     this.titleText.GetTextMesh().updateMatrixWorld();
-
+    this.scene.add(this.earth)
     this.renderer.setAnimationLoop(this.Render.bind(this));
   }
 
-  private loadTitleScreen() {
-    const fbxLoader = new FBXLoader();
-    const gltfLoader = new GLTFLoader();
-    const self = this;
-    fbxLoader
-      .loadAsync("/models/Earth.fbx")
-      .then((earth: Object3D<Event>) => {
-        earth.scale.set(0.01, 0.01, 0.01);
-        self.earth = earth;
-        self.scene.add(earth);
-      })
-      .catch((err: string) => console.log(err));
+  // private loadTitleScreen() {
+  //   const fbxLoader = new FBXLoader();
+  //   const gltfLoader = new GLTFLoader();
+  //   const self = this;
+  //   fbxLoader
+  //     .loadAsync("/models/Earth.fbx")
+  //     .then((earth: Object3D<Event>) => {
+  //       earth.scale.set(0.01, 0.01, 0.01);
+  //       self.earth = earth;
+  //       self.scene.add(earth);
+  //     })
+  //     .catch((err: string) => console.log(err));
 
-    gltfLoader
-      .loadAsync("/models/invader.glb")
-      .then((gltf) => {
-        gltf.scene.scale.set(4, 4, 4);
-        self.invader = gltf.scene.clone();
-      })
-      .catch((err: string) => console.log(err));
-  }
+  //   gltfLoader
+  //     .loadAsync("/models/invader.glb")
+  //     .then((gltf) => {
+  //       gltf.scene.scale.set(4, 4, 4);
+  //       self.invader = gltf.scene.clone();
+  //     })
+  //     .catch((err: string) => console.log(err));
+  // }
 
   private explosionParticles(position: Vector3) {
     const particleGeometry = new BufferGeometry();
@@ -137,7 +144,7 @@ class TitleScreen {
       animateParticles();
       requestAnimationFrame(particleAnimation);
     };
-  
+
     particleAnimation();
   }
 
