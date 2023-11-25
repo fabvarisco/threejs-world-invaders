@@ -8,7 +8,7 @@ class InvaderPrefab extends Prefab {
   async Load(){
     try {
       const gltf = await this.gltfLoader.loadAsync("invader.glb");
-      this.object = gltf.scene.clone();
+      this.model = gltf.scene.clone();
       console.log("invader.glb loaded!");
     } catch (error) {
       console.error(error);

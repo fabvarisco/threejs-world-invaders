@@ -248,9 +248,7 @@ class VR {
       .then((gltf) => {
         gltf.scene.rotation.set(0, Math.PI, 0);
         gltf.scene.position.set(-0.5, 1.5, -1.0);
-        console.log(gltf.scene);
         gltf.scene.children[0].children[0].name = "gun";
-        console.log(gltf.scene.children[0].children[0]);
 
         self.gun = gltf.scene;
         self.scene.add(self.gun);

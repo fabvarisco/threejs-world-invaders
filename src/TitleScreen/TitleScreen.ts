@@ -48,7 +48,6 @@ class TitleScreen {
     this.controls.enabled = false;
     this.controls.minDistance = 40;
     
-
     //init prefabs
     this.earth = prefabs.get("earth")!.GetObject()!;
     this.earth.scale.set(0.01, 0.01, 0.01);
@@ -125,7 +124,7 @@ class TitleScreen {
     particleAnimation();
   }
 
-  private spawnInvader(): void {
+  private spawnInvader(): void { 
     const minX = -60;
     const maxX = 60;
     const minY = -60;

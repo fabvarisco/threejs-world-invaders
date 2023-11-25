@@ -6,8 +6,9 @@ import { Octree } from "three/addons/math/Octree.js";
 
 import { Capsule } from "three/addons/math/Capsule.js";
 
-import { Group, Vector3} from "three";
+import { Group, Vector3 } from "three";
 import Prefab from "@/Assets/Prefabs/Prefab";
+import GameObject from "@/Assets/GameObject";
 
 class Web {
   private clock: THREE.Clock;
@@ -21,11 +22,7 @@ class Web {
   private readonly STEPS_PER_FRAME: number;
   private readonly sphereGeometry: THREE.IcosahedronGeometry;
   private readonly sphereMaterial: THREE.MeshLambertMaterial;
-  private readonly spheres: {
-    mesh: THREE.Mesh;
-    collider: THREE.Sphere;
-    velocity: THREE.Vector3;
-  }[] = [];
+  private readonly spheres: GameObject[] = [];
   private readonly worldOctree: Octree;
   private readonly playerCollider: Capsule;
   private readonly playerVelocity: THREE.Vector3;
@@ -35,11 +32,7 @@ class Web {
   private readonly keyStates: { [key: string]: boolean };
   private invaderModel: Group = new Group();
   private worldWeb: Group = new Group();
-  private monsters: {
-    mesh: THREE.Mesh | THREE.Group;
-    collider: THREE.Sphere;
-    velocity: THREE.Vector3;
-  }[] = [];
+  private monsters: GameObject[] = [];
   private spawnTime: number = 0.5;
   private timer: number = 0.5;
 
@@ -87,7 +80,7 @@ class Web {
     this.playerCollider = new Capsule(
       new THREE.Vector3(0, 0.35, 0),
       new THREE.Vector3(0, 1, 0),
-      0.35,
+      0.35
     );
     this.playerVelocity = new THREE.Vector3();
     this.playerDirection = new THREE.Vector3();
@@ -118,16 +111,15 @@ class Web {
 
     this.invaderModel = prefabs.get("invader")?.GetObject()!;
     this.invaderModel.scale.set(1, 1, 1);
-    this.worldWeb = prefabs.get("worldWeb")?.GetObject()!; 
-    
+    this.worldWeb = prefabs.get("worldWeb")?.GetObject()!;
+
     this.scene.add(this.worldWeb);
     this.worldOctree.fromGraphNode(this.worldWeb);
-  
+
     this.animate();
   }
 
   private spawnMonster(): void {
-    if (!this.invaderModel) return;
     const minX = -60;
     const maxX = 60;
     const minY = 100;
@@ -139,37 +131,20 @@ class Web {
     position.x = Math.random() * (maxX - minX) + minX;
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
-    const newInvader: Group = this.invaderModel.clone();
-    const monster = {
-      mesh: newInvader,
-      velocity: new Vector3(0,0,0),
-      collider: new THREE.Sphere(
-          new THREE.Vector3(0, -100, 0),
-          0.4)
-    }
-    monster.mesh.position.set(position.x,position.y,position.y);
-    this.monsters.push(monster);
-    this.scene.add(monster.mesh);
+
+    const newInvader = new GameObject(this.invaderModel.clone(), position);
+    newInvader.DebugDrawBox3(this.scene);
+    this.monsters.push(newInvader);
+    this.scene.add(newInvader.GetModel());
   }
 
-  private updateMonsters():void {
-    this.monsters.forEach(el =>{
-      const speed = 0.01;
-      const direction = new Vector3();
-      direction.subVectors(this.camera.position, el.mesh.position);
-      direction.normalize();
-      el.mesh.position.addScaledVector(direction, speed);
-      el.mesh.position.add(el.velocity);
-      el.mesh.lookAt(this.camera.position);
-      el.collider.center.copy(el.mesh.position)
+  private updateMonsters(): void {
+    this.monsters.forEach((el) => {
+      el.MoveTo(this.camera.position);
+      el.LookTo(this.camera.position);
+    });
 
-      const distance = this.camera.position.distanceTo(el.mesh.position);
-      if (distance <= 1.0) {
-      }
-    })
-
-    this.invadersCollisions()
-
+    this.invadersCollisions();
   }
 
   private onWindowResize(): void {
@@ -183,32 +158,22 @@ class Web {
     meshSphere.castShadow = true;
     meshSphere.receiveShadow = true;
 
-    const sphere = {
-      mesh: meshSphere,
-      collider: new THREE.Sphere(
-        new THREE.Vector3(0, -100, 0),
-        this.SPHERE_RADIUS,
-      ),
-      velocity: new THREE.Vector3(),
-    }
-    this.spheres.push(sphere)
-    this.scene.add(sphere.mesh);
+    const sphere = new GameObject(
+      meshSphere,
+      this.camera.getWorldDirection(this.playerDirection)
+    );
+
+    this.spheres.push(sphere);
+    this.scene.add(sphere.GetModel());
     return sphere;
   }
 
-
   private throwBall(): void {
-
-    const { velocity, collider} = this._createSphere();
-    this.camera.getWorldDirection(this.playerDirection);
-    collider.center
-      .copy(this.playerCollider.end)
-      .addScaledVector(this.playerDirection, this.playerCollider.radius * 1.5);
+    const sphere = this._createSphere();
     const impulse =
       15 + 30 * (1 - Math.exp((this.mouseTime - performance.now()) * 0.001));
-
-    velocity.copy(this.camera.getWorldDirection(this.playerDirection).clone().multiplyScalar(impulse));
-
+    sphere.SetPosition(this.camera.getWorldDirection(this.playerDirection));
+    sphere.SetVelocity(impulse);
   }
 
   private playerCollisions(): void {
@@ -219,22 +184,21 @@ class Web {
       if (!this.playerOnFloor) {
         this.playerVelocity.addScaledVector(
           result.normal,
-          -result.normal.dot(this.playerVelocity),
+          -result.normal.dot(this.playerVelocity)
         );
       }
       this.playerCollider.translate(result.normal.multiplyScalar(result.depth));
     }
   }
 
-
   private spheresCollisions(): void {
-    for (let i = 0, length = this.spheres.length; i < length; i++) {
-      const s1 = this.spheres[i];
-      const result = this.worldOctree.sphereIntersect(s1.collider);
-      if(result){
-        this.scene.remove(s1.mesh);
-      } 
-    }
+    // for (let i = 0, length = this.spheres.length; i < length; i++) {
+    //   const s1 = this.spheres[i];
+    //   const result = this.worldOctree.sphereIntersect(s1.collider);
+    //   if (result) {
+    //     this.scene.remove(s1.mesh);
+    //   }
+    // }
   }
 
   private invadersCollisions(): void {
@@ -243,11 +207,11 @@ class Web {
         const sphere = this.spheres[i];
         const monster = this.monsters[j];
 
-        if (monster.collider.intersectsSphere(sphere.collider)) {
-          this.scene.remove(sphere.mesh);
+        if (monster.IntersectBoxWith(sphere)) {
+          this.scene.remove(sphere.GetModel());
           this.spheres.splice(i, 1);
 
-          this.scene.remove(monster.mesh);
+          this.scene.remove(monster.GetModel());
           this.monsters.splice(j, 1);
 
           i--;
@@ -271,12 +235,8 @@ class Web {
   }
 
   private updateSpheres(deltaTime: number): void {
-    this.spheres.forEach((sphere) => {
-      sphere.collider.center.addScaledVector(sphere.velocity, deltaTime);
-    });
-    this.spheresCollisions();
     for (const sphere of this.spheres) {
-      sphere.mesh.position.copy(sphere.collider.center);
+      sphere.AddScalar(deltaTime);
     }
   }
   private getForwardVector(): THREE.Vector3 {
@@ -298,12 +258,12 @@ class Web {
     const speedDelta = deltaTime * (this.playerOnFloor ? 25 : 8);
     if (this.keyStates["KeyW"]) {
       this.playerVelocity.add(
-        this.getForwardVector().multiplyScalar(speedDelta),
+        this.getForwardVector().multiplyScalar(speedDelta)
       );
     }
     if (this.keyStates["KeyS"]) {
       this.playerVelocity.add(
-        this.getForwardVector().multiplyScalar(-speedDelta),
+        this.getForwardVector().multiplyScalar(-speedDelta)
       );
     }
     if (this.keyStates["KeyA"]) {
@@ -339,7 +299,7 @@ class Web {
       this.updateMonsters();
       this.teleportPlayerIfOob();
     }
-    if(this.spawnTime <= 0) {
+    if (this.spawnTime <= 0) {
       this.spawnTime = this.timer;
       this.spawnMonster();
     }

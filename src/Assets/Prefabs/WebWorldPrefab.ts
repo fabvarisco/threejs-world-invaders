@@ -21,7 +21,7 @@ class WebWorldPrefab extends Prefab {
           }
         }
       });
-      this.object = gltf.scene.clone();
+      this.model = gltf.scene.clone();
       console.log("webWorld.glb loaded!");
     } catch (error) {
       console.error(error);
