@@ -170,9 +170,10 @@ class Web {
 
   private throwBall(): void {
     const sphere = this._createSphere();
+    this.camera.getWorldDirection(this.playerDirection)
     const impulse =
       15 + 30 * (1 - Math.exp((this.mouseTime - performance.now()) * 0.001));
-    sphere.SetPosition(this.camera.getWorldDirection(this.playerDirection));
+    sphere.SetPosition(this.playerCollider.end);
     sphere.SetVelocity(impulse);
   }
 
@@ -194,7 +195,7 @@ class Web {
   private spheresCollisions(): void {
     // for (let i = 0, length = this.spheres.length; i < length; i++) {
     //   const s1 = this.spheres[i];
-    //   const result = this.worldOctree.sphereIntersect(s1.collider);
+    //   const result = s1.IntersectBoxWith(this.worldOctree)
     //   if (result) {
     //     this.scene.remove(s1.mesh);
     //   }

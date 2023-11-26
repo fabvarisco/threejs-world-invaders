@@ -13,17 +13,11 @@ class GameObject {
   private velocity: Vector3 = new Vector3(0, 0, 0);
   private box3: Box3;
   private model: Group | Mesh | Object3D;
-  private position: Vector3 = new Vector3();
   private speed: number = 0.01;
   constructor(model: Group | Mesh | Object3D, position: Vector3) {
     this.model = model;
-    this.position = position;
+    this.model.position.set(position.x, position.y, position.z);
     this.box3 = new Box3().setFromObject(this.model);
-    this._init();
-  }
-
-  private _init(): void {
-    this.model.position.set(this.position.x, this.position.y, this.position.z);
   }
 
   public MoveTo(targetPosition: Vector3): void {
@@ -36,6 +30,7 @@ class GameObject {
 
   public AddScalar(deltaTime: number): void {
     this.model.position.addScaledVector(this.velocity, deltaTime);
+    
   }
 
   public SetPosition(position: Vector3): void {
@@ -43,7 +38,7 @@ class GameObject {
   }
 
   public SetVelocity(impulse: number): void {
-    this.velocity.copy(this.position.clone().multiplyScalar(impulse));
+    this.velocity.copy(this.model.position.clone().multiplyScalar(impulse));
   }
 
   public LookTo(targetLookPosition: Vector3): void {
