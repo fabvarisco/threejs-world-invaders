@@ -16,7 +16,7 @@ import {
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Text from "@/Assets/Text.ts";
 import Prefab from "@/Assets/Prefabs/Prefab";
-
+import { CreateStars } from "@/utils/utils";
 class TitleScreen {
   private readonly scene: Scene;
   private readonly camera: PerspectiveCamera;
@@ -32,6 +32,7 @@ class TitleScreen {
 
   constructor(camera: PerspectiveCamera, renderer: WebGLRenderer, prefabs: Map<string, Prefab>) {
     this.scene = new Scene();
+    CreateStars(this.scene);
     this.camera = camera;
     this.renderer = renderer;
     this.scene.add(new HemisphereLight(0x606060, 0x404040));

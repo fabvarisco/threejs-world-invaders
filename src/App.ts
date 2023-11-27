@@ -137,7 +137,7 @@ class App {
     document.getElementById("title-container")?.remove();
     this.activeGame?.Destroy();
     this.activeGame = null;
-    this.activeGame = new AR(this.camera, this.renderer);
+    this.activeGame = new AR(this.camera, this.renderer, this.prefabs);
   }
 
   private _onStartVr(): void {

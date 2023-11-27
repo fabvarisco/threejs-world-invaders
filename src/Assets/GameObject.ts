@@ -30,15 +30,18 @@ class GameObject {
 
   public AddScalar(deltaTime: number): void {
     this.model.position.addScaledVector(this.velocity, deltaTime);
-    
   }
 
   public SetPosition(position: Vector3): void {
     this.model.position.set(position.x, position.y, position.z);
   }
 
-  public SetVelocity(impulse: number): void {
+  public ApplyImpulse(impulse: number): void {
     this.velocity.copy(this.model.position.clone().multiplyScalar(impulse));
+  }
+
+  public SetVelocity(velocity: Vector3): void {
+    this.velocity = velocity;
   }
 
   public LookTo(targetLookPosition: Vector3): void {

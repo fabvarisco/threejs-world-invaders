@@ -174,7 +174,7 @@ class Web {
     const impulse =
       15 + 30 * (1 - Math.exp((this.mouseTime - performance.now()) * 0.001));
     sphere.SetPosition(this.playerCollider.end);
-    sphere.SetVelocity(impulse);
+    sphere.ApplyImpulse(impulse);
   }
 
   private playerCollisions(): void {
