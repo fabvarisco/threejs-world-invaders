@@ -167,7 +167,15 @@ class Web {
     const impulse =
       15 + 30 * (1 - Math.exp((this.mouseTime - performance.now()) * 0.001));
     sphere.SetPosition(this.playerCollider.end);
-    sphere.SetVelocity(new Vector3(impulse, impulse, impulse));
+    sphere.SetVelocity(
+      new Vector3(0, 0, 0).copy(
+        this.camera
+          .getWorldDirection(this.playerDirection)
+          .clone()
+          .multiplyScalar(impulse)
+      )
+    );
+
     this.spheres.push(sphere);
     this.scene.add(sphere.GetModel());
   }

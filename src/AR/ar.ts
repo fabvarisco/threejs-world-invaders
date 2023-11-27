@@ -122,7 +122,6 @@ class AR {
     const maxY = 60;
     const minZ = -60;
     const maxZ = 60;
-    console.log("asdasdasd");
     const invaderModel: Group = this.prefabs
       .get("invader")
       ?.GetObject()
