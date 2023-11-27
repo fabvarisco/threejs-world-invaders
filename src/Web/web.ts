@@ -153,7 +153,7 @@ class Web {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  private _createSphere() {
+  private throwBall(): void {
     const meshSphere = new THREE.Mesh(this.sphereGeometry, this.sphereMaterial);
     meshSphere.castShadow = true;
     meshSphere.receiveShadow = true;
@@ -163,18 +163,13 @@ class Web {
       this.camera.getWorldDirection(this.playerDirection)
     );
 
-    this.spheres.push(sphere);
-    this.scene.add(sphere.GetModel());
-    return sphere;
-  }
-
-  private throwBall(): void {
-    const sphere = this._createSphere();
-    this.camera.getWorldDirection(this.playerDirection)
+    this.camera.getWorldDirection(this.playerDirection);
     const impulse =
       15 + 30 * (1 - Math.exp((this.mouseTime - performance.now()) * 0.001));
     sphere.SetPosition(this.playerCollider.end);
-    sphere.ApplyImpulse(impulse);
+    sphere.SetVelocity(new Vector3(impulse, impulse, impulse));
+    this.spheres.push(sphere);
+    this.scene.add(sphere.GetModel());
   }
 
   private playerCollisions(): void {

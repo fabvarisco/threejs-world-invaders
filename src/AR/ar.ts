@@ -65,7 +65,7 @@ class AR {
     velocity.applyQuaternion(this.controllers[0].quaternion);
 
     const sphere = new GameObject(meshSphere, this.controllers[0].position);
-    sphere.SetVelocity(velocity);
+    sphere.SetVelocity(velocity.clone().multiplyScalar(15));
 
     this.spheres.push(sphere);
     this.scene.add(sphere.GetModel());
@@ -74,6 +74,33 @@ class AR {
   private _updateSpheres(deltaTime: number) {
     for (const sphere of this.spheres) {
       sphere.AddScalar(deltaTime);
+      const distance = this.camera.position.distanceTo(
+        sphere.GetModel().position
+      );
+      if (distance >= 5.0) {
+        this.scene.remove(sphere.GetModel());
+      }
+    }
+    this._invadersCollisions();
+  }
+
+  private _invadersCollisions(): void {
+    for (let i = 0; i < this.spheres.length; i++) {
+      for (let j = 0; j < this.invaders.length; j++) {
+        const sphere = this.spheres[i];
+        const invader = this.invaders[j];
+
+        if (invader.IntersectBoxWith(sphere)) {
+          this.scene.remove(sphere.GetModel());
+          this.spheres.splice(i, 1);
+
+          this.scene.remove(invader.GetModel());
+          this.invaders.splice(j, 1);
+
+          i--;
+          j--;
+        }
+      }
     }
   }
 
@@ -107,7 +134,7 @@ class AR {
     position.z = Math.random() * (maxZ - minZ) + minZ;
 
     const newInvader = new GameObject(invaderModel, position);
-    newInvader.DebugDrawBox3(this.scene);
+    newInvader.GetModel().scale.set(0.8, 0.8, 0.8);
     this.invaders.push(newInvader);
     this.scene.add(newInvader.GetModel());
   }
