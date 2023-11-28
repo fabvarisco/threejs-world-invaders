@@ -2,6 +2,7 @@ import {
   Box3,
   BufferGeometry,
   Camera,
+  Clock,
   DirectionalLight,
   Group,
   HemisphereLight,
@@ -19,29 +20,29 @@ import {
   WebGLRenderer,
 } from "three";
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import GameObject from "@/Assets/GameObject";
+import Prefab from "@/Assets/Prefabs/Prefab";
 
 class VR {
-  private readonly scene: Scene;
+  private readonly scene: Scene = new Scene();
   private readonly camera: Camera;
   private renderer: WebGLRenderer;
   private controllers: Group[] = [];
   private intersection: any;
-  private invaderModel: Group = new Group();
   private tempMatrix: Matrix4 = new Matrix4();
   private raycaster: Raycaster = new Raycaster();
   private readonly floor: Mesh;
-  private projectiles: { mesh: Mesh; velocity: Vector3; box: Box3 }[] = [];
-  private monsters: { mesh: Mesh; velocity: Vector3; box: Box3 }[] = [];
-  private spawnTime: number = 1000;
-  private timer: number = 1000;
-  private lastFrameTimestamp: number = 0;
-
+  private projectiles: GameObject[] = [];
+  private invaders: GameObject[] = [];
+  private spawnTime: number = 1;
+  private timer: number = 1;
+  private readonly prefabs: Map<string, Prefab>
+  private clock: Clock = new Clock();
   private baseReferenceSpace: XRReferenceSpace | null | undefined;
-  private gun: Group = new Group();
-  constructor(camera: Camera, renderer: WebGLRenderer) {
-    this.scene = new Scene();
+  private gun: GameObject | null = null;
+  constructor(camera: Camera, renderer: WebGLRenderer, prefabs: Map<string, Prefab>) {
     this.camera = camera;
+    this.prefabs = prefabs;
     this.renderer = renderer;
 
     this.scene.add(new HemisphereLight(0x606060, 0x404040));
@@ -64,9 +65,8 @@ class VR {
     );
 
     this.buildControllers();
-    this.loadModels();
-
-    this.renderer.setAnimationLoop(this.Render.bind(this));
+    this._createGun();
+    this.renderer.setAnimationLoop(this._animate.bind(this));
   }
 
   private onSessionStart(): void {
@@ -163,50 +163,49 @@ class VR {
 
       const projectileGeometry = new SphereGeometry(0.05, 8, 6);
       const projectileMaterial = new MeshBasicMaterial({ color: 0x00ff00 });
-      const projectile = new Mesh(projectileGeometry, projectileMaterial);
-
+      const projectileMesh = new Mesh(projectileGeometry, projectileMaterial);
       const gunDirection = new Vector3(0, 0, 1);
       const gunPosition = new Vector3();
 
       gun.getWorldPosition(gunPosition);
       gun.getWorldDirection(gunDirection);
 
+      const projectileVelocity = gunDirection.clone().multiplyScalar(0.1);
       const projectileStartPosition = gunPosition
         .clone()
         .add(gunDirection.clone().multiplyScalar(0.1));
 
-      projectile.position.copy(projectileStartPosition);
+      const projectile = new GameObject(
+        projectileMesh,
+        projectileStartPosition
+      );
 
-     const projectileVelocity = gunDirection.clone().multiplyScalar(0.1);
+      projectile.GetModel().position.copy(projectileStartPosition);
+      projectile.SetVelocity(projectileVelocity);
 
-      this.scene.add(projectile);
+      this.scene.add(projectile.GetModel());
 
-      this.projectiles.push({
-        mesh: projectile,
-        velocity: projectileVelocity,
-        box: new Box3().setFromObject(projectile),
-      });
+      this.projectiles.push(projectile);
     }
   }
 
-  private updateProjectile() {
+  private updateProjectile(deltaTime: number) {
     this.projectiles.forEach(el => {
-        el.mesh.position.add(el.velocity)
-        el.box.setFromObject(el.mesh);
+      el.AddScalar(deltaTime)
     })
   }
 
   private updateCollisions(): void {
     for (let i = 0; i < this.projectiles.length; i++) {
-      for (let j = 0; j < this.monsters.length; j++) {
+      for (let j = 0; j < this.invaders.length; j++) {
         const projectile = this.projectiles[i];
-        const monster = this.monsters[j];
-        if (this.checkCollision(projectile, monster)) {
-          this.handleCollision(projectile, monster);
-          this.scene.remove(projectile.mesh);
+        const invader = this.invaders[j];
+        if (this.checkCollision(projectile, invader)) {
+          this.handleCollision(projectile, invader);
+          this.scene.remove(projectile.GetModel());
           this.projectiles.splice(i, 1);
-          this.scene.remove(monster.mesh);
-          this.monsters.splice(j, 1);
+          this.scene.remove(invader.GetModel());
+          this.invaders.splice(j, 1);
           i--;
           j--;
         }
@@ -214,70 +213,48 @@ class VR {
     }
   }
 
-  private checkCollision(projectile: any, monster: any): boolean {
-    return projectile.box.intersectsBox(monster.box);
+  private checkCollision(projectile: any, invader: any): boolean {
+    return projectile.box.intersectsBox(invader.box);
   }
 
-  private handleCollision(projectile: any, monster: any): void {
-    console.log("Collision detected!" + projectile + monster);
+  private handleCollision(projectile: any, invader: any): void {
+    console.log("Collision detected!" + projectile + invader);
   }
 
-  private updateMonsters(): void {
-    this.monsters.forEach(el =>{
-      const speed = 0.01;
-      const direction = new Vector3();
-      direction.subVectors(this.camera.position, el.mesh.position);
-      direction.normalize();
-      el.mesh.position.addScaledVector(direction, speed);
-      el.mesh.position.add(el.velocity);
-      el.box.setFromObject(el.mesh);
-      el.mesh.lookAt(this.camera.position);
-      const distance = this.camera.position.distanceTo(el.mesh.position);
-      if (distance <= 1.0) {
-      }
+  private updateInvaders(): void {
+    this.invaders.forEach(el => {
+      el.MoveTo(this.camera.position);
+      el.LookTo(this.camera.position);
     });
   }
 
-  private loadModels() {
-    const gltfLoader = new GLTFLoader();
-
+  private _createGun() {
+    const newGun = new GameObject(this.prefabs.get("gun")?.GetObject()!, new Vector3(-0.5, 1.5, -1.0));
+    const gunModel = newGun.GetModel();
     const self = this;
 
-    gltfLoader
-      .loadAsync("/models/blasterB.glb")
-      .then((gltf) => {
-        gltf.scene.rotation.set(0, Math.PI, 0);
-        gltf.scene.position.set(-0.5, 1.5, -1.0);
-        gltf.scene.children[0].children[0].name = "gun";
+    gunModel.rotation.set(0, Math.PI, 0);
+    gunModel.position.set(-0.5, 1.5, -1.0);
+    gunModel.children[0].children[0].name = "gun";
 
-        self.gun = gltf.scene;
-        self.scene.add(self.gun);
+    this.gun = newGun;
 
-        self.controllers.forEach((controller: Group): void => {
-          controller.addEventListener("squeezeend", function () {
-            self.scene.attach(self.gun);
-            controller.userData.hasGun = false;
-          });
-          controller.addEventListener("selectstart", function () {
-            if (controller.userData.hasGun) {
-              self.shoot();
-            }
-          });
-        });
-      })
-      .catch((err: string) => console.log(err));
+    this.scene.add(gunModel);
 
-    gltfLoader
-      .loadAsync("/models/invader.glb")
-      .then((gltf) => {
-        gltf.scene.scale.set(1, 1, 1);
-        self.invaderModel = gltf.scene.clone();
-      })
-      .catch((err: string) => console.log(err));
+    this.controllers.forEach((controller: Group): void => {
+      controller.addEventListener("squeezeend", function () {
+        self.scene.attach(self.gun?.GetModel()!);
+        controller.userData.hasGun = false;
+      });
+      controller.addEventListener("selectstart", function () {
+        if (controller.userData.hasGun) {
+          self.shoot();
+        }
+      });
+    });
   }
 
-  private spawnMonster(): void {
-    if (!this.invaderModel) return;
+  private spawnInvader(): void {
     const minX = -60;
     const maxX = 60;
     const minY = 0;
@@ -289,16 +266,10 @@ class VR {
     position.x = Math.random() * (maxX - minX) + minX;
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
-    const newInvader = this.invaderModel.clone();
-    const monster = {
-      mesh: newInvader,
-      velocity: new Vector3(0, 0, 0),
-      box: new Box3().setFromObject(newInvader),
-    };
-    monster.mesh.position.set(position.x, position.y, position.y);
+    const newInvader = new GameObject(this.prefabs.get("invader")?.GetObject()!, position)
 
-    this.monsters.push(monster);
-    this.scene.add(monster.mesh);
+    this.invaders.push(newInvader);
+    this.scene.add(newInvader.GetModel());
   }
 
   private createMarker(geometry: SphereGeometry, material: MeshBasicMaterial) {
@@ -308,15 +279,7 @@ class VR {
     return mesh;
   }
 
-  //@ts-ignore
-  public Render(timestamp: any, frame: any): void {
-    const deltaTime = timestamp - this.lastFrameTimestamp;
-    this.lastFrameTimestamp = timestamp;
-
-    if (this.spawnTime <= 0) {
-      this.spawnTime = this.timer;
-      this.spawnMonster();
-    }
+  public _animate(): void {
 
     this.intersection = undefined;
     this.controllers.forEach((controller: Group) => {
@@ -326,7 +289,7 @@ class VR {
 
       const intersects = this.raycaster.intersectObjects([
         this.floor,
-        this.gun,
+        this.gun?.GetModel()!,
       ]);
       if (intersects.length > 0) {
         this.intersection = intersects[0];
@@ -335,12 +298,12 @@ class VR {
         if (this.intersection.object.name === "floor") {
         }
         if (this.intersection.object.name === "gun") {
-          this.gun.position.set(0, 0, 0);
-          this.gun.quaternion.identity();
-          this.gun.rotateY(Math.PI);
-          controller.add(this.gun);
+          this.gun?.GetModel()!.position.set(0, 0, 0);
+          this.gun?.GetModel()!.quaternion.identity();
+          this.gun?.GetModel()!.rotateY(Math.PI);
+          controller.add(this.gun?.GetModel()!);
           controller.userData.hasGun = true;
-          controller.userData.grip = this.gun;
+          controller.userData.grip = this.gun?.GetModel()!;
         }
       }
 
@@ -350,14 +313,25 @@ class VR {
       }
     });
 
+    const deltaTime =
+      Math.min(0.05, this.clock.getDelta()) / 5;
+    for (let i = 0; i < 5; i++) {
+      this.updateProjectile(deltaTime);
+      this.updateInvaders();
+      this.updateCollisions();
+    }
+    if (this.spawnTime <= 0) {
+      this.spawnTime = this.timer;
+      this.spawnInvader();
+    }
     this.spawnTime -= deltaTime;
-    this.updateProjectile();
-    this.updateMonsters();
-    this.updateCollisions();
+
+
+
     this.renderer.render(this.scene, this.camera);
   }
 
-  public Destroy() {}
+  public Destroy() { }
 }
 
 export default VR;

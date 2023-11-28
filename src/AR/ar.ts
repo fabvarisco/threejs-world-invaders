@@ -48,7 +48,7 @@ class AR {
 
     this._buildControllers();
 
-    this._animate();
+    this.renderer.setAnimationLoop(this._animate.bind(this));
   }
 
   private _onSelect(): void {
@@ -180,7 +180,6 @@ class AR {
     this.spawnTime -= deltaTime;
     console.log(this.spawnTime);
     this.renderer.render(this.scene, this.camera);
-    requestAnimationFrame(() => this._animate());
   }
 
   public Destroy() {}

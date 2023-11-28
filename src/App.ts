@@ -19,6 +19,7 @@ import WebWorldPrefab from "./Assets/Prefabs/WebWorldPrefab.ts";
 import InvaderPrefab from "./Assets/Prefabs/InvaderPrefab.ts";
 import { Asset } from "./type";
 import EarthPrefab from "./Assets/Prefabs/EarthPrefab.ts";
+import GunPrefab from "./Assets/Prefabs/GunPrefab.ts";
 
 class App {
   private readonly camera: PerspectiveCamera;
@@ -28,6 +29,8 @@ class App {
     { key: "worldWeb", prefab: WebWorldPrefab },
     { key: "invader", prefab: InvaderPrefab },
     { key: "earth", prefab: EarthPrefab },
+    { key: "gun", prefab: GunPrefab },
+
   ];
   private readonly prefabs: Map<string, Prefab> = new Map();
   private activeGame: Web | AR | VR | TitleScreen | undefined | null = null;
@@ -144,7 +147,7 @@ class App {
     document.getElementById("title-container")?.remove();
     this.activeGame?.Destroy();
     this.activeGame = null;
-    this.activeGame = new VR(this.camera, this.renderer);
+    this.activeGame = new VR(this.camera, this.renderer, this.prefabs);
   }
 
   private _onStartWeb(): void {
@@ -160,9 +163,9 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  public AddNewSceneObject(): void {}
+  public AddNewSceneObject(): void { }
 
-  public RemoveSceneObject(): void {}
+  public RemoveSceneObject(): void { }
 }
 
 export default App;

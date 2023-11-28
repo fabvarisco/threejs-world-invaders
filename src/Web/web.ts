@@ -9,6 +9,7 @@ import { Capsule } from "three/addons/math/Capsule.js";
 import { Group, Vector3 } from "three";
 import Prefab from "@/Assets/Prefabs/Prefab";
 import GameObject from "@/Assets/GameObject";
+import { CreateStars } from "@/utils/utils";
 
 class Web {
   private clock: THREE.Clock;
@@ -32,7 +33,7 @@ class Web {
   private readonly keyStates: { [key: string]: boolean };
   private invaderModel: Group = new Group();
   private worldWeb: Group = new Group();
-  private monsters: GameObject[] = [];
+  private invaders: GameObject[] = [];
   private spawnTime: number = 0.5;
   private timer: number = 0.5;
 
@@ -43,7 +44,6 @@ class Web {
   ) {
     this.clock = new THREE.Clock();
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x88ccee);
     this.scene.fog = new THREE.Fog(0x88ccee, 0, 50);
     this.camera = camera;
     this.camera.rotation.order = "YXZ";
@@ -116,6 +116,7 @@ class Web {
     this.scene.add(this.worldWeb);
     this.worldOctree.fromGraphNode(this.worldWeb);
 
+    CreateStars(this.scene)
     this.animate();
   }
 
@@ -134,12 +135,12 @@ class Web {
 
     const newInvader = new GameObject(this.invaderModel.clone(), position);
     newInvader.DebugDrawBox3(this.scene);
-    this.monsters.push(newInvader);
+    this.invaders.push(newInvader);
     this.scene.add(newInvader.GetModel());
   }
 
-  private updateMonsters(): void {
-    this.monsters.forEach((el) => {
+  private updateInvaders(): void {
+    this.invaders.forEach((el) => {
       el.MoveTo(this.camera.position);
       el.LookTo(this.camera.position);
     });
@@ -207,16 +208,16 @@ class Web {
 
   private invadersCollisions(): void {
     for (let i = 0; i < this.spheres.length; i++) {
-      for (let j = 0; j < this.monsters.length; j++) {
+      for (let j = 0; j < this.invaders.length; j++) {
         const sphere = this.spheres[i];
-        const monster = this.monsters[j];
+        const monster = this.invaders[j];
 
         if (monster.IntersectBoxWith(sphere)) {
           this.scene.remove(sphere.GetModel());
           this.spheres.splice(i, 1);
 
           this.scene.remove(monster.GetModel());
-          this.monsters.splice(j, 1);
+          this.invaders.splice(j, 1);
 
           i--;
           j--;
@@ -300,7 +301,7 @@ class Web {
       this.controls(deltaTime);
       this.updatePlayer(deltaTime);
       this.updateSpheres(deltaTime);
-      this.updateMonsters();
+      this.updateInvaders();
       this.teleportPlayerIfOob();
     }
     if (this.spawnTime <= 0) {
@@ -311,8 +312,8 @@ class Web {
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(() => this.animate());
   }
-  public Render() {}
-  public Destroy() {}
+  public Render() { }
+  public Destroy() { }
 }
 
 export default Web;
