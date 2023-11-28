@@ -5,9 +5,10 @@ import { Octree } from "three/addons/math/Octree.js";
 import { Capsule } from "three/addons/math/Capsule.js";
 
 import { Group, Vector3 } from "three";
-import GameObject from "@GameObjects/gameObject";
-import Prefab from "@Prefabs/Prefab";
-import { CreateStars } from "@Utils";
+import GameObject from "@/assets/gameObjects/GameObject";
+import Prefab from "@/Assets/prefabs/Prefab";
+import { CreateStars } from "../utils";
+
 
 class Web {
   private clock: THREE.Clock;
@@ -310,8 +311,8 @@ class Web {
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(() => this.animate());
   }
-  public Render() {}
-  public Destroy() {}
+  public Render() { }
+  public Destroy() { }
 }
 
 export default Web;

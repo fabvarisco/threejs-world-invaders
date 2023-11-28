@@ -1,9 +1,9 @@
 
 
-import GameObject from "@GameObjects/gameObject";
-import Prefab from "@Prefabs/Prefab";
-import { CreateStars } from "@Utils";
 
+import Prefab from "@/Assets/prefabs/Prefab";
+import GameObject from "@/assets/gameObjects/GameObject";
+import { CreateStars } from "@/utils";
 import {
   BufferGeometry,
   Camera,
@@ -338,7 +338,7 @@ class VR {
     this.renderer.render(this.scene, this.camera);
   }
 
-  public Destroy() {}
+  public Destroy() { }
 }
 
 export default VR;

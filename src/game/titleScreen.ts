@@ -1,7 +1,7 @@
 
-import Text from "@Assets/Text";
-import Prefab from "@Assets/prefabs/Prefab";
-import { CreateStars } from "@Utils";
+import Prefab from "@/Assets/prefabs/Prefab";
+import Text from "@/assets/Text";
+import { CreateStars } from "../utils";
 import {
   BufferAttribute,
   BufferGeometry,

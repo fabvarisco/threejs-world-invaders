@@ -18,11 +18,8 @@
 		"noFallthroughCasesInSwitch": true,
     "baseUrl": "./",
     "paths": {
-      "@GameObjects/*": ["src/assets/gameObjects/*"],
-      "@Prefabs/*": ["src/assets/prefabs/*"],
-      "@Assets/*": ["src/assets/*"],
-      "@Game/*": ["src/game/*"],
-      "@Utils": ["src/utils.ts"]
+		"@/*": ["./src/*"],
+		"@Assets/*": ["./src/assets*"],
     }
   },
   "include": ["src"],

@@ -11,16 +11,15 @@ import {
 
 import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
 import { IAsset } from "./type";
-import Prefab from "@Prefabs/Prefab";
-import InvaderPrefab from "@Prefabs/InvaderPrefab.ts";
-import EarthPrefab from "@Prefabs/EarthPrefab.ts";
-import GunPrefab from "@Prefabs/GunPrefab.ts";
-import VR from "@Game/vr.ts";
-import AR from "@Game/ar.ts";
-import Web from "@Game/web.ts";
-import TitleScreen from "@Game/titleScreen.ts";
-import WebWorldPrefab from "@Prefabs/WebWorldPrefab.ts";
-
+import Prefab from "src/Assets/prefabs/Prefab";
+import VR from "./game/vr";
+import AR from "./game/ar";
+import Web from "./game/web";
+import TitleScreen from "./game/titleScreen";
+import WebWorldPrefab from "./assets/prefabs/WebWorldPrefab";
+import InvaderPrefab from "./assets/prefabs/InvaderPrefab";
+import EarthPrefab from "./assets/prefabs/EarthPrefab";
+import GunPrefab from "./assets/prefabs/GunPrefab";
 
 class App {
   private readonly camera: PerspectiveCamera;
@@ -163,9 +162,9 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  public AddNewSceneObject(): void {}
+  public AddNewSceneObject(): void { }
 
-  public RemoveSceneObject(): void {}
+  public RemoveSceneObject(): void { }
 }
 
 export default App;

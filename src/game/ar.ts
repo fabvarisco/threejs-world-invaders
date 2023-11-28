@@ -1,7 +1,7 @@
 
-import Overlay from "@Assets/overlay";
-import GameObject from "@GameObjects/gameObject";
-import Prefab from "@Prefabs/Prefab";
+import Prefab from "@/Assets/prefabs/Prefab";
+import GameObject from "@/assets/gameObjects/GameObject";
+import Overlay from "@/assets/overlay";
 import {
   Camera,
   Clock,
