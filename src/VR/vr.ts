@@ -1,5 +1,4 @@
 import {
-  Box3,
   BufferGeometry,
   Camera,
   Clock,

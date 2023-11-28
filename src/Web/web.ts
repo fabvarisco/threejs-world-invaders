@@ -1,7 +1,5 @@
 import * as THREE from "three";
 
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-
 import { Octree } from "three/addons/math/Octree.js";
 
 import { Capsule } from "three/addons/math/Capsule.js";
