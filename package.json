@@ -1,5 +1,5 @@
 {
-  "name": "vite-project",
+  "name": "threejs-wolrd-invaders",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,8 +10,6 @@
   },
   "devDependencies": {
     "@types/three": "^0.155.0",
-    "@types/three-nebula": "^10.0.3",
-    "@types/uuid": "^9.0.4",
     "prettier": "3.0.3",
     "typescript": "^5.0.2",
     "vite": "^4.4.5",
@@ -19,8 +17,6 @@
   },
   "dependencies": {
     "three": "^0.155.0",
-    "three-mesh-ui": "^6.5.4",
-    "three-nebula": "^10.0.3",
-    "uuid": "^9.0.1"
+    "three-mesh-ui": "^6.5.4"
   }
 }
