@@ -19,7 +19,7 @@ import {
   WebGLRenderer,
 } from "three";
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
-import GameObject from "@/Assets/GameObject";
+import GameObject from "@/Assets/GameObjects/GameObject";
 import Prefab from "@/Assets/Prefabs/Prefab";
 
 class VR {
@@ -35,11 +35,15 @@ class VR {
   private invaders: GameObject[] = [];
   private spawnTime: number = 1;
   private timer: number = 1;
-  private readonly prefabs: Map<string, Prefab>
+  private readonly prefabs: Map<string, Prefab>;
   private clock: Clock = new Clock();
   private baseReferenceSpace: XRReferenceSpace | null | undefined;
   private gun: GameObject | null = null;
-  constructor(camera: Camera, renderer: WebGLRenderer, prefabs: Map<string, Prefab>) {
+  constructor(
+    camera: Camera,
+    renderer: WebGLRenderer,
+    prefabs: Map<string, Prefab>
+  ) {
     this.camera = camera;
     this.prefabs = prefabs;
     this.renderer = renderer;
@@ -169,7 +173,7 @@ class VR {
       gun.getWorldPosition(gunPosition);
       gun.getWorldDirection(gunDirection);
 
-      const projectileVelocity = gunDirection.clone().multiplyScalar(0.1);
+      const projectileVelocity = gunDirection.clone().multiplyScalar(20);
       const projectileStartPosition = gunPosition
         .clone()
         .add(gunDirection.clone().multiplyScalar(0.1));
@@ -183,52 +187,51 @@ class VR {
       projectile.SetVelocity(projectileVelocity);
 
       this.scene.add(projectile.GetModel());
+      projectile.DebugDrawBox3(this.scene);
 
       this.projectiles.push(projectile);
     }
   }
 
   private updateProjectile(deltaTime: number) {
-    this.projectiles.forEach(el => {
-      el.AddScalar(deltaTime)
-    })
+    this.projectiles.forEach((el) => {
+      el.AddScalar(deltaTime);
+    });
   }
 
   private updateCollisions(): void {
     for (let i = 0; i < this.projectiles.length; i++) {
       for (let j = 0; j < this.invaders.length; j++) {
-        const projectile = this.projectiles[i];
+        const sphere = this.projectiles[i];
         const invader = this.invaders[j];
-        if (this.checkCollision(projectile, invader)) {
-          this.handleCollision(projectile, invader);
-          this.scene.remove(projectile.GetModel());
+
+        if (invader.IntersectBoxWith(sphere)) {
+          console.log("asasd");
+          debugger;
+          sphere.Destroy(this.scene);
           this.projectiles.splice(i, 1);
-          this.scene.remove(invader.GetModel());
+
+          invader.Destroy(this.scene);
           this.invaders.splice(j, 1);
+
           i--;
           j--;
         }
       }
     }
   }
-
-  private checkCollision(projectile: any, invader: any): boolean {
-    return projectile.box.intersectsBox(invader.box);
-  }
-
-  private handleCollision(projectile: any, invader: any): void {
-    console.log("Collision detected!" + projectile + invader);
-  }
-
   private updateInvaders(): void {
-    this.invaders.forEach(el => {
+    this.invaders.forEach((el) => {
       el.MoveTo(this.camera.position);
       el.LookTo(this.camera.position);
     });
   }
 
   private _createGun() {
-    const newGun = new GameObject(this.prefabs.get("gun")?.GetObject()!, new Vector3(-0.5, 1.5, -1.0));
+    const newGun = new GameObject(
+      this.prefabs.get("gun")?.GetObject()!,
+      new Vector3(-0.5, 1.5, -1.0)
+    );
     const gunModel = newGun.GetModel();
     const self = this;
 
@@ -256,7 +259,7 @@ class VR {
   private spawnInvader(): void {
     const minX = -60;
     const maxX = 60;
-    const minY = 0;
+    const minY = 10;
     const maxY = 60;
     const minZ = -60;
     const maxZ = 60;
@@ -265,10 +268,15 @@ class VR {
     position.x = Math.random() * (maxX - minX) + minX;
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
-    const newInvader = new GameObject(this.prefabs.get("invader")?.GetObject()!, position)
+    const invaderModel: Group = this.prefabs
+      .get("invader")
+      ?.GetObject()!
+      .clone() as Group;
+    const newInvader = new GameObject(invaderModel, position);
 
     this.invaders.push(newInvader);
     this.scene.add(newInvader.GetModel());
+    newInvader.DebugDrawBox3(this.scene);
   }
 
   private createMarker(geometry: SphereGeometry, material: MeshBasicMaterial) {
@@ -279,7 +287,6 @@ class VR {
   }
 
   public _animate(): void {
-
     this.intersection = undefined;
     this.controllers.forEach((controller: Group) => {
       this.tempMatrix.identity().extractRotation(controller.matrixWorld);
@@ -312,8 +319,7 @@ class VR {
       }
     });
 
-    const deltaTime =
-      Math.min(0.05, this.clock.getDelta()) / 5;
+    const deltaTime = Math.min(0.05, this.clock.getDelta()) / 5;
     for (let i = 0; i < 5; i++) {
       this.updateProjectile(deltaTime);
       this.updateInvaders();
@@ -325,12 +331,10 @@ class VR {
     }
     this.spawnTime -= deltaTime;
 
-
-
     this.renderer.render(this.scene, this.camera);
   }
 
-  public Destroy() { }
+  public Destroy() {}
 }
 
 export default VR;

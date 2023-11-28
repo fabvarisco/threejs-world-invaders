@@ -14,10 +14,12 @@ class GameObject {
   private box3: Box3;
   private model: Group | Mesh | Object3D;
   private speed: number = 0.01;
+  private box3Helper: Box3Helper;
   constructor(model: Group | Mesh | Object3D, position: Vector3) {
     this.model = model;
     this.model.position.set(position.x, position.y, position.z);
     this.box3 = new Box3().setFromObject(this.model);
+    this.box3Helper = new Box3Helper(this.box3, new Color(0xffff00));
   }
 
   public MoveTo(targetPosition: Vector3): void {
@@ -64,8 +66,12 @@ class GameObject {
   }
 
   public DebugDrawBox3(scene: Scene): void {
-    const boxHelper = new Box3Helper(this.box3, new Color(0xffff00));
-    scene.add(boxHelper);
+    scene.add(this.box3Helper);
+  }
+
+  public Destroy(scene: Scene) {
+    scene.remove(this.model)
+    scene.remove(this.box3Helper)
   }
 
   public IntersectBoxWith(other: GameObject): boolean {

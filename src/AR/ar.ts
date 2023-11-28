@@ -1,4 +1,4 @@
-import GameObject from "@/Assets/GameObject";
+import GameObject from "@/Assets/GameObjects/GameObject";
 import Prefab from "@/Assets/Prefabs/Prefab";
 import {
   Camera,
@@ -23,7 +23,6 @@ class AR {
   private scene: Scene = new Scene();
   private spawnTime: number = 1;
   private timer: number = 1;
-  private lastFrameTimestamp: number = 0;
   private controllers: Group[] = [];
   private xrReferenceSpace: XRReferenceSpace | null | undefined;
   private xrSession: XRSession | null = null;
@@ -65,7 +64,7 @@ class AR {
     velocity.applyQuaternion(this.controllers[0].quaternion);
 
     const sphere = new GameObject(meshSphere, this.controllers[0].position);
-    sphere.SetVelocity(velocity.clone().multiplyScalar(15));
+    sphere.SetVelocity(velocity.clone().multiplyScalar(23));
 
     this.spheres.push(sphere);
     this.scene.add(sphere.GetModel());
@@ -115,7 +114,7 @@ class AR {
     }
   }
 
-  private spawnMonster(): void {
+  private _spawnInvaders(): void {
     const minX = -60;
     const maxX = 60;
     const minY = 0;
@@ -174,7 +173,7 @@ class AR {
 
     if (this.spawnTime <= 0) {
       this.spawnTime = this.timer;
-      this.spawnMonster();
+      this._spawnInvaders();
     }
 
     this.spawnTime -= deltaTime;

@@ -6,7 +6,7 @@ import { Capsule } from "three/addons/math/Capsule.js";
 
 import { Group, Vector3 } from "three";
 import Prefab from "@/Assets/Prefabs/Prefab";
-import GameObject from "@/Assets/GameObject";
+import GameObject from "@/Assets/GameObjects/GameObject";
 import { CreateStars } from "@/utils/utils";
 
 class Web {
@@ -114,11 +114,11 @@ class Web {
     this.scene.add(this.worldWeb);
     this.worldOctree.fromGraphNode(this.worldWeb);
 
-    CreateStars(this.scene)
+    CreateStars(this.scene);
     this.animate();
   }
 
-  private spawnMonster(): void {
+  private spawnInvader(): void {
     const minX = -60;
     const maxX = 60;
     const minY = 100;
@@ -208,13 +208,13 @@ class Web {
     for (let i = 0; i < this.spheres.length; i++) {
       for (let j = 0; j < this.invaders.length; j++) {
         const sphere = this.spheres[i];
-        const monster = this.invaders[j];
+        const invader = this.invaders[j];
 
-        if (monster.IntersectBoxWith(sphere)) {
-          this.scene.remove(sphere.GetModel());
+        if (invader.IntersectBoxWith(sphere)) {
+          sphere.Destroy(this.scene);
           this.spheres.splice(i, 1);
 
-          this.scene.remove(monster.GetModel());
+          invader.Destroy(this.scene);
           this.invaders.splice(j, 1);
 
           i--;
@@ -304,14 +304,14 @@ class Web {
     }
     if (this.spawnTime <= 0) {
       this.spawnTime = this.timer;
-      this.spawnMonster();
+      this.spawnInvader();
     }
     this.spawnTime -= deltaTime;
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(() => this.animate());
   }
-  public Render() { }
-  public Destroy() { }
+  public Render() {}
+  public Destroy() {}
 }
 
 export default Web;
