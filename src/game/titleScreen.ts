@@ -1,3 +1,7 @@
+
+import Text from "@Assets/Text";
+import Prefab from "@Assets/prefabs/Prefab";
+import { CreateStars } from "@Utils";
 import {
   BufferAttribute,
   BufferGeometry,
@@ -12,9 +16,7 @@ import {
   Group,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import Text from "@/Assets/Text.ts";
-import Prefab from "@/Assets/Prefabs/Prefab";
-import { CreateStars } from "@/utils/utils";
+
 class TitleScreen {
   private readonly scene: Scene;
   private readonly camera: PerspectiveCamera;

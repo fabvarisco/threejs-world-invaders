@@ -1,5 +1,4 @@
 import { ARButton } from "three/addons/webxr/ARButton.js";
-import AR from "./AR/ar.ts";
 import "./style.css";
 import {
   DirectionalLight,
@@ -11,21 +10,23 @@ import {
 } from "three";
 
 import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
-import Web from "@/Web/web.ts";
-import TitleScreen from "@/TitleScreen/TitleScreen.ts";
-import VR from "@/VR/vr.ts";
-import Prefab from "./Assets/Prefabs/Prefab.ts";
-import WebWorldPrefab from "./Assets/Prefabs/WebWorldPrefab.ts";
-import InvaderPrefab from "./Assets/Prefabs/InvaderPrefab.ts";
-import { Asset } from "./type";
-import EarthPrefab from "./Assets/Prefabs/EarthPrefab.ts";
-import GunPrefab from "./Assets/Prefabs/GunPrefab.ts";
+import { IAsset } from "./type";
+import Prefab from "@Prefabs/Prefab.ts";
+import InvaderPrefab from "@Prefabs/InvaderPrefab.ts";
+import EarthPrefab from "@Prefabs/EarthPrefab.ts";
+import GunPrefab from "@Prefabs/GunPrefab.ts";
+import WebWorldPrefab from "@Prefabs/WebWorldPrefab.ts";
+import TitleScreen from "@Game/titleScreen.ts";
+import VR from "@Game/vr.ts";
+import Web from "@Game/web.ts";
+import AR from "@Game/ar";
+
 
 class App {
   private readonly camera: PerspectiveCamera;
   private readonly scene: Scene;
   private readonly renderer: WebGLRenderer;
-  private readonly assets: Asset[] = [
+  private readonly assets: IAsset[] = [
     { key: "worldWeb", prefab: WebWorldPrefab },
     { key: "invader", prefab: InvaderPrefab },
     { key: "earth", prefab: EarthPrefab },
