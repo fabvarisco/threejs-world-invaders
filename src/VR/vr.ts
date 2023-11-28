@@ -111,13 +111,11 @@ class VR {
 
     this.controllers = controllers;
 
-    //@ts-ignore
-    function onSelectStart(this: any, event: any): void {
+    function onSelectStart(this: any): void {
       this.userData.selectPressed = true;
     }
 
-    //@ts-ignore
-    function onSelectEnd(this: any, event: any): void {
+    function onSelectEnd(this: any): void {
       this.userData.selectPressed = false;
       if (this.userData.hasGun) return;
 
@@ -138,11 +136,11 @@ class VR {
       }
     }
 
-    function onSqueezeStart(this: any, event: any): void {
+    function onSqueezeStart(this: any): void {
       this.userData.squeezePressed = true;
     }
 
-    function onSqueezeEnd(this: any, event: any): void {
+    function onSqueezeEnd(this: any): void {
       this.userData.squeezePressed = false;
     }
 

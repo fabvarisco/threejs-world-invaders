@@ -30,7 +30,6 @@ class App {
     { key: "invader", prefab: InvaderPrefab },
     { key: "earth", prefab: EarthPrefab },
     { key: "gun", prefab: GunPrefab },
-
   ];
   private readonly prefabs: Map<string, Prefab> = new Map();
   private activeGame: Web | AR | VR | TitleScreen | undefined | null = null;
@@ -163,9 +162,9 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  public AddNewSceneObject(): void { }
+  public AddNewSceneObject(): void {}
 
-  public RemoveSceneObject(): void { }
+  public RemoveSceneObject(): void {}
 }
 
 export default App;

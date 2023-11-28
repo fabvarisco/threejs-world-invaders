@@ -7,9 +7,9 @@ class GunPrefab extends Prefab {
 
   async Load(){
     try {
-      const gltf = await this.gltfLoader.loadAsync("blasterB.glb");
+      const gltf = await this.gltfLoader.loadAsync("gun.glb");
       this.model = gltf.scene.clone();
-      console.log("blasterB.glb loaded!");
+      console.log("gun.glb loaded!");
     } catch (error) {
       console.error(error);
     }

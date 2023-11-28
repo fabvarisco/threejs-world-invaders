@@ -194,15 +194,15 @@ class Web {
     }
   }
 
-  private spheresCollisions(): void {
-    // for (let i = 0, length = this.spheres.length; i < length; i++) {
-    //   const s1 = this.spheres[i];
-    //   const result = s1.IntersectBoxWith(this.worldOctree)
-    //   if (result) {
-    //     this.scene.remove(s1.mesh);
-    //   }
-    // }
-  }
+  // private spheresCollisions(): void {
+  //   // for (let i = 0, length = this.spheres.length; i < length; i++) {
+  //   //   const s1 = this.spheres[i];
+  //   //   const result = s1.IntersectBoxWith(this.worldOctree)
+  //   //   if (result) {
+  //   //     this.scene.remove(s1.mesh);
+  //   //   }
+  //   // }
+  // }
 
   private invadersCollisions(): void {
     for (let i = 0; i < this.spheres.length; i++) {

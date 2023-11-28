@@ -7,7 +7,7 @@ class EarthPrefab extends Prefab {
 
   async Load(){
     try {
-      const fbx = await this.fbxLoader.loadAsync("Earth.fbx");
+      const fbx = await this.fbxLoader.loadAsync("earth.fbx");
       this.model = fbx.clone();
       console.log("Earth loaded!")
     } catch (error) {

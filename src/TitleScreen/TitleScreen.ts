@@ -2,16 +2,14 @@ import {
   BufferAttribute,
   BufferGeometry,
   DirectionalLight,
-  Event,
   HemisphereLight,
-  Object3D,
   PerspectiveCamera,
   Points,
   PointsMaterial,
   Scene,
   Vector3,
   WebGLRenderer,
-  Group
+  Group,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Text from "@/Assets/Text.ts";
@@ -30,7 +28,11 @@ class TitleScreen {
   private lastFrameTimestamp: number = 0;
   private titleText: Text;
 
-  constructor(camera: PerspectiveCamera, renderer: WebGLRenderer, prefabs: Map<string, Prefab>) {
+  constructor(
+    camera: PerspectiveCamera,
+    renderer: WebGLRenderer,
+    prefabs: Map<string, Prefab>
+  ) {
     this.scene = new Scene();
     CreateStars(this.scene);
     this.camera = camera;
@@ -48,13 +50,13 @@ class TitleScreen {
     this.controls.enableZoom = false;
     this.controls.enabled = false;
     this.controls.minDistance = 40;
-    
+
     //init prefabs
     this.earth = prefabs.get("earth")!.GetObject()!;
     this.earth.scale.set(0.01, 0.01, 0.01);
     this.invader = prefabs.get("invader")!.GetObject()!;
     this.invader.scale.set(4, 4, 4);
-    this.scene.add(this.earth)
+    this.scene.add(this.earth);
 
     //Text
     this.titleText = new Text(
@@ -70,7 +72,7 @@ class TitleScreen {
       new Vector3(0, 3, 30)
     );
     this.titleText.GetTextMesh().updateMatrixWorld();
-    this.renderer.setAnimationLoop(this.Render.bind(this));
+    this.renderer.setAnimationLoop(this._animate.bind(this));
   }
 
   private explosionParticles(position: Vector3) {
@@ -125,7 +127,7 @@ class TitleScreen {
     particleAnimation();
   }
 
-  private spawnInvader(): void { 
+  private spawnInvader(): void {
     const minX = -60;
     const maxX = 60;
     const minY = -60;
@@ -147,7 +149,6 @@ class TitleScreen {
   private updateInvaders() {
     if (!this.invader) return;
     this.invaders.forEach((el, index, object) => {
-
       const speed = 0.05;
 
       const direction = new Vector3();
@@ -171,8 +172,7 @@ class TitleScreen {
     this.earth.rotation.y += 0.0001 * deltaTime; // Rotate around the y-axis
   }
 
-  //@ts-ignore
-  Render(timestamp: any, frame: any) {
+  private _animate(timestamp:number) {
     const deltaTime = timestamp - this.lastFrameTimestamp;
     this.lastFrameTimestamp = timestamp;
 
@@ -184,9 +184,10 @@ class TitleScreen {
     this.controls.update();
     this.updateInvaders();
     this.updateEarth(deltaTime);
-    this.renderer.render(this.scene, this.camera);
 
     this.spawnTime -= deltaTime;
+
+    this.renderer.render(this.scene, this.camera);
   }
 
   Destroy() {

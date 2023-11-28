@@ -24,7 +24,6 @@ class AR {
   private spawnTime: number = 1;
   private timer: number = 1;
   private controllers: Group[] = [];
-  private xrReferenceSpace: XRReferenceSpace | null | undefined;
   private xrSession: XRSession | null = null;
   private stepsPerFrame: number = 5;
   private prefabs: Map<string, Prefab>;
@@ -161,8 +160,7 @@ class AR {
       const session = this.renderer.xr.getSession();
       session
         ?.requestReferenceSpace("viewer")
-        .then((xrReferenceSpace) => {
-          this.xrReferenceSpace = xrReferenceSpace;
+        .then(() => {
           this.xrSession = session;
           this.xrSession.addEventListener("end", this._endSession.bind(this));
         })
