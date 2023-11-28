@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
-import path from "node:path";
+import path from "path";
 
 export default defineConfig({
   resolve: {
