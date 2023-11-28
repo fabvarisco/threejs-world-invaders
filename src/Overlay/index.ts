@@ -1,5 +1,4 @@
 class Overlay {
-
   constructor() {
     const div = document.createElement("div");
     div.style.position = "absolute";
