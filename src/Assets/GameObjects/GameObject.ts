@@ -70,8 +70,14 @@ class GameObject {
   }
 
   public Destroy(scene: Scene) {
-    scene.remove(this.model)
-    scene.remove(this.box3Helper)
+    scene.remove(this.model);
+    scene.remove(this.box3Helper);
+  }
+
+  public SetDestroyTimeOut(scene: Scene, timer: number = 1000) {
+    setTimeout(() => {
+      this.Destroy(scene);
+    }, timer);
   }
 
   public IntersectBoxWith(other: GameObject): boolean {

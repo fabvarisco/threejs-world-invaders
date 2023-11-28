@@ -10,6 +10,7 @@ import {
   Vector3,
   WebGLRenderer,
   Group,
+  Fog,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Text from "@/Assets/Text.ts";
@@ -172,7 +173,7 @@ class TitleScreen {
     this.earth.rotation.y += 0.0001 * deltaTime; // Rotate around the y-axis
   }
 
-  private _animate(timestamp:number) {
+  private _animate(timestamp: number) {
     const deltaTime = timestamp - this.lastFrameTimestamp;
     this.lastFrameTimestamp = timestamp;
 

@@ -21,6 +21,7 @@ import {
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 import GameObject from "@/Assets/GameObjects/GameObject";
 import Prefab from "@/Assets/Prefabs/Prefab";
+import { CreateStars } from "@/utils/utils";
 
 class VR {
   private readonly scene: Scene = new Scene();
@@ -54,7 +55,9 @@ class VR {
     light.position.set(1, 1, 1).normalize();
     this.scene.add(light);
 
-    const floorGeometry = new PlaneGeometry(6, 6);
+    CreateStars(this.scene)
+
+    const floorGeometry = new PlaneGeometry(20, 20);
     const floorMaterial = new MeshStandardMaterial({ color: 0x666666 });
     this.floor = new Mesh(floorGeometry, floorMaterial);
     this.floor.rotation.x = -Math.PI / 2;
