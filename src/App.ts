@@ -12,7 +12,7 @@ import {
 
 import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
 import Web from "@/Web/web.ts";
-import TitleScreen from "@/TitleScreen/titleScreen.ts";
+import TitleScreen from "@/TitleScreen/TitleScreen.ts";
 import VR from "@/VR/vr.ts";
 import Prefab from "./Assets/Prefabs/Prefab.ts";
 import WebWorldPrefab from "./Assets/Prefabs/WebWorldPrefab.ts";

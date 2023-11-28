@@ -19,7 +19,7 @@ import {
   WebGLRenderer,
 } from "three";
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
-import GameObject from "@/Assets/GameObjects/gameObject";
+import GameObject from "@/Assets/GameObjects/GameObject";
 import Prefab from "@/Assets/Prefabs/Prefab";
 import { CreateStars } from "@/utils/utils";
 

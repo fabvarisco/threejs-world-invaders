@@ -6,7 +6,7 @@ import { Capsule } from "three/addons/math/Capsule.js";
 
 import { Group, Vector3 } from "three";
 import Prefab from "@/Assets/Prefabs/Prefab";
-import GameObject from "@/Assets/GameObjects/gameObject";
+import GameObject from "@/Assets/GameObjects/GameObject";
 import { CreateStars } from "@/utils/utils";
 
 class Web {
