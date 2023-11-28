@@ -11,16 +11,15 @@ import {
 
 import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
 import { IAsset } from "./type";
-import Prefab from "@Prefabs/Prefab.ts";
-import InvaderPrefab from "@Prefabs/InvaderPrefab.ts";
-import EarthPrefab from "@Prefabs/EarthPrefab.ts";
-import GunPrefab from "@Prefabs/GunPrefab.ts";
-import WebWorldPrefab from "@Prefabs/WebWorldPrefab.ts";
-import TitleScreen from "@Game/titleScreen.ts";
-import VR from "@Game/vr.ts";
-import Web from "@Game/web.ts";
+import Prefab from "@Prefabs/Prefab";
+import InvaderPrefab from "@Prefabs/InvaderPrefab";
+import EarthPrefab from "@Prefabs/EarthPrefab";
+import GunPrefab from "@Prefabs/GunPrefab";
+import WebWorldPrefab from "@Prefabs/WebWorldPrefab";
+import TitleScreen from "@Game/titleScreen";
+import VR from "@Game/vr";
+import Web from "@Game/web";
 import AR from "@Game/ar";
-
 
 class App {
   private readonly camera: PerspectiveCamera;
