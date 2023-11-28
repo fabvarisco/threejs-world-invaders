@@ -4,8 +4,8 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 
 
 class Prefab {
-  protected gltfLoader: GLTFLoader = new GLTFLoader().setPath("./models/");
-  protected fbxLoader: FBXLoader = new FBXLoader().setPath("./models/");
+  protected gltfLoader: GLTFLoader = new GLTFLoader().setPath("/models/");
+  protected fbxLoader: FBXLoader = new FBXLoader().setPath("/models/");
   protected model: Group | undefined;
   protected direction: Vector3 = new Vector3(0, 0, 0);
   protected collisionBox: Box3 = new Box3();
