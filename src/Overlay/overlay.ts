@@ -6,7 +6,6 @@ class Overlay {
     div.textContent = "TESTE OVERLAY";
     div.style.zIndex = "10003";
     document.body.append(div);
-
   }
 
 
