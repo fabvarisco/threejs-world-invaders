@@ -10,7 +10,6 @@ import {
   Vector3,
   WebGLRenderer,
   Group,
-  Fog,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Text from "@/Assets/Text.ts";

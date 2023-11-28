@@ -1,5 +1,6 @@
 import GameObject from "@/Assets/GameObjects/GameObject";
 import Prefab from "@/Assets/Prefabs/Prefab";
+import Overlay from "@/Overlay/Overlay";
 import {
   Camera,
   Clock,
@@ -27,7 +28,7 @@ class AR {
   private xrSession: XRSession | null = null;
   private stepsPerFrame: number = 5;
   private prefabs: Map<string, Prefab>;
-
+  private overlay: Overlay = new Overlay();
   constructor(
     camera: Camera,
     renderer: WebGLRenderer,
@@ -45,7 +46,7 @@ class AR {
     this.scene.add(light);
 
     this._buildControllers();
-
+    this.overlay.update();
     this.renderer.setAnimationLoop(this._animate.bind(this));
   }
 

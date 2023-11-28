@@ -44,10 +44,6 @@ h1 {
 
 
 .button:hover {
-    margin: 25px auto 25px;
-    cursor: pointer;
-    left: calc(50% - 50px);
-    width: 100px;
     opacity: 1;
 }
 
