@@ -11,15 +11,15 @@ import {
 
 import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
 import { IAsset } from "./type";
-import WebWorldPrefab from "@prefabs/WebWorldPrefab";
-import InvaderPrefab from "@prefabs/InvaderPrefab";
-import EarthPrefab from "@prefabs/EarthPrefab";
-import GunPrefab from "@prefabs/GunPrefab";
-import Prefab from "@prefabs/Prefab";
-import TitleScreen from "@game/titleScreen";
-import VR from "@game/vr";
-import AR from "@game/ar";
-import Web from "@game/web";
+import Prefab from "@prefabs/Prefab.ts";
+import WebWorldPrefab from "@prefabs/WebWorldPrefab.ts";
+import EarthPrefab from "@prefabs/EarthPrefab.ts";
+import GunPrefab from "@prefabs/GunPrefab.ts";
+import TitleScreen from "@game/titleScreen.ts";
+import VR from "@game/vr.ts";
+import AR from "@game/ar.ts";
+import Web from "@game/web.ts";
+
 
 
 class App {
@@ -28,7 +28,7 @@ class App {
   private readonly renderer: WebGLRenderer;
   private readonly assets: IAsset[] = [
     { key: "worldWeb", prefab: WebWorldPrefab },
-    { key: "invader", prefab: InvaderPrefab },
+    { key: "invader", prefab: WebWorldPrefab },
     { key: "earth", prefab: EarthPrefab },
     { key: "gun", prefab: GunPrefab },
   ];
