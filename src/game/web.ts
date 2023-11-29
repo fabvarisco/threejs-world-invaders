@@ -5,10 +5,9 @@ import { Octree } from "three/addons/math/Octree.js";
 import { Capsule } from "three/addons/math/Capsule.js";
 
 import { Group, Vector3 } from "three";
-import GameObject from "@/assets/gameObjects/GameObject";
-import Prefab from "@/Assets/prefabs/Prefab";
 import { CreateStars } from "../utils";
-
+import GameObject from "../assets/gameObjects/GameObject";
+import Prefab from "../assets/prefabs/Prefab";
 
 class Web {
   private clock: THREE.Clock;

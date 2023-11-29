@@ -1,5 +1,6 @@
-import Prefab from "./Prefab";
 import { MeshStandardMaterial } from "three";
+import Prefab from "./Prefab";
+
 
 class WebWorldPrefab extends Prefab {
   constructor() {

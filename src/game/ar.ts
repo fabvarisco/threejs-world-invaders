@@ -1,7 +1,3 @@
-
-import Prefab from "@/Assets/prefabs/Prefab";
-import GameObject from "@/assets/gameObjects/GameObject";
-import Overlay from "@/assets/overlay";
 import {
   Camera,
   Clock,
@@ -15,6 +11,9 @@ import {
   Vector3,
   WebGLRenderer,
 } from "three";
+import GameObject from "../assets/gameObjects/GameObject";
+import Prefab from "../assets/prefabs/Prefab";
+import Overlay from "../assets/overlay";
 
 class AR {
   private readonly camera: Camera;
