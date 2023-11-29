@@ -15,6 +15,7 @@ import GameObject from "../assets/gameObjects/GameObject";
 import Prefab from "../assets/prefabs/Prefab";
 import Overlay from "../assets/overlay";
 
+
 class AR {
   private readonly camera: Camera;
   private readonly renderer: WebGLRenderer;
