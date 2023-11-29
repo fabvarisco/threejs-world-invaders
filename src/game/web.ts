@@ -9,8 +9,6 @@ import GameObject from "../assets/gameObjects/GameObject";
 import Prefab from "../assets/prefabs/Prefab";
 import { CreateStars } from "../utils";
 
-
-
 class Web {
   private clock: THREE.Clock;
   private readonly scene: THREE.Scene;
