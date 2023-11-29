@@ -16,23 +16,26 @@ class GameObject {
   private box3Helper: Box3Helper;
   private removed: boolean = false;
   protected model: Group | Mesh | Object3D;
+  protected scene: Scene;
   constructor(
     model: Group | Mesh | Object3D,
     position: Vector3,
-    speed: number = 0.01
+    speed: number = 0.01,
+    scene: Scene
   ) {
     this.model = model;
     this.model.position.set(position.x, position.y, position.z);
     this.speed = speed;
     this.box3 = new Box3().setFromObject(this.model);
     this.box3Helper = new Box3Helper(this.box3, new Color(0xffff00));
+    this.scene = scene;
   }
 
-  public MoveTo(targetPosition: Vector3): void {
+  public MoveTo(targetPosition: Vector3, deltaTime:number): void {
     const direction = new Vector3();
     direction.subVectors(targetPosition, this.model.position);
     direction.normalize();
-    this.model.position.addScaledVector(direction, this.speed);
+    this.model.position.addScaledVector(direction, this.speed * deltaTime);
     this.model.position.add(this.velocity);
   }
 
@@ -75,9 +78,9 @@ class GameObject {
     scene.add(this.box3Helper);
   }
 
-  public Destroy(scene: Scene) {
-    scene.remove(this.model);
-    scene.remove(this.box3Helper);
+  public Destroy() {
+    this.scene.remove(this.model);
+    this.scene.remove(this.box3Helper);
     this.removed = true;
   }
 
@@ -85,9 +88,9 @@ class GameObject {
     return this.removed;
   }
 
-  public SetDestroyTimeOut(scene: Scene, timer: number = 1000) {
+  public SetDestroyTimeOut(timer: number = 1000) {
     setTimeout(() => {
-      this.Destroy(scene);
+      this.Destroy();
     }, timer);
   }
 
@@ -104,12 +107,11 @@ class GameObject {
 
   public DestroyOnDistance(
     targetDistance: Vector3,
-    scene: Scene,
     distanceToDestroy: number
   ) {
     const distance = targetDistance.distanceTo(this.model.position);
     if (distance <= distanceToDestroy) {
-      this.Destroy(scene);
+      this.Destroy();
     }
   }
 }

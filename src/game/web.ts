@@ -116,6 +116,7 @@ class Web {
     this.worldOctree.fromGraphNode(this.worldWeb);
 
     CreateStars(this.scene);
+    this.spawnInvader();
     this.animate();
   }
 
@@ -135,18 +136,23 @@ class Web {
     const newInvader = new GreenInvaderGameObject(
       this.invaderModel.clone(),
       position,
-      5
+      0.08,
+      this.scene
     );
     newInvader.DebugDrawBox3(this.scene);
     this.invaders.push(newInvader);
     this.scene.add(newInvader.GetModel());
   }
 
-  private updateInvaders(): void {
-    this.invaders.forEach((el) => {
+  private updateInvaders(deltaTime: number): void {
+    this.invaders.forEach((el, index, object) => {
+      if (el.isRemoved()) {
+        object.splice(index, 1);
+      }
       // el.MoveTo(this.camera.position);
       // el.LookTo(this.camera.position);
-      el.Update(this.camera.position);
+      el.Update(this.camera.position, deltaTime);
+
     });
 
     this.invadersCollisions();
@@ -165,7 +171,9 @@ class Web {
 
     const sphere = new GameObject(
       meshSphere,
-      this.camera.getWorldDirection(this.playerDirection)
+      this.camera.getWorldDirection(this.playerDirection),
+      0.01,
+      this.scene
     );
 
     this.camera.getWorldDirection(this.playerDirection);
@@ -217,10 +225,10 @@ class Web {
         const invader = this.invaders[j];
 
         if (invader.IntersectBoxWith(sphere)) {
-          sphere.Destroy(this.scene);
+          sphere.Destroy();
           this.spheres.splice(i, 1);
 
-          invader.Destroy(this.scene);
+          invader.Destroy();
           this.invaders.splice(j, 1);
 
           i--;
@@ -305,7 +313,7 @@ class Web {
       this.controls(deltaTime);
       this.updatePlayer(deltaTime);
       this.updateSpheres(deltaTime);
-      this.updateInvaders();
+      this.updateInvaders(deltaTime);
       this.teleportPlayerIfOob();
     }
     if (this.spawnTime <= 0) {
@@ -316,8 +324,8 @@ class Web {
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(() => this.animate());
   }
-  public Render() {}
-  public Destroy() {}
+  public Render() { }
+  public Destroy() { }
 }
 
 export default Web;

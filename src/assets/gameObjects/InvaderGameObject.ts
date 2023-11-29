@@ -14,20 +14,21 @@ class InvaderGameObject extends GameObject {
   constructor(
     model: Group | Mesh | Object3D,
     position: Vector3,
-    speed: number
+    speed: number,
+    scene: Scene
   ) {
-    super(model, position, speed);
+    super(model, position, speed, scene);
     this.color = 0xffffff;
   }
 
-  public Update(targetPosition: Vector3) {
-    this.MoveTo(targetPosition);
+  public Update(targetPosition: Vector3, deltaTime: number) {
+    this.MoveTo(targetPosition, deltaTime);
     this.LookTo(targetPosition);
   }
 
-  public Destroy(scene: Scene): void {
-    super.Destroy(scene);
-    ExplosionParticles(this.model.position, scene, this.color);
+  public Destroy(): void {
+    super.Destroy();
+    ExplosionParticles(this.model.position, this.scene, this.color);
   }
 }
 

@@ -64,7 +64,7 @@ class AR {
     velocity.z = Math.random() * 0.01 - 0.05;
     velocity.applyQuaternion(this.controllers[0].quaternion);
 
-    const sphere = new GameObject(meshSphere, this.controllers[0].position);
+    const sphere = new GameObject(meshSphere, this.controllers[0].position, 0.6, this.scene);
     sphere.SetVelocity(velocity.clone().multiplyScalar(23));
 
     this.spheres.push(sphere);
@@ -132,15 +132,15 @@ class AR {
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
 
-    const newInvader = new GameObject(invaderModel, position);
+    const newInvader = new GameObject(invaderModel, position, 0.01, this.scene);
     newInvader.GetModel().scale.set(0.8, 0.8, 0.8);
     this.invaders.push(newInvader);
     this.scene.add(newInvader.GetModel());
   }
 
-  private _updateInvaders() {
+  private _updateInvaders(deltaTime: number) {
     this.invaders.forEach((el) => {
-      el.MoveTo(this.camera.position);
+      el.MoveTo(this.camera.position, deltaTime);
       el.LookTo(this.camera.position);
     });
   }
@@ -154,7 +154,7 @@ class AR {
       Math.min(0.05, this.clock.getDelta()) / this.stepsPerFrame;
 
     for (let i = 0; i < this.stepsPerFrame; i++) {
-      this._updateInvaders();
+      this._updateInvaders(deltaTime);
       this._updateSpheres(deltaTime);
     }
 
@@ -181,7 +181,7 @@ class AR {
     this.renderer.render(this.scene, this.camera);
   }
 
-  public Destroy() {}
+  public Destroy() { }
 }
 
 export default AR;

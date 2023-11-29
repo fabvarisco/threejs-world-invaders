@@ -183,7 +183,9 @@ class VR {
 
       const projectile = new GameObject(
         projectileMesh,
-        projectileStartPosition
+        projectileStartPosition,
+        0.01,
+        this.scene
       );
 
       projectile.GetModel().position.copy(projectileStartPosition);
@@ -211,10 +213,10 @@ class VR {
         if (invader.IntersectBoxWith(sphere)) {
           console.log("asasd");
           debugger;
-          sphere.Destroy(this.scene);
+          sphere.Destroy();
           this.projectiles.splice(i, 1);
 
-          invader.Destroy(this.scene);
+          invader.Destroy();
           this.invaders.splice(j, 1);
 
           i--;
@@ -223,9 +225,9 @@ class VR {
       }
     }
   }
-  private updateInvaders(): void {
+  private updateInvaders(deltaTime: number): void {
     this.invaders.forEach((el) => {
-      el.MoveTo(this.camera.position);
+      el.MoveTo(this.camera.position, deltaTime);
       el.LookTo(this.camera.position);
     });
   }
@@ -233,7 +235,9 @@ class VR {
   private _createGun() {
     const newGun = new GameObject(
       this.prefabs.get("gun")?.GetObject()!,
-      new Vector3(-0.5, 1.5, -1.0)
+      new Vector3(-0.5, 1.5, -1.0),
+      0.6,
+      this.scene
     );
     const gunModel = newGun.GetModel();
     const self = this;
@@ -275,7 +279,7 @@ class VR {
       .get("invader")
       ?.GetObject()!
       .clone() as Group;
-    const newInvader = new GameObject(invaderModel, position);
+    const newInvader = new GameObject(invaderModel, position, 0.6, this.scene);
 
     this.invaders.push(newInvader);
     this.scene.add(newInvader.GetModel());
@@ -325,7 +329,7 @@ class VR {
     const deltaTime = Math.min(0.05, this.clock.getDelta()) / 5;
     for (let i = 0; i < 5; i++) {
       this.updateProjectile(deltaTime);
-      this.updateInvaders();
+      this.updateInvaders(deltaTime);
       this.updateCollisions();
     }
     if (this.spawnTime <= 0) {

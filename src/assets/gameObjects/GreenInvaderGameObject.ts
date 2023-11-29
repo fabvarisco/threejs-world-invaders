@@ -1,4 +1,4 @@
-import { Vector3, Group, Mesh, Object3D } from "three";
+import { Vector3, Group, Mesh, Object3D, Scene } from "three";
 import InvaderGameObject from "./InvaderGameObject";
 
 class GreenInvaderGameObject extends InvaderGameObject {
@@ -6,9 +6,11 @@ class GreenInvaderGameObject extends InvaderGameObject {
   constructor(
     model: Group | Mesh | Object3D,
     position: Vector3,
-    speed: number
+    speed: number,
+    scene: Scene
+
   ) {
-    super(model, position, speed);
+    super(model, position, speed, scene);
     this.color = 0x00ff00;
     this.model.traverse((child) => {
       if (child instanceof Mesh) {
@@ -17,14 +19,15 @@ class GreenInvaderGameObject extends InvaderGameObject {
     });
   }
 
-  public Update(targetPosition: Vector3): void {
+  public Update(targetPosition: Vector3, deltaTime: number): void {
     if (this.targetPosition === null) {
-      this.targetPosition = targetPosition;
+      this.targetPosition = targetPosition.clone();
+    } else {
+      this.MoveTo(this.targetPosition, deltaTime);
+      this.LookTo(this.targetPosition);
+      this.DestroyOnDistance(this.targetPosition, 0.8)
     }
-    if (this.targetPosition !== null) {
-      this.MoveTo(targetPosition);
-      this.LookTo(targetPosition);
-    }
+
   }
 }
 

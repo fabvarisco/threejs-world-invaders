@@ -1,7 +1,6 @@
 import {
   BufferAttribute,
   BufferGeometry,
-  Color,
   ColorRepresentation,
   Float32BufferAttribute,
   Points,

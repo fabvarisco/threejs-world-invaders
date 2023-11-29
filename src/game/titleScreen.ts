@@ -1,11 +1,7 @@
 import {
-  BufferAttribute,
-  BufferGeometry,
   DirectionalLight,
   HemisphereLight,
   PerspectiveCamera,
-  Points,
-  PointsMaterial,
   Scene,
   Vector3,
   WebGLRenderer,
@@ -13,10 +9,8 @@ import {
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Prefab from "../assets/prefabs/Prefab";
-import { CreateStars, ExplosionParticles } from "../utils";
+import { CreateStars } from "../utils";
 import Text from "../assets/Text";
-import GreenInvaderGameObject from "../assets/gameObjects/GreenInvaderGameObject";
-import GameObject from "../assets/gameObjects/GameObject";
 import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
 class TitleScreen {
   private readonly scene: Scene;
@@ -91,16 +85,16 @@ class TitleScreen {
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
     const invaderModel = this.invader.clone();
-    const newInvader = new InvaderGameObject(invaderModel, position, 0.08);
+    const newInvader = new InvaderGameObject(invaderModel, position, 0.01, this.scene);
     console.log(this.invaders);
     this.invaders.push(newInvader);
     this.scene.add(newInvader.GetModel());
   }
 
-  private updateInvaders() {
+  private updateInvaders(deltaTime: number) {
     this.invaders.forEach((el, index, object) => {
-      el.Update(this.earth.position);
-      el.DestroyOnDistance(this.earth.position, this.scene, 8.0);
+      el.Update(this.earth.position, deltaTime);
+      el.DestroyOnDistance(this.earth.position, 8.0);
       if (el.isRemoved()) {
         object.splice(index, 1);
       }
@@ -122,7 +116,7 @@ class TitleScreen {
     }
 
     this.controls.update();
-    this.updateInvaders();
+    this.updateInvaders(deltaTime);
     this.updateEarth(deltaTime);
 
     this.spawnTime -= deltaTime;
