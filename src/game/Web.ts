@@ -8,7 +8,7 @@ import { Group, Vector3 } from "three";
 import GameObject from "../assets/gameObjects/GameObject";
 import Prefab from "../assets/prefabs/Prefab";
 import { CreateStars } from "../utils";
-import GreenInvaderGameObject from "../assets/gameObjects/GreenInvaderGameObject";
+import RedInvaderGameObject from "../assets/gameObjects/RedInvaderGameObject";
 
 class Web {
   private clock: THREE.Clock;
@@ -32,7 +32,7 @@ class Web {
   private readonly keyStates: { [key: string]: boolean };
   private invaderModel: Group = new Group();
   private worldWeb: Group = new Group();
-  private invaders: GreenInvaderGameObject[] = [];
+  private invaders: RedInvaderGameObject[] = [];
   private spawnTime: number = 0.5;
   private timer: number = 0.5;
 
@@ -133,7 +133,7 @@ class Web {
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
 
-    const newInvader = new GreenInvaderGameObject(
+    const newInvader = new RedInvaderGameObject(
       this.invaderModel.clone(),
       position,
       40,
