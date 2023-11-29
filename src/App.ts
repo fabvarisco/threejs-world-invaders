@@ -11,10 +11,10 @@ import {
 
 import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
 import { IAsset } from "./type";
-import TitleScreen from "@Game/titleScreen";
-import Web from "@Game/web";
-import AR from "@Game/ar";
-import VR from "@Game/vr";
+import TitleScreen from "@Game/TitleScreen";
+import Web from "@Game/Web";
+import AR from "@Game/AR";
+import VR from "@Game/VR";
 import Prefab from "@Prefabs/Prefab";
 import WebWorldPrefab from "@Prefabs/WebWorldPrefab";
 import InvaderPrefab from "@Prefabs/InvaderPrefab";

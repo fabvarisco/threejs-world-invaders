@@ -21,7 +21,11 @@
     "baseUrl": ".",
     "paths": {
       "@Game/*": ["./src/game/*"],
-	  "@Prefabs/*": ["./src/assets/prefabs/*"]
+	  "@Prefabs/*": ["./src/assets/prefabs/*"],
+	  "@Assets/*": ["./src/assets/*"],
+	  "@Utils": ["./src/utils.ts"]
+
+
     }
   },
   "include": ["./src"]

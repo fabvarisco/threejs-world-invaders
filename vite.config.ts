@@ -7,11 +7,11 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "@assets": path.resolve(__dirname, "./src/assets"),
+      "@Assets": path.resolve(__dirname, "./src/assets"),
       "@Prefabs": path.resolve(__dirname, "./src/assets/prefabs"),
-      "@gameObjects": path.resolve(__dirname, "./src/assets/gameObjects"),
+      "@GameObjects": path.resolve(__dirname, "./src/assets/gameObjects"),
       "@Game": path.resolve(__dirname, "./src/game"),
-      "@utils": path.resolve(__dirname, "./src/utils.ts"),
+      "@Utils": path.resolve(__dirname, "./src/utils.ts"),
 
     },
   },
