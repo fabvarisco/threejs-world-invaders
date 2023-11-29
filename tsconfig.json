@@ -30,16 +30,16 @@
 				"./src/*"
 			],
 			"@assets/*": [
-				"./src/assets/*"
+				"./src/Assets/*"
 			],
 			"@gameObjects/*": [
-				"./src/assets/gameObjects/*"
+				"./src/Assets/GameObjects/*"
 			],
 			"@prefabs/*": [
-				"./src/assets/prefabs/*"
+				"./src/Assets/Prefabs/*"
 			],
 			"@game/*": [
-				"./src/game/*"
+				"./src/Game/*"
 			],
 			"@utils": [
 				"./src/utils.ts"
