@@ -15,8 +15,6 @@ import {
   WebGLRenderer,
 } from "three";
 
-
-
 class AR {
   private readonly camera: Camera;
   private readonly renderer: WebGLRenderer;
