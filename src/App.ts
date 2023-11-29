@@ -11,15 +11,15 @@ import {
 
 import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
 import { IAsset } from "./type";
-import WebWorldPrefab from "./assets/prefabs/WebWorldPrefab.ts";
-import InvaderPrefab from "./assets/prefabs/InvaderPrefab.ts";
-import EarthPrefab from "./assets/prefabs/EarthPrefab.ts";
-import GunPrefab from "./assets/prefabs/GunPrefab.ts";
-import Prefab from "./assets/prefabs/Prefab.ts";
-import TitleScreen from "./game/titleScreen.ts";
-import VR from "./game/vr.ts";
-import AR from "./game/ar.ts";
-import Web from "./game/web.ts";
+import WebWorldPrefab from "./assets/prefabs/WebWorldPrefab";
+import InvaderPrefab from "./assets/prefabs/InvaderPrefab";
+import EarthPrefab from "./assets/prefabs/EarthPrefab";
+import GunPrefab from "./assets/prefabs/GunPrefab";
+import Prefab from "./assets/prefabs/Prefab";
+import TitleScreen from "./game/titleScreen";
+import VR from "./game/vr";
+import AR from "./game/ar";
+import Web from "./game/web";
 
 
 class App {
