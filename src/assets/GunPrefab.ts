@@ -1,4 +1,4 @@
-import Prefab from "./Prefab";
+import Prefab from "./prefabs/Prefab";
 
 class GunPrefab extends Prefab {
   constructor() {

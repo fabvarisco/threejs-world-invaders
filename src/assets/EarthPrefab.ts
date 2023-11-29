@@ -1,4 +1,4 @@
-import Prefab from "./Prefab";
+import Prefab from "./prefabs/Prefab";
 
 class EarthPrefab extends Prefab {
   constructor() {
