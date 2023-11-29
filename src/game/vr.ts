@@ -1,7 +1,7 @@
 
 
-import GameObject from "@/assets/gameObjects/GameObject";
-import Prefab from "@/assets/prefabs/Prefab";
+import GameObject from "@gameObjects/GameObject";
+import Prefab from "@prefabs/Prefab";
 import { CreateStars } from "@/utils";
 import {
   BufferGeometry,

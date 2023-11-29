@@ -1,6 +1,6 @@
 
-import Prefab from "@/assets/prefabs/Prefab";
-import { CreateStars } from "../utils";
+import Prefab from "@prefabs/Prefab";
+import { CreateStars } from "@utils";
 import {
   BufferAttribute,
   BufferGeometry,
