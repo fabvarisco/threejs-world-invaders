@@ -13,9 +13,8 @@ import {
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Prefab from "../assets/prefabs/Prefab";
-import { CreateStars } from "@Utils";
-import Text from "@Assets/Text";
-
+import { CreateStars } from "../utils";
+import Text from "../assets/Text";
 class TitleScreen {
   private readonly scene: Scene;
   private readonly camera: PerspectiveCamera;
