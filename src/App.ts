@@ -17,9 +17,9 @@ import EarthPrefab from "./assets/prefabs/EarthPrefab";
 import GunPrefab from "./assets/prefabs/GunPrefab";
 import TitleScreen from "./game/TitleScreen";
 import Prefab from "./assets/prefabs/Prefab";
-import Web from "./game/web";
-import AR from "./game/ar";
-import VR from "./game/vr";
+import AR from "./game/AR";
+import VR from "./game/VR";
+import Web from "./game/Web";
 
 class App {
   private readonly camera: PerspectiveCamera;
