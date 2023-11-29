@@ -23,14 +23,29 @@
 		"types": [
 			"vite/client"
 		],
-		"baseUrl": ".",
+		"baseUrl": "./",
 		"paths": {
 			"@/*": [
 				"./src/*"
 			],
+			"@assets/*": [
+				"./src/assets/*"
+			],
+			"@gameObjects/*": [
+				"./src/assets/gameObjects/*"
+			],
+			"@prefabs/*": [
+				"./src/assets/prefabs/*"
+			],
+			"@game/*": [
+				"./src/game/*"
+			],
+			"@utils": [
+				"./src/utils.ts"
+			],
 		}
 	},
 	"include": [
-		"src",
+		"./src",
 	]
 }

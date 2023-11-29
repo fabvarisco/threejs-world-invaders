@@ -7,7 +7,12 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "@Assets": path.resolve(__dirname, "./src/assets"),
+      "@assets": path.resolve(__dirname, "./src/assets"),
+      "@prefabs": path.resolve(__dirname, "./src/assets/prefabs"),
+      "@gameObjects": path.resolve(__dirname, "./src/assets/gameObjects"),
+      "@game": path.resolve(__dirname, "./src/game"),
+      "@utils": path.resolve(__dirname, "./src/utils.ts"),
+
     },
   },
   plugins: [VitePWA({ registerType: "autoUpdate" })],
