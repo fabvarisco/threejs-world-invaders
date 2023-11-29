@@ -1,5 +1,8 @@
 
 
+import GameObject from "@/assets/gameObjects/GameObject";
+import Prefab from "@/assets/prefabs/Prefab";
+import { CreateStars } from "@/utils";
 import {
   BufferGeometry,
   Camera,
@@ -21,9 +24,7 @@ import {
   WebGLRenderer,
 } from "three";
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
-import GameObject from "../assets/gameObjects/GameObject";
-import Prefab from "../assets/prefabs/Prefab";
-import { CreateStars } from "../utils";
+
 
 class VR {
   private readonly scene: Scene = new Scene();
