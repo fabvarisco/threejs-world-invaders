@@ -136,7 +136,7 @@ class Web {
     const newInvader = new GreenInvaderGameObject(
       this.invaderModel.clone(),
       position,
-      0.08,
+      40,
       this.scene
     );
     newInvader.DebugDrawBox3(this.scene);
@@ -149,10 +149,7 @@ class Web {
       if (el.isRemoved()) {
         object.splice(index, 1);
       }
-      // el.MoveTo(this.camera.position);
-      // el.LookTo(this.camera.position);
       el.Update(this.camera.position, deltaTime);
-
     });
 
     this.invadersCollisions();
@@ -172,7 +169,7 @@ class Web {
     const sphere = new GameObject(
       meshSphere,
       this.camera.getWorldDirection(this.playerDirection),
-      0.01,
+      0.1,
       this.scene
     );
 
