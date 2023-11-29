@@ -12,12 +12,18 @@ import {
 class GameObject {
   private velocity: Vector3 = new Vector3(0, 0, 0);
   private box3: Box3;
-  private model: Group | Mesh | Object3D;
-  private speed: number = 0.01;
+  private speed: number;
   private box3Helper: Box3Helper;
-  constructor(model: Group | Mesh | Object3D, position: Vector3) {
+  private removed: boolean = false;
+  protected model: Group | Mesh | Object3D;
+  constructor(
+    model: Group | Mesh | Object3D,
+    position: Vector3,
+    speed: number = 0.01
+  ) {
     this.model = model;
     this.model.position.set(position.x, position.y, position.z);
+    this.speed = speed;
     this.box3 = new Box3().setFromObject(this.model);
     this.box3Helper = new Box3Helper(this.box3, new Color(0xffff00));
   }
@@ -72,6 +78,11 @@ class GameObject {
   public Destroy(scene: Scene) {
     scene.remove(this.model);
     scene.remove(this.box3Helper);
+    this.removed = true;
+  }
+
+  public isRemoved() {
+    return this.removed;
   }
 
   public SetDestroyTimeOut(scene: Scene, timer: number = 1000) {
@@ -89,6 +100,17 @@ class GameObject {
       return true;
     }
     return false;
+  }
+
+  public DestroyOnDistance(
+    targetDistance: Vector3,
+    scene: Scene,
+    distanceToDestroy: number
+  ) {
+    const distance = targetDistance.distanceTo(this.model.position);
+    if (distance <= distanceToDestroy) {
+      this.Destroy(scene);
+    }
   }
 }
 

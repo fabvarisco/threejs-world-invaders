@@ -1,9 +1,13 @@
 import {
+  BufferAttribute,
   BufferGeometry,
+  Color,
+  ColorRepresentation,
   Float32BufferAttribute,
   Points,
   PointsMaterial,
   Scene,
+  Vector3,
 } from "three";
 
 export function CreateStars(scene: Scene) {
@@ -11,7 +15,7 @@ export function CreateStars(scene: Scene) {
   const starsMaterial = new PointsMaterial({
     color: 0xffffff,
     size: 2,
-  });   
+  });
 
   const starsVertices = [];
   for (let i = 0; i < 7000; i++) {
@@ -27,4 +31,69 @@ export function CreateStars(scene: Scene) {
   );
   const stars = new Points(starsGeometry, starsMaterial);
   scene.add(stars);
+}
+
+export function ExplosionParticles(
+  position: Vector3,
+  scene: Scene,
+  color: ColorRepresentation = 0xff0000
+) {
+  const particleGeometry = new BufferGeometry();
+  const particleMaterial = new PointsMaterial({
+    color,
+    size: 1,
+  });
+
+  const particlesCount = 10;
+  const particlesPositions = new Float32Array(particlesCount * 3);
+
+  for (let i = 0; i < particlesCount; i++) {
+    const i3 = i * 3;
+    particlesPositions[i3] = position.x + (Math.random() - 0.5) * 5;
+    particlesPositions[i3 + 1] = position.y + (Math.random() - 0.5) * 5;
+    particlesPositions[i3 + 2] = position.z + (Math.random() - 0.5) * 5;
+  }
+
+  particleGeometry.setAttribute(
+    "position",
+    new BufferAttribute(particlesPositions, 3)
+  );
+
+  const particles = new Points(particleGeometry, particleMaterial);
+  scene.add(particles);
+
+  let animationId: number;
+
+  const animateParticles = () => {
+    const positions = particleGeometry.attributes.position
+      .array as Float32Array;
+
+    for (let i = 0; i < particlesCount; i++) {
+      const i3 = i * 3;
+      positions[i3] += (Math.random() - 0.5) * 3;
+      positions[i3 + 1] += (Math.random() - 0.5) * 3;
+      positions[i3 + 2] += (Math.random() - 0.5) * 3;
+    }
+
+    particleGeometry.attributes.position.needsUpdate = true;
+
+    if (particles.material.opacity > 0) {
+      particles.material.opacity -= 0.03;
+    } else {
+      scene.remove(particles);
+      cancelAnimationFrame(animationId);
+    }
+  };
+
+  const particleAnimation = () => {
+    animateParticles();
+    animationId = requestAnimationFrame(particleAnimation);
+  };
+
+  particleAnimation();
+
+  return () => {
+    cancelAnimationFrame(animationId);
+    scene.remove(particles);
+  };
 }

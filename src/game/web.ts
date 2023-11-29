@@ -8,6 +8,7 @@ import { Group, Vector3 } from "three";
 import GameObject from "../assets/gameObjects/GameObject";
 import Prefab from "../assets/prefabs/Prefab";
 import { CreateStars } from "../utils";
+import GreenInvaderGameObject from "../assets/gameObjects/GreenInvaderGameObject";
 
 class Web {
   private clock: THREE.Clock;
@@ -31,7 +32,7 @@ class Web {
   private readonly keyStates: { [key: string]: boolean };
   private invaderModel: Group = new Group();
   private worldWeb: Group = new Group();
-  private invaders: GameObject[] = [];
+  private invaders: GreenInvaderGameObject[] = [];
   private spawnTime: number = 0.5;
   private timer: number = 0.5;
 
@@ -131,7 +132,11 @@ class Web {
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
 
-    const newInvader = new GameObject(this.invaderModel.clone(), position);
+    const newInvader = new GreenInvaderGameObject(
+      this.invaderModel.clone(),
+      position,
+      5
+    );
     newInvader.DebugDrawBox3(this.scene);
     this.invaders.push(newInvader);
     this.scene.add(newInvader.GetModel());
@@ -139,8 +144,9 @@ class Web {
 
   private updateInvaders(): void {
     this.invaders.forEach((el) => {
-      el.MoveTo(this.camera.position);
-      el.LookTo(this.camera.position);
+      // el.MoveTo(this.camera.position);
+      // el.LookTo(this.camera.position);
+      el.Update(this.camera.position);
     });
 
     this.invadersCollisions();
@@ -310,8 +316,8 @@ class Web {
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(() => this.animate());
   }
-  public Render() { }
-  public Destroy() { }
+  public Render() {}
+  public Destroy() {}
 }
 
 export default Web;

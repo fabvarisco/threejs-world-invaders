@@ -13,8 +13,11 @@ import {
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Prefab from "../assets/prefabs/Prefab";
-import { CreateStars } from "../utils";
+import { CreateStars, ExplosionParticles } from "../utils";
 import Text from "../assets/Text";
+import GreenInvaderGameObject from "../assets/gameObjects/GreenInvaderGameObject";
+import GameObject from "../assets/gameObjects/GameObject";
+import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
 class TitleScreen {
   private readonly scene: Scene;
   private readonly camera: PerspectiveCamera;
@@ -22,7 +25,7 @@ class TitleScreen {
   private controls: OrbitControls;
   private earth: Group;
   private invader: Group;
-  private invaders: Group[] = [];
+  private invaders: InvaderGameObject[] = [];
   private spawnTime: number = 2000;
   private timer: number = 2000;
   private lastFrameTimestamp: number = 0;
@@ -75,58 +78,6 @@ class TitleScreen {
     this.renderer.setAnimationLoop(this._animate.bind(this));
   }
 
-  private explosionParticles(position: Vector3) {
-    const particleGeometry = new BufferGeometry();
-    const particleMaterial = new PointsMaterial({
-      color: 0xff0000,
-      size: 1,
-    });
-
-    const particlesCount = 10;
-    const particlesPositions = new Float32Array(particlesCount * 3);
-
-    for (let i = 0; i < particlesCount; i++) {
-      const i3 = i * 3;
-      particlesPositions[i3] = position.x + (Math.random() - 0.5) * 5;
-      particlesPositions[i3 + 1] = position.y + (Math.random() - 0.5) * 5;
-      particlesPositions[i3 + 2] = position.z + (Math.random() - 0.5) * 5;
-    }
-
-    particleGeometry.setAttribute(
-      "position",
-      new BufferAttribute(particlesPositions, 3)
-    );
-
-    const particles = new Points(particleGeometry, particleMaterial);
-    this.scene.add(particles);
-
-    const animateParticles = () => {
-      const positions = particleGeometry.attributes.position
-        .array as Float32Array;
-
-      for (let i = 0; i < particlesCount; i++) {
-        const i3 = i * 3;
-        positions[i3] += (Math.random() - 0.5) * 3;
-        positions[i3 + 1] += (Math.random() - 0.5) * 3;
-        positions[i3 + 2] += (Math.random() - 0.5) * 3;
-      }
-
-      particleGeometry.attributes.position.needsUpdate = true;
-
-      if (particles.material.opacity > 0) {
-        particles.material.opacity -= 0.03;
-      } else {
-        this.scene.remove(particles);
-      }
-    };
-    const particleAnimation = () => {
-      animateParticles();
-      requestAnimationFrame(particleAnimation);
-    };
-
-    particleAnimation();
-  }
-
   private spawnInvader(): void {
     const minX = -60;
     const maxX = 60;
@@ -139,37 +90,26 @@ class TitleScreen {
     position.x = Math.random() * (maxX - minX) + minX;
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
-    const newInvader = this.invader.clone();
-    newInvader.position.set(position.x, position.y, position.z);
-
+    const invaderModel = this.invader.clone();
+    const newInvader = new InvaderGameObject(invaderModel, position, 0.08);
+    console.log(this.invaders);
     this.invaders.push(newInvader);
-    this.scene.add(newInvader);
+    this.scene.add(newInvader.GetModel());
   }
 
   private updateInvaders() {
-    if (!this.invader) return;
     this.invaders.forEach((el, index, object) => {
-      const speed = 0.05;
-
-      const direction = new Vector3();
-      direction.subVectors(this.earth!.position, el.position);
-      direction.normalize();
-      el.position.addScaledVector(direction, speed);
-
-      el.position.add(new Vector3(0, 0, 0));
-      el.lookAt(this.earth?.position);
-      const distance = this.earth!.position.distanceTo(el.position);
-      if (distance <= 8.0) {
-        this.scene.remove(el);
+      el.Update(this.earth.position);
+      el.DestroyOnDistance(this.earth.position, this.scene, 8.0);
+      if (el.isRemoved()) {
         object.splice(index, 1);
-        this.explosionParticles(el.position);
       }
     });
   }
 
   private updateEarth(deltaTime: number) {
     if (!this.earth) return;
-    this.earth.rotation.y += 0.0001 * deltaTime; // Rotate around the y-axis
+    this.earth.rotation.y += 0.0001 * deltaTime;
   }
 
   private _animate(timestamp: number) {
