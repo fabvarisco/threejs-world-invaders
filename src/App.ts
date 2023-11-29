@@ -11,16 +11,15 @@ import {
 
 import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
 import { IAsset } from "./type";
-import Prefab from "@prefabs/Prefab.ts";
-import WebWorldPrefab from "@prefabs/WebWorldPrefab.ts";
-import EarthPrefab from "@prefabs/EarthPrefab.ts";
-import GunPrefab from "@prefabs/GunPrefab.ts";
-import TitleScreen from "@game/titleScreen.ts";
-import VR from "@game/vr.ts";
-import AR from "@game/ar.ts";
-import Web from "@game/web.ts";
-
-
+import WebWorldPrefab from "./WebWorldPrefab";
+import EarthPrefab from "./EarthPrefab";
+import InvaderPrefab from "./InvaderPrefab";
+import GunPrefab from "./GunPrefab";
+import TitleScreen from "./titleScreen";
+import VR from "./vr";
+import AR from "./ar";
+import Web from "./web";
+import Prefab from "./Prefab";
 
 class App {
   private readonly camera: PerspectiveCamera;
@@ -28,7 +27,7 @@ class App {
   private readonly renderer: WebGLRenderer;
   private readonly assets: IAsset[] = [
     { key: "worldWeb", prefab: WebWorldPrefab },
-    { key: "invader", prefab: WebWorldPrefab },
+    { key: "invader", prefab: InvaderPrefab },
     { key: "earth", prefab: EarthPrefab },
     { key: "gun", prefab: GunPrefab },
   ];
@@ -163,9 +162,9 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  public AddNewSceneObject(): void { }
+  public AddNewSceneObject(): void {}
 
-  public RemoveSceneObject(): void { }
+  public RemoveSceneObject(): void {}
 }
 
 export default App;

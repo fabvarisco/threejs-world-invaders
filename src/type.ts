@@ -1,4 +1,4 @@
-import Prefab from "@prefabs/Prefab";
+import Prefab from "./Prefab";
 
 export interface IAsset {
   key: string;
