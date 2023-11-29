@@ -12,9 +12,9 @@ import {
   Vector3,
   WebGLRenderer,
 } from "three";
-import GameObject from "./GameObject";
-import Prefab from "./Prefab";
-import Overlay from "./overlay";
+import GameObject from "../GameObject";
+import Prefab from "../assets/prefabs/Prefab";
+import Overlay from "../overlay";
 
 class AR {
   private readonly camera: Camera;

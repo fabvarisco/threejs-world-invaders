@@ -5,9 +5,9 @@ import { Octree } from "three/addons/math/Octree.js";
 import { Capsule } from "three/addons/math/Capsule.js";
 
 import { Group, Vector3 } from "three";
-import GameObject from "./GameObject";
-import Prefab from "./Prefab";
-import { CreateStars } from "./utils";
+import GameObject from "../GameObject";
+import Prefab from "../assets/prefabs/Prefab";
+import { CreateStars } from "../utils";
 
 
 

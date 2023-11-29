@@ -20,9 +20,9 @@ import {
   WebGLRenderer,
 } from "three";
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
-import GameObject from "./GameObject";
-import Prefab from "./Prefab";
-import { CreateStars } from "./utils";
+import GameObject from "../GameObject";
+import Prefab from "../assets/prefabs/Prefab";
+import { CreateStars } from "../utils";
 
 
 class VR {

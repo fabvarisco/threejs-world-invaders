@@ -14,9 +14,9 @@ import {
   Group,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import Prefab from "./Prefab";
-import { CreateStars } from "./utils";
-import Text from "./Text";
+import Prefab from "../assets/prefabs/Prefab";
+import { CreateStars } from "../utils";
+import Text from "../Text";
 
 
 class TitleScreen {
