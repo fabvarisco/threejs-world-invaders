@@ -1,4 +1,3 @@
-
 import {
   Camera,
   Clock,
@@ -11,16 +10,17 @@ import {
   Scene,
   Vector3,
   WebGLRenderer,
+  Object3D,
 } from "three";
 import GameObject from "../assets/gameObjects/GameObject";
-import Prefab from "../assets/prefabs/Prefab";
 import Overlay from "../assets/Overlay";
+import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
 
 class AR {
   private readonly camera: Camera;
   private readonly renderer: WebGLRenderer;
   private clock: Clock;
-  private invaders: GameObject[] = [];
+  private invaders: InvaderGameObject[] = [];
   private spheres: GameObject[] = [];
   private scene: Scene = new Scene();
   private spawnTime: number = 1;
@@ -28,12 +28,12 @@ class AR {
   private controllers: Group[] = [];
   private xrSession: XRSession | null = null;
   private stepsPerFrame: number = 5;
-  private prefabs: Map<string, Prefab>;
+  private prefabs: Map<string, Object3D>;
   private overlay: Overlay = new Overlay();
   constructor(
     camera: Camera,
     renderer: WebGLRenderer,
-    prefabs: Map<string, Prefab>
+    prefabs: Map<string, Object3D>
   ) {
     this.camera = camera;
     this.renderer = renderer;
@@ -64,7 +64,12 @@ class AR {
     velocity.z = Math.random() * 0.01 - 0.05;
     velocity.applyQuaternion(this.controllers[0].quaternion);
 
-    const sphere = new GameObject(meshSphere, this.controllers[0].position, 0.6, this.scene);
+    const sphere = new GameObject(
+      meshSphere,
+      this.controllers[0].position,
+      0.6,
+      this.scene
+    );
     sphere.SetVelocity(velocity.clone().multiplyScalar(23));
 
     this.spheres.push(sphere);
@@ -91,12 +96,11 @@ class AR {
         const invader = this.invaders[j];
 
         if (invader.IntersectBoxWith(sphere)) {
-          this.scene.remove(sphere.GetModel());
           this.spheres.splice(i, 1);
-
-          this.scene.remove(invader.GetModel());
           this.invaders.splice(j, 1);
 
+          invader.Destroy();
+          sphere.Destroy();
           i--;
           j--;
         }
@@ -122,26 +126,28 @@ class AR {
     const maxY = 60;
     const minZ = -60;
     const maxZ = 60;
-    const invaderModel: Group = this.prefabs
-      .get("invader")
-      ?.GetObject()
-      .clone() as Group;
+    const invaderModel: Object3D = this.prefabs.get("invader")!.clone();
 
     const position: Vector3 = new Vector3(0, 0, 0);
     position.x = Math.random() * (maxX - minX) + minX;
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
 
-    const newInvader = new GameObject(invaderModel, position, 0.01, this.scene);
-    newInvader.GetModel().scale.set(0.8, 0.8, 0.8);
+    const newInvader = new InvaderGameObject(
+      invaderModel,
+      position,
+      6,
+      this.scene
+    );
+    newInvader.GetModel().scale.set(1, 1, 1);
     this.invaders.push(newInvader);
     this.scene.add(newInvader.GetModel());
+    console.log("asddasasd");
   }
 
-  private _updateInvaders(deltaTime: number) {
+  private _updateInvaders(_deltaTime: number) {
     this.invaders.forEach((el) => {
-      el.MoveTo(this.camera.position, deltaTime);
-      el.LookTo(this.camera.position);
+      el.Update(this.camera.position, _deltaTime);
     });
   }
 
@@ -177,11 +183,10 @@ class AR {
     }
 
     this.spawnTime -= deltaTime;
-    console.log(this.spawnTime);
     this.renderer.render(this.scene, this.camera);
   }
 
-  public Destroy() { }
+  public Destroy() {}
 }
 
 export default AR;

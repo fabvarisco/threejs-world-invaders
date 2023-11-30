@@ -1,4 +1,12 @@
-import { Vector3, Group, Mesh, Object3D, Scene, IcosahedronGeometry, MeshLambertMaterial } from "three";
+import {
+  Vector3,
+  Group,
+  Mesh,
+  Object3D,
+  Scene,
+  IcosahedronGeometry,
+  MeshLambertMaterial,
+} from "three";
 import InvaderGameObject from "./InvaderGameObject";
 import GameObject from "./GameObject";
 
@@ -24,7 +32,7 @@ class RedInvaderGameObject extends InvaderGameObject {
   }
 
   private _shoot(targetPosition: Vector3) {
-    const sphereGeometry = new IcosahedronGeometry(.2, 5);
+    const sphereGeometry = new IcosahedronGeometry(0.2, 5);
     const sphereMaterial = new MeshLambertMaterial({ color: 0xff0000 });
     const meshSphere = new Mesh(sphereGeometry, sphereMaterial);
     meshSphere.castShadow = true;
@@ -37,10 +45,12 @@ class RedInvaderGameObject extends InvaderGameObject {
       this.scene
     );
 
-    const direction = targetPosition.clone().sub(this.model.position).normalize();
+    const direction = targetPosition
+      .clone()
+      .sub(this.model.position)
+      .normalize();
 
     sphere.SetVelocity(direction.multiplyScalar(5));
-
 
     this.shoots.push(sphere);
     this.scene.add(sphere.GetModel());
@@ -52,23 +62,28 @@ class RedInvaderGameObject extends InvaderGameObject {
         this.targetPosition = targetPosition.clone();
       } else {
         this.MoveTo(this.targetPosition, deltaTime);
-        if (this.model.position.distanceTo(this.targetPosition) <= 0.8) {
+        if (this.model.position.distanceTo(this.targetPosition) <= 0.1) {
           this.shooting = true;
         }
       }
     }
     this.LookTo(targetPosition);
 
-
     this.shoots.forEach((shoot) => {
       shoot.AddScalar(deltaTime);
-    })
+    });
 
     if (this.shootTimer <= 0) {
       this.shootTimer = this.timer;
       this._shoot(targetPosition);
     }
     this.shootTimer -= deltaTime;
+  }
+  public Destroy(): void {
+    super.Destroy();
+    this.shoots.forEach((shoot) => {
+      shoot.Destroy();
+    });
   }
 }
 

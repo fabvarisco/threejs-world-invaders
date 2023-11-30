@@ -1,4 +1,3 @@
-
 import {
   BufferGeometry,
   Camera,
@@ -18,12 +17,12 @@ import {
   SphereGeometry,
   Vector3,
   WebGLRenderer,
+  Object3D,
 } from "three";
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 import GameObject from "../assets/gameObjects/GameObject";
-import Prefab from "../assets/prefabs/Prefab";
 import { CreateStars } from "../utils";
-
+import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
 
 class VR {
   private readonly scene: Scene = new Scene();
@@ -38,14 +37,14 @@ class VR {
   private invaders: GameObject[] = [];
   private spawnTime: number = 1;
   private timer: number = 1;
-  private readonly prefabs: Map<string, Prefab>;
+  private readonly prefabs: Map<string, Object3D>;
   private clock: Clock = new Clock();
   private baseReferenceSpace: XRReferenceSpace | null | undefined;
   private gun: GameObject | null = null;
   constructor(
     camera: Camera,
     renderer: WebGLRenderer,
-    prefabs: Map<string, Prefab>
+    prefabs: Map<string, Object3D>
   ) {
     this.camera = camera;
     this.prefabs = prefabs;
@@ -57,7 +56,7 @@ class VR {
     light.position.set(1, 1, 1).normalize();
     this.scene.add(light);
 
-    CreateStars(this.scene)
+    CreateStars(this.scene);
 
     const floorGeometry = new PlaneGeometry(20, 20);
     const floorMaterial = new MeshStandardMaterial({ color: 0x666666 });
@@ -122,6 +121,7 @@ class VR {
 
     function onSelectEnd(this: any): void {
       this.userData.selectPressed = false;
+      this.userData.marker.visible = false;
       if (this.userData.hasGun) return;
 
       if (self.intersection) {
@@ -209,16 +209,11 @@ class VR {
       for (let j = 0; j < this.invaders.length; j++) {
         const sphere = this.projectiles[i];
         const invader = this.invaders[j];
-
         if (invader.IntersectBoxWith(sphere)) {
-          console.log("asasd");
-          debugger;
           sphere.Destroy();
           this.projectiles.splice(i, 1);
-
           invader.Destroy();
           this.invaders.splice(j, 1);
-
           i--;
           j--;
         }
@@ -234,7 +229,7 @@ class VR {
 
   private _createGun() {
     const newGun = new GameObject(
-      this.prefabs.get("gun")?.GetObject()!,
+      this.prefabs.get("gun")!,
       new Vector3(-0.5, 1.5, -1.0),
       0.6,
       this.scene
@@ -275,20 +270,21 @@ class VR {
     position.x = Math.random() * (maxX - minX) + minX;
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
-    const invaderModel: Group = this.prefabs
-      .get("invader")
-      ?.GetObject()!
-      .clone() as Group;
-    const newInvader = new GameObject(invaderModel, position, 0.6, this.scene);
+    const invaderModel: Object3D = this.prefabs.get("invader")!.clone();
+    const newInvader = new InvaderGameObject(
+      invaderModel,
+      position,
+      3,
+      this.scene
+    );
 
     this.invaders.push(newInvader);
     this.scene.add(newInvader.GetModel());
-    newInvader.DebugDrawBox3(this.scene);
   }
 
   private createMarker(geometry: SphereGeometry, material: MeshBasicMaterial) {
     const mesh = new Mesh(geometry, material);
-    mesh.visible = true;
+    mesh.visible = false;
     this.scene.add(mesh);
     return mesh;
   }
@@ -309,6 +305,12 @@ class VR {
       }
       if (controller.userData.selectPressed === true && this.intersection) {
         if (this.intersection.object.name === "floor") {
+          if (this.intersection && !controller.userData.hasGun) {
+            controller.userData.marker.visible =
+              this.intersection !== undefined;
+            console.log(this.intersection);
+            controller.userData.marker.position.copy(this.intersection?.point);
+          }
         }
         if (this.intersection.object.name === "gun") {
           this.gun?.GetModel()!.position.set(0, 0, 0);
@@ -318,11 +320,6 @@ class VR {
           controller.userData.hasGun = true;
           controller.userData.grip = this.gun?.GetModel()!;
         }
-      }
-
-      controller.userData.marker.visible = this.intersection !== undefined;
-      if (this.intersection && !controller.userData.hasGun) {
-        controller.userData.marker.position.copy(this.intersection?.point);
       }
     });
 
@@ -341,7 +338,7 @@ class VR {
     this.renderer.render(this.scene, this.camera);
   }
 
-  public Destroy() { }
+  public Destroy() {}
 }
 
 export default VR;

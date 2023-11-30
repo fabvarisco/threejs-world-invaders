@@ -6,19 +6,20 @@ import {
   Vector3,
   WebGLRenderer,
   Group,
+  Object3D,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import Prefab from "../assets/prefabs/Prefab";
 import { CreateStars } from "../utils";
 import Text from "../assets/Text";
 import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
+import EarthGameObject from "../assets/gameObjects/EarthGameObject";
 class TitleScreen {
   private readonly scene: Scene;
   private readonly camera: PerspectiveCamera;
   private renderer: WebGLRenderer;
   private controls: OrbitControls;
-  private earth: Group;
-  private invader: Group;
+  private earth: EarthGameObject;
+  private invaderModel: Object3D;
   private invaders: InvaderGameObject[] = [];
   private spawnTime: number = 2000;
   private timer: number = 2000;
@@ -28,7 +29,7 @@ class TitleScreen {
   constructor(
     camera: PerspectiveCamera,
     renderer: WebGLRenderer,
-    prefabs: Map<string, Prefab>
+    prefabs: Map<string, Object3D>
   ) {
     this.scene = new Scene();
     CreateStars(this.scene);
@@ -49,11 +50,16 @@ class TitleScreen {
     this.controls.minDistance = 40;
 
     //init prefabs
-    this.earth = prefabs.get("earth")!.GetObject()!;
-    this.earth.scale.set(0.01, 0.01, 0.01);
-    this.invader = prefabs.get("invader")!.GetObject()!;
-    this.invader.scale.set(4, 4, 4);
-    this.scene.add(this.earth);
+    this.earth = new EarthGameObject(
+      prefabs.get("earth")!,
+      new Vector3(0, 0, 0),
+      0,
+      this.scene
+    );
+    this.scene.add(this.earth.GetModel());
+
+    this.invaderModel = prefabs.get("invader")!;
+    this.invaderModel.scale.set(4, 4, 4);
 
     //Text
     this.titleText = new Text(
@@ -84,26 +90,30 @@ class TitleScreen {
     position.x = Math.random() * (maxX - minX) + minX;
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
-    const invaderModel = this.invader.clone();
-    const newInvader = new InvaderGameObject(invaderModel, position, 0.01, this.scene);
+    const invaderModel = this.invaderModel.clone();
+    const newInvader = new InvaderGameObject(
+      invaderModel,
+      position,
+      0.01,
+      this.scene
+    );
     console.log(this.invaders);
     this.invaders.push(newInvader);
     this.scene.add(newInvader.GetModel());
   }
 
-  private updateInvaders(deltaTime: number) {
+  private updateInvaders(_deltaTime: number) {
     this.invaders.forEach((el, index, object) => {
-      el.Update(this.earth.position, deltaTime);
-      el.DestroyOnDistance(this.earth.position, 8.0);
+      el.Update(this.earth.GetModel().position, _deltaTime);
+      el.DestroyOnDistance(this.earth.GetModel().position, 8.0);
       if (el.isRemoved()) {
         object.splice(index, 1);
       }
     });
   }
 
-  private updateEarth(deltaTime: number) {
-    if (!this.earth) return;
-    this.earth.rotation.y += 0.0001 * deltaTime;
+  private updateEarth(_deltaTime: number) {
+    this.earth.Update(_deltaTime);
   }
 
   private _animate(timestamp: number) {

@@ -21,15 +21,16 @@ class InvaderGameObject extends GameObject {
     this.color = 0xffffff;
   }
 
-  public Update(targetPosition: Vector3, deltaTime: number) {
-    this.MoveTo(targetPosition, deltaTime);
-    this.LookTo(targetPosition);
+  public Update(_targetPosition: Vector3, _deltaTime: number) {
+    this.MoveTo(_targetPosition, _deltaTime);
+    this.LookTo(_targetPosition);
   }
 
   public Destroy(): void {
     super.Destroy();
     ExplosionParticles(this.model.position, this.scene, this.color);
   }
+
 }
 
 export default InvaderGameObject;

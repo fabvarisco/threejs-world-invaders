@@ -31,7 +31,7 @@ class GameObject {
     this.scene = scene;
   }
 
-  public MoveTo(targetPosition: Vector3, deltaTime:number): void {
+  public MoveTo(targetPosition: Vector3, deltaTime: number): void {
     const direction = new Vector3();
     direction.subVectors(targetPosition, this.model.position);
     direction.normalize();
@@ -94,9 +94,9 @@ class GameObject {
     }, timer);
   }
 
-  public IntersectBoxWith(other: GameObject): boolean {
-    const otherBox = other.GetBox();
-    const otherModel = other.GetModel();
+  public IntersectBoxWith(_other: GameObject): boolean {
+    const otherBox = _other.GetBox();
+    const otherModel = _other.GetModel();
     this.box3.setFromObject(this.model);
     otherBox.setFromObject(otherModel);
     if (this.box3.intersectsBox(otherBox)) {
@@ -105,10 +105,7 @@ class GameObject {
     return false;
   }
 
-  public DestroyOnDistance(
-    targetDistance: Vector3,
-    distanceToDestroy: number
-  ) {
+  public DestroyOnDistance(targetDistance: Vector3, distanceToDestroy: number) {
     const distance = targetDistance.distanceTo(this.model.position);
     if (distance <= distanceToDestroy) {
       this.Destroy();

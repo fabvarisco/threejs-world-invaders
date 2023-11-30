@@ -3,6 +3,7 @@ import "./style.css";
 import {
   DirectionalLight,
   HemisphereLight,
+  Object3D,
   PerspectiveCamera,
   Scene,
   Vector3,
@@ -11,27 +12,23 @@ import {
 
 import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
 import { IAsset } from "./type";
-import WebWorldPrefab from "./assets/prefabs/WebWorldPrefab";
-import InvaderPrefab from "./assets/prefabs/InvaderPrefab";
-import EarthPrefab from "./assets/prefabs/EarthPrefab";
-import GunPrefab from "./assets/prefabs/GunPrefab";
 import TitleScreen from "./game/TitleScreen";
-import Prefab from "./assets/prefabs/Prefab";
 import AR from "./game/AR";
 import VR from "./game/VR";
 import Web from "./game/Web";
+import { Loader } from "./utils";
 
 class App {
   private readonly camera: PerspectiveCamera;
   private readonly scene: Scene;
   private readonly renderer: WebGLRenderer;
   private readonly assets: IAsset[] = [
-    { key: "worldWeb", prefab: WebWorldPrefab },
-    { key: "invader", prefab: InvaderPrefab },
-    { key: "earth", prefab: EarthPrefab },
-    { key: "gun", prefab: GunPrefab },
+    { fileName: "webWorld.glb" },
+    { fileName: "invader.glb" },
+    { fileName: "gun.glb" },
+    { fileName: "earth.fbx" },
   ];
-  private readonly prefabs: Map<string, Prefab> = new Map();
+  private readonly prefabs: Map<string, Object3D> = new Map();
   private activeGame: Web | AR | VR | TitleScreen | undefined | null = null;
   private startButtonContainer: HTMLElement | null = null;
 
@@ -78,9 +75,9 @@ class App {
 
   private async _init(): Promise<void> {
     console.log("Loading...");
-    for (const { key, prefab } of this.assets) {
-      const instance = new prefab();
-      await instance.Load();
+    for (const { fileName } of this.assets) {
+      const instance = await Loader(fileName);
+      const key = fileName.split(".")[0];
       this.prefabs.set(key, instance);
     }
     console.log("All prefabs were created!");

@@ -1,14 +1,10 @@
 import * as THREE from "three";
-
 import { Octree } from "three/addons/math/Octree.js";
-
 import { Capsule } from "three/addons/math/Capsule.js";
-
-import { Group, Vector3 } from "three";
 import GameObject from "../assets/gameObjects/GameObject";
-import Prefab from "../assets/prefabs/Prefab";
 import { CreateStars } from "../utils";
 import RedInvaderGameObject from "../assets/gameObjects/RedInvaderGameObject";
+import WorldWebGameObject from "../assets/gameObjects/WorldWebGameObject";
 
 class Web {
   private clock: THREE.Clock;
@@ -30,8 +26,8 @@ class Web {
   private playerOnFloor: boolean;
   private mouseTime: number;
   private readonly keyStates: { [key: string]: boolean };
-  private invaderModel: Group = new Group();
-  private worldWeb: Group = new Group();
+  private invaderModel: THREE.Object3D;
+  private worldWeb: WorldWebGameObject;
   private invaders: RedInvaderGameObject[] = [];
   private spawnTime: number = 0.5;
   private timer: number = 0.5;
@@ -39,7 +35,7 @@ class Web {
   constructor(
     camera: THREE.PerspectiveCamera,
     renderer: THREE.WebGLRenderer,
-    prefabs: Map<string, Prefab>
+    prefabs: Map<string, THREE.Object3D>
   ) {
     this.clock = new THREE.Clock();
     this.scene = new THREE.Scene();
@@ -108,12 +104,17 @@ class Web {
     window.addEventListener("resize", this.onWindowResize);
     this.onWindowResize();
 
-    this.invaderModel = prefabs.get("invader")?.GetObject()!;
+    this.invaderModel = prefabs.get("invader")!;
     this.invaderModel.scale.set(1, 1, 1);
-    this.worldWeb = prefabs.get("worldWeb")?.GetObject()!;
+    this.worldWeb = new WorldWebGameObject(
+      prefabs.get("webWorld")!,
+      new THREE.Vector3(0,0,0),
+      0,
+      this.scene
+    );
 
-    this.scene.add(this.worldWeb);
-    this.worldOctree.fromGraphNode(this.worldWeb);
+    this.scene.add(this.worldWeb.GetModel());
+    this.worldOctree.fromGraphNode(this.worldWeb.GetModel());
 
     CreateStars(this.scene);
     this.spawnInvader();
@@ -128,7 +129,7 @@ class Web {
     const minZ = -60;
     const maxZ = 60;
 
-    const position: Vector3 = new Vector3(0, 0, 0);
+    const position: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
     position.x = Math.random() * (maxX - minX) + minX;
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
@@ -178,7 +179,7 @@ class Web {
       15 + 30 * (1 - Math.exp((this.mouseTime - performance.now()) * 0.001));
     sphere.SetPosition(this.playerCollider.end);
     sphere.SetVelocity(
-      new Vector3(0, 0, 0).copy(
+      new THREE.Vector3(0, 0, 0).copy(
         this.camera
           .getWorldDirection(this.playerDirection)
           .clone()
@@ -321,8 +322,8 @@ class Web {
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(() => this.animate());
   }
-  public Render() { }
-  public Destroy() { }
+  public Render() {}
+  public Destroy() {}
 }
 
 export default Web;
