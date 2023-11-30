@@ -7,7 +7,10 @@ import {
   PointsMaterial,
   Scene,
   Vector3,
+  Object3D
 } from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 
 export function CreateStars(scene: Scene) {
   const starsGeometry = new BufferGeometry();
@@ -95,4 +98,36 @@ export function ExplosionParticles(
     cancelAnimationFrame(animationId);
     scene.remove(particles);
   };
+}
+
+export async function Loader(fileName: string) {
+  const gltfLoader: GLTFLoader = new GLTFLoader().setPath("/models/");
+  const fbxLoader: FBXLoader = new FBXLoader().setPath("/models/");
+  let model;
+
+  if (fileName.endsWith(".fbx")) {
+    try {
+      const fbx = await fbxLoader.loadAsync(fileName);
+      model = fbx.clone();
+      console.log(fileName + " loaded!");
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  if (fileName.endsWith(".glb")) {
+    try {
+      const gltf = await gltfLoader.loadAsync(fileName);
+      model = gltf.scene.clone();
+      console.log(fileName + " loaded!");
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+
+
+
+  return model
+
 }

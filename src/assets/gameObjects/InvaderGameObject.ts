@@ -21,12 +21,12 @@ class InvaderGameObject extends GameObject {
     this.color = 0xffffff;
   }
 
-  public Update(targetPosition: Vector3, deltaTime: number) {
-    this.MoveTo(targetPosition, deltaTime);
-    this.LookTo(targetPosition);
+  public override Update(_deltaTime: number,  _targetPosition: Vector3 ): void {
+    this.MoveTo(_targetPosition, _deltaTime);
+    this.LookTo(_targetPosition);
   }
 
-  public Destroy(): void {
+  public override Destroy(): void {
     super.Destroy();
     ExplosionParticles(this.model.position, this.scene, this.color);
   }

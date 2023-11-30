@@ -31,7 +31,9 @@ class GameObject {
     this.scene = scene;
   }
 
-  public MoveTo(targetPosition: Vector3, deltaTime:number): void {
+  public Update(_deltaTime: number) {}
+
+  public MoveTo(targetPosition: Vector3, deltaTime: number): void {
     const direction = new Vector3();
     direction.subVectors(targetPosition, this.model.position);
     direction.normalize();

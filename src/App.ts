@@ -20,18 +20,20 @@ import Prefab from "./assets/prefabs/Prefab";
 import AR from "./game/AR";
 import VR from "./game/VR";
 import Web from "./game/Web";
+import { Loader } from "./utils";
+import { Group } from "three/examples/jsm/libs/tween.module.js";
 
 class App {
   private readonly camera: PerspectiveCamera;
   private readonly scene: Scene;
   private readonly renderer: WebGLRenderer;
   private readonly assets: IAsset[] = [
-    { key: "worldWeb", prefab: WebWorldPrefab },
-    { key: "invader", prefab: InvaderPrefab },
-    { key: "earth", prefab: EarthPrefab },
-    { key: "gun", prefab: GunPrefab },
+    { key: "worldWeb", fileName: "worldWeb.glb" },
+    { key: "invader", fileName: "invader.glb" },
+    { key: "earth", fileName: "earth.fbx" },
+    { key: "gun", fileName: "gun.glb" },
   ];
-  private readonly prefabs: Map<string, Prefab> = new Map();
+  private readonly prefabs: Map<string, Group> = new Map();
   private activeGame: Web | AR | VR | TitleScreen | undefined | null = null;
   private startButtonContainer: HTMLElement | null = null;
 
@@ -72,16 +74,15 @@ class App {
     this.renderer.xr.enabled = true;
     this._createButtons();
     this._removeLoading();
-    this.activeGame = new TitleScreen(this.camera, this.renderer, this.prefabs);
+    this.activeGame = new TitleScreen(this.camera, this.renderer);
     document.getElementById("ARButton");
   }
 
   private async _init(): Promise<void> {
     console.log("Loading...");
-    for (const { key, prefab } of this.assets) {
-      const instance = new prefab();
-      await instance.Load();
-      this.prefabs.set(key, instance);
+    for (const { key, fileName } of this.assets) {
+      const instance = await Loader(fileName);
+      if (instance) { this.prefabs.set(key, instance); }
     }
     console.log("All prefabs were created!");
   }
@@ -162,9 +163,9 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  public AddNewSceneObject(): void {}
+  public AddNewSceneObject(): void { }
 
-  public RemoveSceneObject(): void {}
+  public RemoveSceneObject(): void { }
 }
 
 export default App;

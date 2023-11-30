@@ -5,30 +5,26 @@ import {
   Scene,
   Vector3,
   WebGLRenderer,
-  Group,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import Prefab from "../assets/prefabs/Prefab";
 import { CreateStars } from "../utils";
 import Text from "../assets/Text";
 import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
+import GameObject from "../assets/gameObjects/GameObject";
 class TitleScreen {
   private readonly scene: Scene;
   private readonly camera: PerspectiveCamera;
   private renderer: WebGLRenderer;
   private controls: OrbitControls;
-  private earth: Group;
-  private invader: Group;
   private invaders: InvaderGameObject[] = [];
   private spawnTime: number = 2000;
   private timer: number = 2000;
   private lastFrameTimestamp: number = 0;
   private titleText: Text;
-
+  private earth: GameObject;
   constructor(
     camera: PerspectiveCamera,
     renderer: WebGLRenderer,
-    prefabs: Map<string, Prefab>
   ) {
     this.scene = new Scene();
     CreateStars(this.scene);
@@ -48,12 +44,7 @@ class TitleScreen {
     this.controls.enabled = false;
     this.controls.minDistance = 40;
 
-    //init prefabs
-    this.earth = prefabs.get("earth")!.GetObject()!;
-    this.earth.scale.set(0.01, 0.01, 0.01);
-    this.invader = prefabs.get("invader")!.GetObject()!;
-    this.invader.scale.set(4, 4, 4);
-    this.scene.add(this.earth);
+    this.earth = new EarthGameObject();
 
     //Text
     this.titleText = new Text(
@@ -93,7 +84,7 @@ class TitleScreen {
 
   private updateInvaders(deltaTime: number) {
     this.invaders.forEach((el, index, object) => {
-      el.Update(this.earth.position, deltaTime);
+      el.Update(deltaTime, this.earth.position);
       el.DestroyOnDistance(this.earth.position, 8.0);
       if (el.isRemoved()) {
         object.splice(index, 1);
