@@ -7,12 +7,10 @@ import RedInvaderGameObject from "../assets/gameObjects/RedInvaderGameObject";
 import WorldWebGameObject from "../assets/gameObjects/WorldWebGameObject";
 
 class Web {
-  private clock: THREE.Clock;
   private readonly scene: THREE.Scene;
   private readonly camera: THREE.PerspectiveCamera;
   private readonly fillLight1: THREE.HemisphereLight;
   private readonly directionalLight: THREE.DirectionalLight;
-  private renderer: THREE.WebGLRenderer;
   private readonly GRAVITY: number;
   private readonly SPHERE_RADIUS: number;
   private readonly STEPS_PER_FRAME: number;
@@ -23,9 +21,11 @@ class Web {
   private readonly playerCollider: Capsule;
   private readonly playerVelocity: THREE.Vector3;
   private readonly playerDirection: THREE.Vector3;
+  private readonly keyStates: { [key: string]: boolean };
+  private clock: THREE.Clock;
+  private renderer: THREE.WebGLRenderer;
   private playerOnFloor: boolean;
   private mouseTime: number;
-  private readonly keyStates: { [key: string]: boolean };
   private invaderModel: THREE.Object3D;
   private worldWeb: WorldWebGameObject;
   private invaders: RedInvaderGameObject[] = [];
