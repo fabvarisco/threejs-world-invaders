@@ -5,7 +5,6 @@ import {
   Scene,
   Vector3,
   WebGLRenderer,
-  Group,
   Object3D,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
