@@ -34,7 +34,7 @@ class VR {
   private raycaster: Raycaster = new Raycaster();
   private readonly floor: Mesh;
   private projectiles: GameObject[] = [];
-  private invaders: GameObject[] = [];
+  private invaders: InvaderGameObject[] = [];
   private spawnTime: number = 1;
   private timer: number = 1;
   private readonly prefabs: Map<string, Object3D>;
@@ -209,21 +209,23 @@ class VR {
       for (let j = 0; j < this.invaders.length; j++) {
         const sphere = this.projectiles[i];
         const invader = this.invaders[j];
+
         if (invader.IntersectBoxWith(sphere)) {
           sphere.Destroy();
           this.projectiles.splice(i, 1);
+
           invader.Destroy();
           this.invaders.splice(j, 1);
+
           i--;
           j--;
         }
       }
     }
   }
-  private updateInvaders(deltaTime: number): void {
+  private updateInvaders(_deltaTime: number): void {
     this.invaders.forEach((el) => {
-      el.MoveTo(this.camera.position, deltaTime);
-      el.LookTo(this.camera.position);
+      el.Update(this.camera.position, _deltaTime);
     });
   }
 
