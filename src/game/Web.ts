@@ -32,8 +32,9 @@ class Web {
   private invaders: RedInvaderGameObject[] = [];
   private spawnTime: number = 0.5;
   private timer: number = 0.5;
-  private endGame: boolean = false;
+  private shakeIntensity: number = 1;
   private player: Player = new Player();
+
   constructor(
     camera: THREE.PerspectiveCamera,
     renderer: THREE.WebGLRenderer,
@@ -91,7 +92,7 @@ class Web {
       this.keyStates[event.code] = false;
     });
     document.addEventListener("mousedown", () => {
-      if(this.player.IsEndGame()) return
+      if (this.player.IsEndGame()) return;
       document.body.requestPointerLock();
       this.mouseTime = performance.now();
     });
@@ -214,8 +215,20 @@ class Web {
       if (invader.GetModel().position.distanceTo(this.camera.position) <= 1) {
         this.player.TakeDamage();
         invader.Destroy();
-        ShakeCamera(this.camera);
+        this.shakeIntensity = 1;
       }
+    }
+  }
+
+  private updateCamera(_deltaTime: number): void {
+    if (this.shakeIntensity > 0) {
+      const offsetX = (Math.random() - 0.5) * this.shakeIntensity;
+      const offsetY = (Math.random() - 0.5) * this.shakeIntensity;
+
+      this.camera.position.x += offsetX;
+      this.camera.position.y += offsetY;
+
+      this.shakeIntensity -= _deltaTime;
     }
   }
 
@@ -321,8 +334,8 @@ class Web {
   private animate(): void {
     if (this.player.IsEndGame()) {
       document.exitPointerLock();
-      return
-    };
+      return;
+    }
     const deltaTime =
       Math.min(0.05, this.clock.getDelta()) / this.STEPS_PER_FRAME;
     for (let i = 0; i < this.STEPS_PER_FRAME; i++) {
@@ -330,6 +343,7 @@ class Web {
       this.updatePlayer(deltaTime);
       this.updateSpheres(deltaTime);
       this.updateInvaders(deltaTime);
+      this.updateCamera(deltaTime);
       this.teleportPlayerIfOob();
     }
     if (this.spawnTime <= 0) {
