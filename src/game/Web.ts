@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { Octree } from "three/addons/math/Octree.js";
 import { Capsule } from "three/addons/math/Capsule.js";
 import GameObject from "../assets/gameObjects/GameObject";
-import { CreateStars, ShakeCamera } from "../utils";
+import { CreateStars } from "../utils";
 import RedInvaderGameObject from "../assets/gameObjects/RedInvaderGameObject";
 import WorldWebGameObject from "../assets/gameObjects/WorldWebGameObject";
 import Player from "../assets/Player";
@@ -32,7 +32,7 @@ class Web {
   private invaders: RedInvaderGameObject[] = [];
   private spawnTime: number = 0.5;
   private timer: number = 0.5;
-  private shakeIntensity: number = 1;
+  private shakeIntensity: number = 0;
   private player: Player = new Player();
 
   constructor(

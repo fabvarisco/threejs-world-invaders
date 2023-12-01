@@ -2,8 +2,6 @@ import { GameOverOverlay } from "../utils";
 
 class Player {
   private life = 3;
-  private score = 0;
-  private wave = 1;
   private endGame: boolean = false;
   constructor() {}
 

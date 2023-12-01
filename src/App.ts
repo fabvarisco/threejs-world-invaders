@@ -29,6 +29,7 @@ class App {
     { fileName: "earth.fbx" },
   ];
   private readonly prefabs: Map<string, Object3D> = new Map();
+  //@ts-ignore
   private activeGame: Web | AR | VR | TitleScreen | undefined | null = null;
   private startButtonContainer: HTMLElement | null = null;
 
@@ -60,7 +61,7 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
     this._createLoading();
-
+    this.activeGame = null;
     window.addEventListener("resize", this._resize.bind(this));
   }
 
@@ -134,21 +135,18 @@ class App {
 
   private _onStartAr(): void {
     document.getElementById("title-container")?.remove();
-    this.activeGame?.Destroy();
     this.activeGame = null;
     this.activeGame = new AR(this.camera, this.renderer, this.prefabs);
   }
 
   private _onStartVr(): void {
     document.getElementById("title-container")?.remove();
-    this.activeGame?.Destroy();
     this.activeGame = null;
     this.activeGame = new VR(this.camera, this.renderer, this.prefabs);
   }
 
   private _onStartWeb(): void {
     this._destroyStartButtonsContainer();
-    this.activeGame?.Destroy();
     this.activeGame = null;
     this.activeGame = new Web(this.camera, this.renderer, this.prefabs);
   }
