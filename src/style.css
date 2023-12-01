@@ -39,12 +39,26 @@ h1 {
     cursor: pointer;
     left: calc(50% - 50px);
     width: 100px;
-    opacity: 0.5;
+    opacity: 0.8;
+    z-index: 1005;
 }
-
 
 .button:hover {
     opacity: 1;
+}
+
+.button-game-over {
+    position: absolute;
+    margin: 25px auto 25px;
+    cursor: pointer;
+    width: 100px;
+    opacity: 1;
+    left: 50%;
+    background-color: red;
+}
+
+.button-game-over:hover {
+    opacity: 0.5;
 }
 
 .game-over-overlay {
@@ -69,4 +83,12 @@ h1 {
     position: relative;
     display: flex;
     flex-direction: column;
+}
+
+.game-over {
+    position: absolute;
+    opacity: 0.4;
+    background: black;
+    width: 100vw;
+    height: 100vh;
 }

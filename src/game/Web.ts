@@ -2,9 +2,10 @@ import * as THREE from "three";
 import { Octree } from "three/addons/math/Octree.js";
 import { Capsule } from "three/addons/math/Capsule.js";
 import GameObject from "../assets/gameObjects/GameObject";
-import { CreateStars } from "../utils";
+import { CreateStars, ShakeCamera } from "../utils";
 import RedInvaderGameObject from "../assets/gameObjects/RedInvaderGameObject";
 import WorldWebGameObject from "../assets/gameObjects/WorldWebGameObject";
+import Player from "../assets/Player";
 
 class Web {
   private readonly scene: THREE.Scene;
@@ -31,7 +32,8 @@ class Web {
   private invaders: RedInvaderGameObject[] = [];
   private spawnTime: number = 0.5;
   private timer: number = 0.5;
-
+  private endGame: boolean = false;
+  private player: Player = new Player();
   constructor(
     camera: THREE.PerspectiveCamera,
     renderer: THREE.WebGLRenderer,
@@ -89,6 +91,7 @@ class Web {
       this.keyStates[event.code] = false;
     });
     document.addEventListener("mousedown", () => {
+      if(this.player.IsEndGame()) return
       document.body.requestPointerLock();
       this.mouseTime = performance.now();
     });
@@ -108,7 +111,7 @@ class Web {
     this.invaderModel.scale.set(1, 1, 1);
     this.worldWeb = new WorldWebGameObject(
       prefabs.get("webWorld")!,
-      new THREE.Vector3(0,0,0),
+      new THREE.Vector3(0, 0, 0),
       0,
       this.scene
     );
@@ -204,6 +207,16 @@ class Web {
       }
       this.playerCollider.translate(result.normal.multiplyScalar(result.depth));
     }
+
+    for (let i = 0; i < this.invaders.length; i++) {
+      const invader = this.invaders[i];
+
+      if (invader.GetModel().position.distanceTo(this.camera.position) <= 1) {
+        this.player.TakeDamage();
+        invader.Destroy();
+        ShakeCamera(this.camera);
+      }
+    }
   }
 
   // private spheresCollisions(): void {
@@ -247,6 +260,7 @@ class Web {
     this.playerCollider.translate(deltaPosition);
     this.playerCollisions();
     this.camera.position.copy(this.playerCollider.end);
+    this.player.Update();
   }
 
   private updateSpheres(deltaTime: number): void {
@@ -305,6 +319,10 @@ class Web {
   }
 
   private animate(): void {
+    if (this.player.IsEndGame()) {
+      document.exitPointerLock();
+      return
+    };
     const deltaTime =
       Math.min(0.05, this.clock.getDelta()) / this.STEPS_PER_FRAME;
     for (let i = 0; i < this.STEPS_PER_FRAME; i++) {
@@ -322,8 +340,6 @@ class Web {
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(() => this.animate());
   }
-  public Render() {}
-  public Destroy() {}
 }
 
 export default Web;

@@ -8,6 +8,7 @@ import {
   PointsMaterial,
   Scene,
   Vector3,
+  Camera,
 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
@@ -130,4 +131,51 @@ export async function Loader(fileName: string): Promise<Object3D> {
   }
 
   return model;
+}
+
+export function GameOverOverlay() {
+  const gameOverOverlay = document.createElement("div");
+  const restartButton = document.createElement("button");
+
+  restartButton.className = "button-game-over";
+  
+  restartButton.textContent = "RESTART";
+  restartButton.addEventListener("click", () => {
+    location.reload();
+  });
+
+  gameOverOverlay.className = "game-over";
+
+  gameOverOverlay.appendChild(restartButton);
+  document.body.appendChild(gameOverOverlay);
+}
+
+export function ShakeCamera(camera: Camera) {
+  const intensity = 0.1;
+  const duration = 0.5;
+  const startPosition = camera.position.clone();
+
+  const startTime = Date.now();
+
+  function update() {
+    const elapsed = (Date.now() - startTime) / 1000;
+
+    if (elapsed < duration) {
+      const noiseX = Math.random() * intensity - intensity / 2;
+      const noiseY = Math.random() * intensity - intensity / 2;
+      const noiseZ = Math.random() * intensity - intensity / 2;
+
+      camera.position.set(
+        startPosition.x + noiseX,
+        startPosition.y + noiseY,
+        startPosition.z + noiseZ
+      );
+
+      requestAnimationFrame(update);
+    } else {
+      camera.position.copy(startPosition);
+    }
+  }
+
+  update();
 }
