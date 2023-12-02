@@ -12,7 +12,7 @@ import {
 } from "three";
 
 import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
-import { IAsset, IGameEvents } from "./type";
+import { IAsset } from "./type";
 import TitleScreen from "./game/TitleScreen";
 import AR from "./game/AR";
 import VR from "./game/VR";
@@ -32,9 +32,6 @@ class App {
   private readonly assets: Map<string, Object3D> = new Map();
   private activeGame: Web | AR | VR | TitleScreen | undefined | null = null;
   private startButtonContainer: HTMLElement | null = null;
-  private customEvents: IGameEvents = {
-    shootArray: new EventDispatcher()
-  };
   constructor() {
     //Camera
     this.camera = new PerspectiveCamera(
