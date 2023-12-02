@@ -105,7 +105,7 @@ class TitleScreen {
     this.invaders.forEach((el, index, object) => {
       el.Update(this.earth.GetModel().position, _deltaTime);
       el.DestroyOnDistance(this.earth.GetModel().position, 8.0);
-      if (el.isRemoved()) {
+      if (el.IsRemoved()) {
         object.splice(index, 1);
       }
     });

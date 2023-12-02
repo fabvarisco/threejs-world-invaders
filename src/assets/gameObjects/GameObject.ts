@@ -84,7 +84,7 @@ class GameObject {
     this.removed = true;
   }
 
-  public isRemoved() {
+  public IsRemoved() {
     return this.removed;
   }
 

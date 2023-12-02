@@ -16,6 +16,7 @@
     "vite-plugin-pwa": "^0.16.4"
   },
   "dependencies": {
-    "three": "^0.155.0"
+    "three": "^0.155.0",
+    "three-mesh-ui": "^6.5.4"
   }
 }

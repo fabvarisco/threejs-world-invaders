@@ -23,6 +23,7 @@ import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerM
 import GameObject from "../assets/gameObjects/GameObject";
 import { CreateStars } from "../utils";
 import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
+import { Block, Text, update } from "three-mesh-ui";
 
 class VR {
   private readonly scene: Scene = new Scene();
@@ -70,6 +71,28 @@ class VR {
       "sessionstart",
       this.onSessionStart.bind(this)
     );
+
+
+    // Create VR GUI
+    const container = new Block({
+      width: 1.8,
+      height: 0.5,
+      padding: 0.05,
+      justifyContent: "center",
+      textAlign: "center",
+    });
+
+    //
+    container.position.set(0, 1, -1.8);
+    container.rotation.x = -0.55;
+    const text = new Text({
+      content: "Some text to be displayed"
+    });
+
+    container.add(text);
+
+    // scene is a THREE.Scene (see three.js)
+    this.scene.add(container);
 
     this.buildControllers();
     this._createGun();
@@ -224,7 +247,10 @@ class VR {
     }
   }
   private updateInvaders(_deltaTime: number): void {
-    this.invaders.forEach((el) => {
+    this.invaders.forEach((el, index, object) => {
+      if (el.IsRemoved()) {
+        object.splice(index, 1);
+      }
       el.Update(this.camera.position, _deltaTime);
     });
   }
@@ -258,6 +284,15 @@ class VR {
         }
       });
     });
+  }
+
+  private playerUpdate() {
+    for (let i = 0; i < this.invaders.length; i++) {
+      const invader = this.invaders[i];
+      if (invader.GetModel().position.distanceTo(this.camera.position) <= 1) {
+        invader.Destroy();
+      }
+    }
   }
 
   private spawnInvader(): void {
@@ -330,6 +365,8 @@ class VR {
       this.updateProjectile(deltaTime);
       this.updateInvaders(deltaTime);
       this.updateCollisions();
+      this.playerUpdate();
+      update();
     }
     if (this.spawnTime <= 0) {
       this.spawnTime = this.timer;
@@ -340,7 +377,7 @@ class VR {
     this.renderer.render(this.scene, this.camera);
   }
 
-  public Destroy() {}
+  public Destroy() { }
 }
 
 export default VR;

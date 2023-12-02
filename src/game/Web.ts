@@ -160,7 +160,7 @@ class Web {
 
   private updateInvaders(_deltaTime: number): void {
     this.invaders.forEach((el, index, object) => {
-      if (el.isRemoved()) {
+      if (el.IsRemoved()) {
         object.splice(index, 1);
       }
       el.Update(this.camera.position, _deltaTime);
@@ -290,14 +290,14 @@ class Web {
 
   private updateShoots(_deltaTime: number): void {
     this.playerShoots.forEach((el, index, object) => {
-      if (el.isRemoved()) {
+      if (el.IsRemoved()) {
         object.splice(index, 1);
       }
       el.AddScalar(_deltaTime)
     })
 
     this.invaderShoots.forEach((el, index, object) => {
-      if (el.isRemoved()) {
+      if (el.IsRemoved()) {
         object.splice(index, 1);
       }
       el.AddScalar(_deltaTime)
