@@ -176,7 +176,7 @@ class Web {
   }
 
   private throwBall(): void {
-    const playerShootGeometry = new THREE.IcosahedronGeometry(this.SPHERE_RADIUS, 5);
+    const playerShootGeometry = new THREE.IcosahedronGeometry(0.1, 5);
     const playerShootMaterial = new THREE.MeshLambertMaterial({ color: 0xdede8d });
     const playerShootMesh = new THREE.Mesh(playerShootGeometry, playerShootMaterial);
     playerShootMesh.castShadow = true;
@@ -184,21 +184,14 @@ class Web {
 
     const playerShoot = new GameObject(
       playerShootMesh,
-      this.gunModel.getWorldDirection(this.playerDirection),
+      this.gunModel.localToWorld(new THREE.Vector3(0.15, -0.15, -0.5)),
       30,
       this.scene
     );
 
-    const impulse =
-      15 + 30 * (1 - Math.exp((this.mouseTime - performance.now()) * 0.001));
-    playerShoot.SetPosition(this.playerCollider.end);
+    const impulse = 15 + 30 * (1 - Math.exp((this.mouseTime - performance.now()) * 0.001));
     playerShoot.SetVelocity(
-      new THREE.Vector3(0, 0, 0).copy(
-        this.gunModel
-          .getWorldDirection(this.playerDirection)
-          .clone()
-          .multiplyScalar(impulse * 4)
-      )
+      this.gunModel.localToWorld(new THREE.Vector3(0, 0, -1)).sub(this.camera.position).normalize().multiplyScalar(impulse * 4) // Cálculo da velocidade
     );
 
     this.playerShoots.push(playerShoot);
