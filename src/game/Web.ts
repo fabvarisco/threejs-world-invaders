@@ -15,9 +15,8 @@ class Web {
   private readonly GRAVITY: number;
   private readonly SPHERE_RADIUS: number;
   private readonly STEPS_PER_FRAME: number;
-  private readonly sphereGeometry: THREE.IcosahedronGeometry;
-  private readonly sphereMaterial: THREE.MeshLambertMaterial;
-  private readonly spheres: GameObject[] = [];
+  private readonly playerShoots: GameObject[] = [];
+  private readonly invaderShoots: GameObject[] = [];
   private readonly worldOctree: Octree;
   private readonly playerCollider: Capsule;
   private readonly playerVelocity: THREE.Vector3;
@@ -71,9 +70,7 @@ class Web {
     this.GRAVITY = 30;
     this.SPHERE_RADIUS = 0.2;
     this.STEPS_PER_FRAME = 5;
-    this.sphereGeometry = new THREE.IcosahedronGeometry(this.SPHERE_RADIUS, 5);
-    this.sphereMaterial = new THREE.MeshLambertMaterial({ color: 0xdede8d });
-    this.spheres = [];
+
     this.worldOctree = new Octree();
     this.playerCollider = new Capsule(
       new THREE.Vector3(0, 0.35, 0),
@@ -142,7 +139,8 @@ class Web {
       this.invaderModel.clone(),
       position,
       40,
-      this.scene
+      this.scene,
+      {shootsArray: this.invaderShoots}
     );
     newInvader.DebugDrawBox3(this.scene);
     this.invaders.push(newInvader);
@@ -167,12 +165,14 @@ class Web {
   }
 
   private throwBall(): void {
-    const meshSphere = new THREE.Mesh(this.sphereGeometry, this.sphereMaterial);
-    meshSphere.castShadow = true;
-    meshSphere.receiveShadow = true;
+    const playerShootGeometry = new THREE.IcosahedronGeometry(this.SPHERE_RADIUS, 5);
+    const playerShootMaterial = new THREE.MeshLambertMaterial({ color: 0xdede8d });
+    const playerShootMesh = new THREE.Mesh(playerShootGeometry, playerShootMaterial);
+    playerShootMesh.castShadow = true;
+    playerShootMesh.receiveShadow = true;
 
-    const sphere = new GameObject(
-      meshSphere,
+    const playerShoot = new GameObject(
+      playerShootMesh,
       this.camera.getWorldDirection(this.playerDirection),
       0.1,
       this.scene
@@ -181,8 +181,8 @@ class Web {
     this.camera.getWorldDirection(this.playerDirection);
     const impulse =
       15 + 30 * (1 - Math.exp((this.mouseTime - performance.now()) * 0.001));
-    sphere.SetPosition(this.playerCollider.end);
-    sphere.SetVelocity(
+    playerShoot.SetPosition(this.playerCollider.end);
+    playerShoot.SetVelocity(
       new THREE.Vector3(0, 0, 0).copy(
         this.camera
           .getWorldDirection(this.playerDirection)
@@ -191,8 +191,8 @@ class Web {
       )
     );
 
-    this.spheres.push(sphere);
-    this.scene.add(sphere.GetModel());
+    this.playerShoots.push(playerShoot);
+    this.scene.add(playerShoot.GetModel());
   }
 
   private playerCollisions(): void {
@@ -211,13 +211,24 @@ class Web {
 
     for (let i = 0; i < this.invaders.length; i++) {
       const invader = this.invaders[i];
-
       if (invader.GetModel().position.distanceTo(this.camera.position) <= 1) {
         this.player.TakeDamage();
         invader.Destroy();
         this.shakeIntensity = 1;
       }
     }
+
+    for (let i = 0; i < this.invaderShoots.length; i++) {
+      const shoot = this.invaderShoots[i];
+      if (shoot.GetModel().position.distanceTo(this.camera.position) <= 0.5) {
+        this.player.TakeDamage();
+        this.shakeIntensity = 1;
+        shoot.Destroy();
+        this.invaders.splice(i, 1);
+        i--;
+      }
+    }
+
   }
 
   private updateCamera(_deltaTime: number): void {
@@ -243,14 +254,14 @@ class Web {
   // }
 
   private invadersCollisions(): void {
-    for (let i = 0; i < this.spheres.length; i++) {
+    for (let i = 0; i < this.playerShoots.length; i++) {
       for (let j = 0; j < this.invaders.length; j++) {
-        const sphere = this.spheres[i];
+        const playerShoot = this.playerShoots[i];
         const invader = this.invaders[j];
 
-        if (invader.IntersectBoxWith(sphere)) {
-          sphere.Destroy();
-          this.spheres.splice(i, 1);
+        if (invader.IntersectBoxWith(playerShoot)) {
+          playerShoot.Destroy();
+          this.playerShoots.splice(i, 1);
 
           invader.Destroy();
           this.invaders.splice(j, 1);
@@ -276,11 +287,16 @@ class Web {
     this.player.Update();
   }
 
-  private updateSpheres(deltaTime: number): void {
-    for (const sphere of this.spheres) {
-      sphere.AddScalar(deltaTime);
+  private updateShoots(deltaTime: number): void {
+    for (const playerShoot of this.playerShoots) {
+      playerShoot.AddScalar(deltaTime);
+    }
+    for (const invaderShoot of this.invaderShoots) {
+      invaderShoot.AddScalar(deltaTime);
     }
   }
+
+
   private getForwardVector(): THREE.Vector3 {
     this.camera.getWorldDirection(this.playerDirection);
     this.playerDirection.y = 0;
@@ -341,7 +357,7 @@ class Web {
     for (let i = 0; i < this.STEPS_PER_FRAME; i++) {
       this.controls(deltaTime);
       this.updatePlayer(deltaTime);
-      this.updateSpheres(deltaTime);
+      this.updateShoots(deltaTime);
       this.updateInvaders(deltaTime);
       this.updateCamera(deltaTime);
       this.teleportPlayerIfOob();

@@ -7,10 +7,10 @@ class GreenInvaderGameObject extends InvaderGameObject {
     model: Group | Mesh | Object3D,
     position: Vector3,
     speed: number,
-    scene: Scene
-
+    scene: Scene,
+    args?: any
   ) {
-    super(model, position, speed, scene);
+    super(model, position, speed, scene, args);
     this.color = 0x00ff00;
     this.model.traverse((child) => {
       if (child instanceof Mesh) {

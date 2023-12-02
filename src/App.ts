@@ -2,6 +2,7 @@ import { ARButton } from "three/addons/webxr/ARButton.js";
 import "./style.css";
 import {
   DirectionalLight,
+  EventDispatcher,
   HemisphereLight,
   Object3D,
   PerspectiveCamera,
@@ -11,7 +12,7 @@ import {
 } from "three";
 
 import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
-import { IAsset } from "./type";
+import { IAsset, IGameEvents } from "./type";
 import TitleScreen from "./game/TitleScreen";
 import AR from "./game/AR";
 import VR from "./game/VR";
@@ -22,35 +23,39 @@ class App {
   private readonly camera: PerspectiveCamera;
   private readonly scene: Scene;
   private readonly renderer: WebGLRenderer;
-  private readonly assets: IAsset[] = [
+  private readonly assetList: IAsset[] = [
     { fileName: "webWorld.glb" },
     { fileName: "invader.glb" },
     { fileName: "gun.glb" },
     { fileName: "earth.fbx" },
   ];
-  private readonly prefabs: Map<string, Object3D> = new Map();
-  //@ts-ignore
+  private readonly assets: Map<string, Object3D> = new Map();
   private activeGame: Web | AR | VR | TitleScreen | undefined | null = null;
   private startButtonContainer: HTMLElement | null = null;
-
+  private customEvents: IGameEvents = {
+    shootArray: new EventDispatcher()
+  };
   constructor() {
+    //Camera
     this.camera = new PerspectiveCamera(
       70,
       window.innerWidth / window.innerHeight,
       0.01,
       400
     );
-
     this.camera.position.set(0, 0, 20);
     this.camera.lookAt(new Vector3(0, 0, 0));
-    this.scene = new Scene();
 
+    //Scene
+    this.scene = new Scene();
     this.scene.add(new HemisphereLight(0x606060, 0x404040));
 
+    //light
     const light = new DirectionalLight(0xffffff);
     light.position.set(1, 1, 1).normalize();
     this.scene.add(light);
 
+    //renderer
     this.renderer = new WebGLRenderer({
       canvas: document.getElementById("app") as HTMLCanvasElement,
       antialias: true,
@@ -60,8 +65,11 @@ class App {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
+    //game
     this._createLoading();
     this.activeGame = null;
+
+    // resize
     window.addEventListener("resize", this._resize.bind(this));
   }
 
@@ -70,16 +78,16 @@ class App {
     this.renderer.xr.enabled = true;
     this._createButtons();
     this._removeLoading();
-    this.activeGame = new TitleScreen(this.camera, this.renderer, this.prefabs);
+    this.activeGame = new TitleScreen(this.camera, this.renderer, this.assets);
     document.getElementById("ARButton");
   }
 
   private async _init(): Promise<void> {
     console.log("Loading...");
-    for (const { fileName } of this.assets) {
+    for (const { fileName } of this.assetList) {
       const instance = await Loader(fileName);
       const key = fileName.split(".")[0];
-      this.prefabs.set(key, instance);
+      this.assets.set(key, instance);
     }
     console.log("All prefabs were created!");
   }
@@ -136,19 +144,20 @@ class App {
   private _onStartAr(): void {
     document.getElementById("title-container")?.remove();
     this.activeGame = null;
-    this.activeGame = new AR(this.camera, this.renderer, this.prefabs);
+    this.activeGame = new AR(this.camera, this.renderer, this.assets);
   }
 
   private _onStartVr(): void {
     document.getElementById("title-container")?.remove();
     this.activeGame = null;
-    this.activeGame = new VR(this.camera, this.renderer, this.prefabs);
+    this.activeGame = new VR(this.camera, this.renderer, this.assets);
   }
 
   private _onStartWeb(): void {
+    document.getElementById("title-container")?.remove();
     this._destroyStartButtonsContainer();
     this.activeGame = null;
-    this.activeGame = new Web(this.camera, this.renderer, this.prefabs);
+    this.activeGame = new Web(this.camera, this.renderer, this.assets);
   }
 
   private _resize(): void {
@@ -157,9 +166,6 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  public AddNewSceneObject(): void {}
-
-  public RemoveSceneObject(): void {}
 }
 
 export default App;

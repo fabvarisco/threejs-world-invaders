@@ -15,14 +15,14 @@ class RedInvaderGameObject extends InvaderGameObject {
   private shooting = false;
   private shootTimer: number = 3;
   private timer: number = 3;
-  private shoots: GameObject[] = [];
   constructor(
     model: Group | Mesh | Object3D,
     position: Vector3,
     speed: number,
-    scene: Scene
+    scene: Scene,
+    args?: any
   ) {
-    super(model, position, speed, scene);
+    super(model, position, speed, scene, args);
     this.color = 0xff0000;
     this.model.traverse((child) => {
       if (child instanceof Mesh) {
@@ -32,13 +32,14 @@ class RedInvaderGameObject extends InvaderGameObject {
   }
 
   private _shoot(targetPosition: Vector3) {
+    console.log(this.args)
     const sphereGeometry = new IcosahedronGeometry(0.2, 5);
     const sphereMaterial = new MeshLambertMaterial({ color: 0xff0000 });
     const meshSphere = new Mesh(sphereGeometry, sphereMaterial);
     meshSphere.castShadow = true;
     meshSphere.receiveShadow = true;
 
-    const sphere = new GameObject(
+    const shoot = new GameObject(
       meshSphere,
       this.model.position,
       0.1,
@@ -50,10 +51,10 @@ class RedInvaderGameObject extends InvaderGameObject {
       .sub(this.model.position)
       .normalize();
 
-    sphere.SetVelocity(direction.multiplyScalar(5));
+    shoot.SetVelocity(direction.multiplyScalar(5));
 
-    this.shoots.push(sphere);
-    this.scene.add(sphere.GetModel());
+    //this.args!.shootsArray!.push(shoot);
+    this.scene.add(shoot.GetModel());
   }
 
   public Update(targetPosition: Vector3, deltaTime: number): void {
@@ -69,22 +70,13 @@ class RedInvaderGameObject extends InvaderGameObject {
     }
     this.LookTo(targetPosition);
 
-    this.shoots.forEach((shoot) => {
-      shoot.AddScalar(deltaTime);
-    });
-
     if (this.shootTimer <= 0) {
       this.shootTimer = this.timer;
       this._shoot(targetPosition);
     }
     this.shootTimer -= deltaTime;
   }
-  public Destroy(): void {
-    super.Destroy();
-    this.shoots.forEach((shoot) => {
-      shoot.Destroy();
-    });
-  }
+
 }
 
 export default RedInvaderGameObject;

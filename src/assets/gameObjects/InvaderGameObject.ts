@@ -11,14 +11,17 @@ import { ExplosionParticles } from "../../utils";
 
 class InvaderGameObject extends GameObject {
   protected color: ColorRepresentation;
+  protected args: ColorRepresentation;
   constructor(
     model: Group | Mesh | Object3D,
     position: Vector3,
     speed: number,
-    scene: Scene
+    scene: Scene,
+    args?: any
   ) {
     super(model, position, speed, scene);
     this.color = 0xffffff;
+    this.args = args;
   }
 
   public Update(_targetPosition: Vector3, _deltaTime: number) {
