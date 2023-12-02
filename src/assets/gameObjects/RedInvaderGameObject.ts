@@ -53,7 +53,8 @@ class RedInvaderGameObject extends InvaderGameObject {
 
     shoot.SetVelocity(direction.multiplyScalar(5));
 
-    //this.args!.shootsArray!.push(shoot);
+    //@ts-ignore
+    this.args!.shootsArray!.push(shoot);
     this.scene.add(shoot.GetModel());
   }
 

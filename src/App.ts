@@ -139,18 +139,21 @@ class App {
   }
 
   private _onStartAr(): void {
+    this.activeGame?.Destroy();
     document.getElementById("title-container")?.remove();
     this.activeGame = null;
     this.activeGame = new AR(this.camera, this.renderer, this.assets);
   }
 
   private _onStartVr(): void {
+    this.activeGame?.Destroy();
     document.getElementById("title-container")?.remove();
     this.activeGame = null;
     this.activeGame = new VR(this.camera, this.renderer, this.assets);
   }
 
   private _onStartWeb(): void {
+    this.activeGame?.Destroy();
     document.getElementById("title-container")?.remove();
     this._destroyStartButtonsContainer();
     this.activeGame = null;
