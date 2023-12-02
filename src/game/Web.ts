@@ -119,6 +119,9 @@ class Web {
 
     CreateStars(this.scene);
 
+    const crosshair = document.createElement("div");
+    crosshair.id = "crosshair"
+    document.body.appendChild(crosshair);
 
     const gun = assets.get("gun")!.clone();
     gun.position.set(0, -0.15, -0.5);
