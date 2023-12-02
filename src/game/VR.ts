@@ -315,7 +315,7 @@ class VR {
           }
         }
         if (this.intersection.object.name === "gun") {
-          this.gun?.GetModel()!.position.set(0, 0, 0);
+          this.gun?.GetModel()!.position.set(-0.15, 0, -0.2);
           this.gun?.GetModel()!.quaternion.identity();
           this.gun?.GetModel()!.rotateY(Math.PI);
           controller.add(this.gun?.GetModel()!);
