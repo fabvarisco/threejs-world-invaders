@@ -15,6 +15,7 @@ import {
 import GameObject from "../assets/gameObjects/GameObject";
 import Overlay from "../assets/Overlay";
 import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
+import { Block, Text, update } from "three-mesh-ui";
 
 class AR {
   private readonly camera: Camera;
@@ -48,6 +49,27 @@ class AR {
 
     this._buildControllers();
     this.overlay.update();
+
+    // Create VR GUI
+    const container = new Block({
+      width: 1.8,
+      height: 0.5,
+      padding: 0.05,
+      justifyContent: "center",
+      textAlign: "center",
+    });
+
+    //
+    container.position.set(0, 0, -1.8);
+    container.rotation.x = -0.55;
+    const text = new Text({
+      content: "Some text to be displayed"
+    });
+
+    container.add(text);
+
+    this.scene.add(container);
+
     this.renderer.setAnimationLoop(this._animate.bind(this));
   }
 
@@ -87,6 +109,15 @@ class AR {
       }
     }
     this._invadersCollisions();
+  }
+
+  private _playerUpdate() {
+    for (let i = 0; i < this.invaders.length; i++) {
+      const invader = this.invaders[i];
+      if (invader.GetModel().position.distanceTo(this.camera.position) <= 1) {
+        invader.Destroy();
+      }
+    }
   }
 
   private _invadersCollisions(): void {
@@ -146,7 +177,10 @@ class AR {
   }
 
   private _updateInvaders(_deltaTime: number) {
-    this.invaders.forEach((el) => {
+    this.invaders.forEach((el, index, object) => {
+      if (el.IsRemoved()) {
+        object.splice(index, 1);
+      }
       el.Update(this.camera.position, _deltaTime);
     });
   }
@@ -162,6 +196,8 @@ class AR {
     for (let i = 0; i < this.stepsPerFrame; i++) {
       this._updateInvaders(deltaTime);
       this._updateSpheres(deltaTime);
+      this._playerUpdate();
+      update();
     }
 
     if (!this.xrSession) {
@@ -186,7 +222,7 @@ class AR {
     this.renderer.render(this.scene, this.camera);
   }
 
-  public Destroy() {}
+  public Destroy() { }
 }
 
 export default AR;
