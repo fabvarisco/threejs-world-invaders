@@ -13,7 +13,6 @@ import {
   Object3D,
 } from "three";
 import GameObject from "../assets/gameObjects/GameObject";
-import Overlay from "../assets/Overlay";
 import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
 import { Block, Text, update } from "three-mesh-ui";
 
@@ -30,7 +29,6 @@ class AR {
   private xrSession: XRSession | null = null;
   private stepsPerFrame: number = 5;
   private prefabs: Map<string, Object3D>;
-  private overlay: Overlay = new Overlay();
   private textContainer: Block;
   constructor(
     camera: Camera,
@@ -49,8 +47,6 @@ class AR {
     this.scene.add(light);
 
     this._buildControllers();
-    this.overlay.update();
-
     // Create VR GUI
     this.textContainer = new Block({
       width: 0.3,

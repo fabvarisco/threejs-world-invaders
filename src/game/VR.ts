@@ -18,6 +18,7 @@ import {
   Vector3,
   WebGLRenderer,
   Object3D,
+  Color,
 } from "three";
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 import GameObject from "../assets/gameObjects/GameObject";
@@ -42,6 +43,7 @@ class VR {
   private clock: Clock = new Clock();
   private baseReferenceSpace: XRReferenceSpace | null | undefined;
   private gun: GameObject | null = null;
+  private restartButton: Block;
   constructor(
     camera: Camera,
     renderer: WebGLRenderer,
@@ -72,7 +74,6 @@ class VR {
       this.onSessionStart.bind(this)
     );
 
-
     // Create VR GUI
     const container = new Block({
       width: 1.8,
@@ -80,16 +81,49 @@ class VR {
       padding: 0.05,
       justifyContent: "center",
       textAlign: "center",
+      fontFamily: "./fonts/Roboto-msdf.json",
+      fontTexture: "./fonts/Roboto-msdf.png",
     });
 
-    //
     container.position.set(0, 1, -1.8);
     container.rotation.x = -0.55;
     const text = new Text({
-      content: "Some text to be displayed"
+      content: "Grab the gun and survive!",
     });
 
     container.add(text);
+
+    //Restart button
+    const buttonOptions = {
+      width: 0.4,
+      height: 0.15,
+      justifyContent: "center",
+      offset: 0.05,
+      margin: 0.02,
+      borderRadius: 0.075,
+    };
+
+    const hoveredStateAttributes = {
+      state: "hovered",
+      attributes: {
+        offset: 0.035,
+        backgroundColor: new Color(0x999999),
+        backgroundOpacity: 1,
+        fontColor: new Color(0xffffff),
+      },
+    };
+
+    const idleStateAttributes = {
+      state: "idle",
+      attributes: {
+        offset: 0.035,
+        backgroundColor: new Color(0x666666),
+        backgroundOpacity: 0.3,
+        fontColor: new Color(0xffffff),
+      },
+    };
+
+    this.restartButton = new Block(buttonOptions);
 
     // scene is a THREE.Scene (see three.js)
     this.scene.add(container);
@@ -377,7 +411,7 @@ class VR {
     this.renderer.render(this.scene, this.camera);
   }
 
-  public Destroy() { }
+  public Destroy() {}
 }
 
 export default VR;
