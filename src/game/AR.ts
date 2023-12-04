@@ -201,18 +201,17 @@ class AR {
       this._playerUpdate();
 
 
-      // Atualiza a posição do textContainer para ficar no canto esquerdo da tela
-      const distance = 1; // Distância da câmera
-      const angle = -Math.PI / 4; // Ângulo para o canto esquerdo (45 graus)
-
+      const distance = 1; 
+      const angle = -Math.PI / 4; 
       const cameraDirection = new Vector3();
-      this.camera.getWorldDirection(cameraDirection); // Obtém a direção da câmera
-      const targetPosition = new Vector3().copy(this.camera.position).add(cameraDirection.multiplyScalar(distance)); // Calcula a posição alvo baseada na direção da câmera e na distância
+      this.camera.getWorldDirection(cameraDirection); 
+      const targetPosition = new Vector3().copy(this.camera.position).add(cameraDirection.multiplyScalar(distance)); 
+      targetPosition.x -= .2
+      targetPosition.y -= .4
 
-      // Atualiza a posição do textContainer
-      this.textContainer.position.set(targetPosition.x - 0.3, targetPosition.y - .8, targetPosition.z);
 
-      // Atualiza a rotação do textContainer para seguir a rotação da câmera
+      this.textContainer.position.copy(targetPosition);
+
       this.textContainer.rotation.setFromRotationMatrix(this.camera.matrix);
 
       update();
