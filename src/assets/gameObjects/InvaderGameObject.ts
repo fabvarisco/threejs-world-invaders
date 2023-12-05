@@ -22,11 +22,16 @@ class InvaderGameObject extends GameObject {
     super(model, position, speed, scene);
     this.color = 0xffffff;
     this.args = args;
+    this.model.traverse((child) => {
+      if (child instanceof Mesh) {
+        child.material.color.set(this.color);
+      }
+    });
   }
 
-  public Update(_targetPosition: Vector3, _deltaTime: number) {
-    this.MoveTo(_targetPosition, _deltaTime);
-    this.LookTo(_targetPosition);
+  public Update(_target: Vector3, _deltaTime: number) {
+    this.MoveTo(_target, _deltaTime);
+    this.LookTo(_target);
   }
 
   public Destroy(): void {
@@ -45,7 +50,6 @@ class InvaderGameObject extends GameObject {
 
     return collidedObjects;
   }
-
 }
 
 export default InvaderGameObject;

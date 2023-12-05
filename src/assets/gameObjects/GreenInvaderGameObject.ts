@@ -19,15 +19,17 @@ class GreenInvaderGameObject extends InvaderGameObject {
     });
   }
 
-  public Update(targetPosition: Vector3, deltaTime: number): void {
+  public Update(_target: Vector3, _deltaTime: number): void {
     if (this.targetPosition === null) {
-      this.targetPosition = targetPosition.clone();
+      this.Destroy();
     } else {
-      this.MoveTo(this.targetPosition, deltaTime);
+      this.MoveTo(this.targetPosition, _deltaTime);
       this.LookTo(this.targetPosition);
-      //this.DestroyOnDistance(this.targetPosition, 0.8)
     }
+  }
 
+  public SetTargetPosition(_targetPosition: Vector3):void {
+      this.targetPosition = _targetPosition;
   }
 }
 

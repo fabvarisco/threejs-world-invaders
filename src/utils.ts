@@ -11,6 +11,10 @@ import {
 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
+import InvaderGameObject from "./assets/gameObjects/InvaderGameObject";
+import RedInvaderGameObject from "./assets/gameObjects/RedInvaderGameObject";
+import GreenInvaderGameObject from "./assets/gameObjects/GreenInvaderGameObject";
+import GameObject from "./assets/gameObjects/GameObject";
 
 export function CreateStars(scene: Scene) {
   const starsGeometry = new BufferGeometry();
@@ -137,7 +141,7 @@ export function GameOverOverlay() {
   const restartButton = document.createElement("button");
 
   restartButton.className = "button-game-over";
-  
+
   restartButton.textContent = "RESTART";
   restartButton.addEventListener("click", () => {
     location.reload();
@@ -149,3 +153,61 @@ export function GameOverOverlay() {
   document.body.appendChild(gameOverOverlay);
 }
 
+export function GetRandomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export function SpawnInvaders(
+  scene: Scene,
+  invaders: InvaderGameObject[],
+  assets: Map<string, Object3D>,
+  shootsArray: GameObject[],
+  greenTargetPosition: Vector3
+): void {
+  const invader = new InvaderGameObject(
+    assets.get("invader")!.clone(),
+    GenerateRandomPosition(),
+    10,
+    scene
+  );
+
+  const greenInvader = new GreenInvaderGameObject(
+    assets.get("invader")!.clone(),
+    GenerateRandomPosition(),
+    25,
+    scene
+  );
+  greenInvader.SetTargetPosition(greenTargetPosition);
+
+  const redInvader = new RedInvaderGameObject(
+    assets.get("invader")!.clone(),
+    GenerateRandomPosition(),
+    40,
+    scene,
+    { shootsArray }
+  );
+
+  invaders.push(invader);
+  invaders.push(greenInvader);
+  invaders.push(redInvader);
+
+  scene.add(invader.GetModel());
+  scene.add(greenInvader.GetModel());
+  scene.add(redInvader.GetModel());
+}
+
+function GenerateRandomPosition(): Vector3 {
+  const minX = -60;
+  const maxX = 100;
+  const minY = 100;
+  const maxY = 120;
+  const minZ = -60;
+  const maxZ = 100;
+
+  const position: Vector3 = new Vector3(0, 0, 0);
+  position.x = Math.random() * (maxX - minX) + minX;
+  position.y = Math.random() * (maxY - minY) + minY;
+  position.z = Math.random() * (maxZ - minZ) + minZ;
+
+  return position;
+}

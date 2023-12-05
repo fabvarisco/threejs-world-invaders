@@ -25,6 +25,7 @@ import GameObject from "../assets/gameObjects/GameObject";
 import { CreateStars } from "../utils";
 import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
 import { Block, Text, update } from "three-mesh-ui";
+import GreenInvaderGameObject from "../assets/gameObjects/GreenInvaderGameObject";
 
 class VR {
   private readonly scene: Scene = new Scene();
@@ -37,6 +38,7 @@ class VR {
   private readonly floor: Mesh;
   private projectiles: GameObject[] = [];
   private invaders: InvaderGameObject[] = [];
+  private greenInvaders: GreenInvaderGameObject[] = [];
   private spawnTime: number = 1;
   private timer: number = 1;
   private readonly prefabs: Map<string, Object3D>;
@@ -248,7 +250,6 @@ class VR {
       projectile.SetVelocity(projectileVelocity);
 
       this.scene.add(projectile.GetModel());
-      projectile.DebugDrawBox3(this.scene);
 
       this.projectiles.push(projectile);
     }

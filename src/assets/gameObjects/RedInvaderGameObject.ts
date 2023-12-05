@@ -57,24 +57,26 @@ class RedInvaderGameObject extends InvaderGameObject {
     this.scene.add(shoot.GetModel());
   }
 
-  public Update(targetPosition: Vector3, deltaTime: number): void {
+  public Update(_target: Vector3,_deltaTime: number): void {
     if (!this.shooting) {
       if (this.targetPosition === null) {
-        this.targetPosition = targetPosition.clone();
+        this.targetPosition = _target.clone();
       } else {
-        this.MoveTo(this.targetPosition, deltaTime);
-        if (this.model.position.distanceTo(this.targetPosition) <= 0.1) {
+        this.MoveTo(this.targetPosition, _deltaTime);
+        if (this.model.position.distanceTo(this.targetPosition) <= 2) {
           this.shooting = true;
         }
       }
+    }else{
+      if (this.shootTimer <= 0) {
+        this.shootTimer = this.timer;
+        this._shoot(_target);
+      }
+      this.shootTimer -= _deltaTime;
     }
-    this.LookTo(targetPosition);
+    this.LookTo(_target);
 
-    if (this.shootTimer <= 0) {
-      this.shootTimer = this.timer;
-      this._shoot(targetPosition);
-    }
-    this.shootTimer -= deltaTime;
+
   }
 
 }

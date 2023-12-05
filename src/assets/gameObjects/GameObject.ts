@@ -75,8 +75,8 @@ class GameObject {
     return this.box3;
   }
 
-  public DebugDrawBox3(scene: Scene): void {
-    scene.add(this.box3Helper);
+  public DebugDrawBox3(): void {
+    this.scene.add(this.box3Helper);
   }
 
   public Destroy() {

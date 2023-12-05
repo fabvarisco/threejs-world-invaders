@@ -23,8 +23,8 @@ class AR {
   private invaders: InvaderGameObject[] = [];
   private spheres: GameObject[] = [];
   private scene: Scene = new Scene();
-  private spawnTime: number = 1;
-  private timer: number = 1;
+  private spawnTime: number = 1000;
+  private timer: number = 1000;
   private controllers: Group[] = [];
   private xrSession: XRSession | null = null;
   private stepsPerFrame: number = 5;

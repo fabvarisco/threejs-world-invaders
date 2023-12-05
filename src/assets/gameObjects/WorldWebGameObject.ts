@@ -8,10 +8,12 @@ import {
   Box3,
 } from "three";
 import GameObject from "./GameObject";
+import { Octree } from "three/examples/jsm/math/Octree.js";
+import { GetRandomInt } from "../../utils";
 
 class WorldWebGameObject extends GameObject {
-  public worldMeshes: Mesh[] = [];
-
+  private worldMeshes: Mesh[] = [];
+  private octree: Octree = new Octree();
   constructor(
     model: Group | Mesh | Object3D,
     position: Vector3,
@@ -30,6 +32,8 @@ class WorldWebGameObject extends GameObject {
         this.worldMeshes.push(child);
       }
     });
+    this.octree.fromGraphNode(this.model);
+
   }
 
   public DetectCollisionWithWorldObjects(invaderBox: Box3): Mesh[] {
@@ -44,6 +48,25 @@ class WorldWebGameObject extends GameObject {
     }
 
     return collidedObjects;
+  }
+
+  public ResetOctree() {
+    this.octree.triangles = [];
+    this.octree.subTrees = [];
+    this.octree.fromGraphNode(this.model);
+  }
+
+  public GetMeshes() {
+    return this.worldMeshes;
+  }
+
+  public GetRandomMesh(): Vector3 {
+    const randomInt = GetRandomInt(0, this.worldMeshes.length - 1);
+    return this.worldMeshes[randomInt].position;
+  }
+
+  public GetOctree(){
+    return this.octree;
   }
 }
 
