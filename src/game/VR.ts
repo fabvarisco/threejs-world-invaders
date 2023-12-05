@@ -126,8 +126,6 @@ class VR {
     };
 
     this.restartButton = new Block(buttonOptions);
-
-    // scene is a THREE.Scene (see three.js)
     this.scene.add(container);
 
     this.buildControllers();

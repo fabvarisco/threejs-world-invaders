@@ -1,4 +1,11 @@
-import { Vector3, Group, Mesh, Object3D, Scene } from "three";
+import {
+  Vector3,
+  Group,
+  Mesh,
+  Object3D,
+  Scene,
+  ColorRepresentation,
+} from "three";
 import InvaderGameObject from "./InvaderGameObject";
 
 class GreenInvaderGameObject extends InvaderGameObject {
@@ -15,6 +22,7 @@ class GreenInvaderGameObject extends InvaderGameObject {
     this.model.traverse((child) => {
       if (child instanceof Mesh) {
         child.material.color.set(this.color);
+        console.log(this.color);
       }
     });
   }
@@ -28,8 +36,8 @@ class GreenInvaderGameObject extends InvaderGameObject {
     }
   }
 
-  public SetTargetPosition(_targetPosition: Vector3):void {
-      this.targetPosition = _targetPosition;
+  public SetTargetPosition(_targetPosition: Vector3): void {
+    this.targetPosition = _targetPosition;
   }
 }
 

@@ -224,7 +224,6 @@ class Web {
   }
 
   private invaderWorldCollisions(): void {
-    console.log(this.invaders.filter(invader => invader.constructor == GreenInvaderGameObject))
     this.invaders.filter(invader => invader.constructor == GreenInvaderGameObject).forEach((invader) => {
       this.worldWeb.GetMeshes().forEach((el, index, object) => {
         const elBox = new THREE.Box3().setFromObject(el);

@@ -10,8 +10,8 @@ import GameObject from "./GameObject";
 import { ExplosionParticles } from "../../utils";
 
 class InvaderGameObject extends GameObject {
-  protected color: ColorRepresentation;
-  protected args: ColorRepresentation;
+  protected args: any;
+  protected color: ColorRepresentation = 0xffffff;
   constructor(
     model: Group | Mesh | Object3D,
     position: Vector3,
@@ -20,14 +20,16 @@ class InvaderGameObject extends GameObject {
     args?: any
   ) {
     super(model, position, speed, scene);
-    this.color = 0xffffff;
     this.args = args;
+
     this.model.traverse((child) => {
       if (child instanceof Mesh) {
         child.material.color.set(this.color);
+        console.log(this.color);
       }
     });
   }
+
 
   public Update(_target: Vector3, _deltaTime: number) {
     this.MoveTo(_target, _deltaTime);
@@ -39,7 +41,7 @@ class InvaderGameObject extends GameObject {
     ExplosionParticles(this.model.position, this.scene, this.color);
   }
 
-  public DetectCollisionWithCityObjects(cityObjects: Mesh[]) {
+  public DetectCollisionWithCityObjects(cityObjects: Mesh[]): any[] {
     const collidedObjects = [];
 
     for (const cityObject of cityObjects) {

@@ -6,6 +6,7 @@ import {
   Scene,
   IcosahedronGeometry,
   MeshLambertMaterial,
+  ColorRepresentation,
 } from "three";
 import InvaderGameObject from "./InvaderGameObject";
 import GameObject from "./GameObject";
@@ -27,13 +28,14 @@ class RedInvaderGameObject extends InvaderGameObject {
     this.model.traverse((child) => {
       if (child instanceof Mesh) {
         child.material.color.set(this.color);
+        console.log(this.color);
       }
     });
   }
 
   private _shoot(targetPosition: Vector3) {
     const sphereGeometry = new IcosahedronGeometry(0.2, 5);
-    const sphereMaterial = new MeshLambertMaterial({ color: 0xff0000 });
+    const sphereMaterial = new MeshLambertMaterial({ color: this.color });
     const meshSphere = new Mesh(sphereGeometry, sphereMaterial);
     meshSphere.castShadow = true;
     meshSphere.receiveShadow = true;
@@ -52,12 +54,11 @@ class RedInvaderGameObject extends InvaderGameObject {
 
     shoot.SetVelocity(direction.multiplyScalar(5));
 
-    //@ts-ignore
-    this.args!.shootsArray!.push(shoot);
+    this.args.shootsArray.push(shoot);
     this.scene.add(shoot.GetModel());
   }
 
-  public Update(_target: Vector3,_deltaTime: number): void {
+  public Update(_target: Vector3, _deltaTime: number): void {
     if (!this.shooting) {
       if (this.targetPosition === null) {
         this.targetPosition = _target.clone();
@@ -67,7 +68,7 @@ class RedInvaderGameObject extends InvaderGameObject {
           this.shooting = true;
         }
       }
-    }else{
+    } else {
       if (this.shootTimer <= 0) {
         this.shootTimer = this.timer;
         this._shoot(_target);
@@ -75,10 +76,7 @@ class RedInvaderGameObject extends InvaderGameObject {
       this.shootTimer -= _deltaTime;
     }
     this.LookTo(_target);
-
-
   }
-
 }
 
 export default RedInvaderGameObject;
