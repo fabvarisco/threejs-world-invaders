@@ -28,6 +28,8 @@ class App {
     { fileName: "invader.glb" },
     { fileName: "gun.glb" },
     { fileName: "earth.fbx" },
+    { fileName: "city.glb" },
+
   ];
   private readonly assets: Map<string, Object3D> = new Map();
   private activeGame: Web | AR | VR | TitleScreen | undefined | null = null;

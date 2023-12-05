@@ -25,7 +25,7 @@ class GreenInvaderGameObject extends InvaderGameObject {
     } else {
       this.MoveTo(this.targetPosition, deltaTime);
       this.LookTo(this.targetPosition);
-      this.DestroyOnDistance(this.targetPosition, 0.8)
+      //this.DestroyOnDistance(this.targetPosition, 0.8)
     }
 
   }

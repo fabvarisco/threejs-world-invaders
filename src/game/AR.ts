@@ -171,7 +171,6 @@ class AR {
     newInvader.GetModel().scale.set(1, 1, 1);
     this.invaders.push(newInvader);
     this.scene.add(newInvader.GetModel());
-    console.log("asddasasd");
   }
 
   private _updateInvaders(_deltaTime: number) {

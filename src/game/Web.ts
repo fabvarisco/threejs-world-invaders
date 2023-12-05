@@ -1,11 +1,14 @@
 import * as THREE from "three";
-import { Octree } from "three/addons/math/Octree.js";
 import { Capsule } from "three/addons/math/Capsule.js";
 import GameObject from "../assets/gameObjects/GameObject";
 import { CreateStars } from "../utils";
 import RedInvaderGameObject from "../assets/gameObjects/RedInvaderGameObject";
 import WorldWebGameObject from "../assets/gameObjects/WorldWebGameObject";
 import Player from "../assets/Player";
+import GreenInvaderGameObject from "../assets/gameObjects/GreenInvaderGameObject";
+import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
+import { OctreeHelper } from "three/addons/helpers/OctreeHelper.js";
+import { Octree } from "three/examples/jsm/math/Octree.js";
 
 class Web {
   private readonly scene: THREE.Scene;
@@ -17,18 +20,18 @@ class Web {
   private readonly STEPS_PER_FRAME: number;
   private readonly playerShoots: GameObject[] = [];
   private readonly invaderShoots: GameObject[] = [];
-  private readonly worldOctree: Octree;
   private readonly playerCollider: Capsule;
   private readonly playerVelocity: THREE.Vector3;
   private readonly playerDirection: THREE.Vector3;
   private readonly keyStates: { [key: string]: boolean };
+  private worldOctree: Octree;
   private clock: THREE.Clock;
   private renderer: THREE.WebGLRenderer;
   private playerOnFloor: boolean;
   private mouseTime: number;
   private invaderModel: THREE.Object3D;
   private worldWeb: WorldWebGameObject;
-  private invaders: RedInvaderGameObject[] = [];
+  private invaders: InvaderGameObject[] = [];
   private spawnTime: number = 0.5;
   private timer: number = 0.5;
   private shakeIntensity: number = 0;
@@ -108,7 +111,7 @@ class Web {
     this.invaderModel = assets.get("invader")!;
     this.invaderModel.scale.set(1, 1, 1);
     this.worldWeb = new WorldWebGameObject(
-      assets.get("webWorld")!,
+      assets.get("city")!,
       new THREE.Vector3(0, 0, 0),
       0,
       this.scene
@@ -116,6 +119,7 @@ class Web {
 
     this.scene.add(this.worldWeb.GetModel());
     this.worldOctree.fromGraphNode(this.worldWeb.GetModel());
+
 
     CreateStars(this.scene);
 
@@ -146,7 +150,7 @@ class Web {
     position.y = Math.random() * (maxY - minY) + minY;
     position.z = Math.random() * (maxZ - minZ) + minZ;
 
-    const newInvader = new RedInvaderGameObject(
+    const newInvader = new GreenInvaderGameObject(
       this.invaderModel.clone(),
       position,
       40,
@@ -163,7 +167,7 @@ class Web {
       if (el.IsRemoved()) {
         object.splice(index, 1);
       }
-      el.Update(this.camera.position, _deltaTime);
+      el.Update(this.worldWeb.worldMeshes[0].position, _deltaTime);
     });
 
     this.invadersCollisions();
@@ -244,15 +248,26 @@ class Web {
     }
   }
 
-  // private spheresCollisions(): void {
-  //   // for (let i = 0, length = this.spheres.length; i < length; i++) {
-  //   //   const s1 = this.spheres[i];
-  //   //   const result = s1.IntersectBoxWith(this.worldOctree)
-  //   //   if (result) {
-  //   //     this.scene.remove(s1.mesh);
-  //   //   }
-  //   // }
-  // }
+  private invaderWorldCollisions(): void {
+    this.invaders.forEach(invader => {
+      this.worldWeb.worldMeshes.forEach((el, index, object) => {
+        const elBox = new THREE.Box3().setFromObject(el);
+        const result = elBox.intersectsBox(invader.GetBox());
+        if (result) {
+          invader.Destroy();
+          this.worldWeb.GetModel().remove(el);
+          this.clearOctree();
+          object.splice(index, 1)
+        }
+      });
+    });
+  }
+
+  private clearOctree() {
+    this.worldOctree.triangles = [];
+    this.worldOctree.subTrees = [];
+    this.worldOctree.fromGraphNode(this.worldWeb.GetModel())
+  }
 
   private invadersCollisions(): void {
     for (let i = 0; i < this.playerShoots.length; i++) {
@@ -272,6 +287,25 @@ class Web {
         }
       }
     }
+
+    for (let i = 0; i < this.playerShoots.length; i++) {
+      for (let j = 0; j < this.invaders.length; j++) {
+        const playerShoot = this.playerShoots[i];
+        const invader = this.invaders[j];
+
+        if (invader.IntersectBoxWith(playerShoot)) {
+          playerShoot.Destroy();
+          this.playerShoots.splice(i, 1);
+
+          invader.Destroy();
+          this.invaders.splice(j, 1);
+
+          i--;
+          j--;
+        }
+      }
+    }
+
   }
 
   private updatePlayer(_deltaTime: number): void {
@@ -360,16 +394,15 @@ class Web {
       document.exitPointerLock();
       return;
     }
-    const deltaTime =
-      Math.min(0.05, this.clock.getDelta()) / this.STEPS_PER_FRAME;
-    for (let i = 0; i < this.STEPS_PER_FRAME; i++) {
-      this.controls(deltaTime);
-      this.updatePlayer(deltaTime);
-      this.updateShoots(deltaTime);
-      this.updateInvaders(deltaTime);
-      this.updateCamera(deltaTime);
-      this.teleportPlayerIfOob();
-    }
+    const deltaTime = this.clock.getDelta();
+
+    this.controls(deltaTime);
+    this.updatePlayer(deltaTime);
+    this.updateShoots(deltaTime);
+    this.updateInvaders(deltaTime);
+    this.updateCamera(deltaTime);
+    this.teleportPlayerIfOob();
+    this.invaderWorldCollisions();
     if (this.spawnTime <= 0) {
       this.spawnTime = this.timer;
       this.spawnInvader();

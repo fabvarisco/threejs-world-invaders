@@ -32,7 +32,6 @@ class RedInvaderGameObject extends InvaderGameObject {
   }
 
   private _shoot(targetPosition: Vector3) {
-    console.log(this.args)
     const sphereGeometry = new IcosahedronGeometry(0.2, 5);
     const sphereMaterial = new MeshLambertMaterial({ color: 0xff0000 });
     const meshSphere = new Mesh(sphereGeometry, sphereMaterial);

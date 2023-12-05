@@ -5,10 +5,13 @@ import {
   Object3D,
   Scene,
   MeshStandardMaterial,
+  Box3,
 } from "three";
 import GameObject from "./GameObject";
 
 class WorldWebGameObject extends GameObject {
+  public worldMeshes: Mesh[] = [];
+
   constructor(
     model: Group | Mesh | Object3D,
     position: Vector3,
@@ -24,8 +27,23 @@ class WorldWebGameObject extends GameObject {
         if (material.map) {
           material.map.anisotropy = 4;
         }
+        this.worldMeshes.push(child);
       }
     });
+  }
+
+  public DetectCollisionWithWorldObjects(invaderBox: Box3): Mesh[] {
+    const collidedObjects: Mesh[] = [];
+
+    for (const worldMesh of this.worldMeshes) {
+      const worldBox = new Box3().setFromObject(worldMesh);
+
+      if (worldBox.intersectsBox(invaderBox)) {
+        collidedObjects.push(worldMesh);
+      }
+    }
+
+    return collidedObjects;
   }
 }
 

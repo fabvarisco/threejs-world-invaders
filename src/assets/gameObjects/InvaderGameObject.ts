@@ -34,6 +34,18 @@ class InvaderGameObject extends GameObject {
     ExplosionParticles(this.model.position, this.scene, this.color);
   }
 
+  public DetectCollisionWithCityObjects(cityObjects: Mesh[]) {
+    const collidedObjects = [];
+
+    for (const cityObject of cityObjects) {
+      if (this.GetBox().intersectsBox(cityObject.geometry.boundingBox!)) {
+        collidedObjects.push(cityObject);
+      }
+    }
+
+    return collidedObjects;
+  }
+
 }
 
 export default InvaderGameObject;

@@ -8,6 +8,7 @@ import {
   Color,
   Object3D,
 } from "three";
+import { Octree } from "three/examples/jsm/math/Octree.js";
 
 class GameObject {
   private velocity: Vector3 = new Vector3(0, 0, 0);
@@ -102,6 +103,15 @@ class GameObject {
     if (this.box3.intersectsBox(otherBox)) {
       return true;
     }
+    return false;
+  }
+
+  public IntersectBoxWithWorld(_other: Octree): boolean {
+    // this.box3.setFromObject(this.model);
+
+    // if (this.box3.intersectsBox(otherBox)) {
+    //   return true;
+    // }
     return false;
   }
 

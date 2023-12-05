@@ -96,7 +96,6 @@ class TitleScreen {
       0.01,
       this.scene
     );
-    console.log(this.invaders);
     this.invaders.push(newInvader);
     this.scene.add(newInvader.GetModel());
   }

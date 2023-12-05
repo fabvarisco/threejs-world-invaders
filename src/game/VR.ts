@@ -135,7 +135,6 @@ class VR {
 
   private onSessionStart(): void {
     this.baseReferenceSpace = this.renderer.xr.getReferenceSpace();
-    console.log("base " + this.baseReferenceSpace);
   }
 
   buildControllers(): void {
@@ -379,7 +378,6 @@ class VR {
           if (this.intersection && !controller.userData.hasGun) {
             controller.userData.marker.visible =
               this.intersection !== undefined;
-            console.log(this.intersection);
             controller.userData.marker.position.copy(this.intersection?.point);
           }
         }
