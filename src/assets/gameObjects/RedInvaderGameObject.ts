@@ -77,6 +77,10 @@ class RedInvaderGameObject extends InvaderGameObject {
     }
     this.LookTo(_target);
   }
+
+  public SetTargetPosition(_targetPosition: Vector3): void {
+    this.targetPosition = _targetPosition;
+  }
 }
 
 export default RedInvaderGameObject;

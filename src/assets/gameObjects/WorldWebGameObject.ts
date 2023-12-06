@@ -6,6 +6,10 @@ import {
   Scene,
   MeshStandardMaterial,
   Box3,
+  BoxHelper,
+  Box3Helper,
+  Color,
+  ColorRepresentation,
 } from "three";
 import GameObject from "./GameObject";
 import { Octree } from "three/examples/jsm/math/Octree.js";
@@ -36,22 +40,23 @@ class WorldWebGameObject extends GameObject {
 
   }
 
-  public DetectCollisionWithWorldObjects(invaderBox: Box3): Mesh[] {
+  public DetectCollisionWithWorldObjects(): void {
     const collidedObjects: Mesh[] = [];
 
     for (const worldMesh of this.worldMeshes) {
       const worldBox = new Box3().setFromObject(worldMesh);
+      const box = new Box3Helper(worldBox, new Color(0xffff00));
+      this.scene.add(box);
 
-      if (worldBox.intersectsBox(invaderBox)) {
-        collidedObjects.push(worldMesh);
-      }
+      // if (worldBox.intersectsBox(invaderBox)) {
+      //   collidedObjects.push(worldMesh);
+      // }
     }
 
-    return collidedObjects;
   }
 
   public ResetOctree() {
-    this.octree.triangles = [];
+    console.log(this.octree.subTrees)
     this.octree.subTrees = [];
     this.octree.fromGraphNode(this.model);
   }
@@ -65,7 +70,7 @@ class WorldWebGameObject extends GameObject {
     return this.worldMeshes[randomInt].position;
   }
 
-  public GetOctree(){
+  public GetOctree() {
     return this.octree;
   }
 }

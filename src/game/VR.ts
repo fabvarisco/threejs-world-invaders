@@ -125,10 +125,37 @@ class VR {
       },
     };
 
+    const selectedAttributes = {
+      offset: 0.02,
+      backgroundColor: new Color(0x777777),
+      fontColor: new Color(0x222222)
+    };
+
     this.restartButton = new Block(buttonOptions);
+    this.restartButton.name = "restart"
+    this.restartButton.add(
+      new Text({ content: 'Restart' })
+    );
+
+    //@ts-ignore
+    this.restartButton.setupState({
+      state: 'selected',
+      attributes: selectedAttributes,
+      onSet: () => {
+        location.reload()
+      }
+    });
+
+
+    //@ts-ignore
+    this.restartButton.setupState(hoveredStateAttributes);
+    //@ts-ignore
+    this.restartButton.setupState(idleStateAttributes);
+
+    container.add(this.restartButton)
     this.scene.add(container);
 
-    this.buildControllers();
+    this._buildControllers();
     this._createGun();
     this.renderer.setAnimationLoop(this._animate.bind(this));
   }
@@ -137,7 +164,7 @@ class VR {
     this.baseReferenceSpace = this.renderer.xr.getReferenceSpace();
   }
 
-  buildControllers(): void {
+  private _buildControllers(): void {
     const self = this;
     const controllerModelFactory = new XRControllerModelFactory();
 
@@ -215,7 +242,7 @@ class VR {
       this.scene.add(controller);
     });
   }
-  private shoot(): void {
+  private _shoot(): void {
     const controllerWithGun = this.controllers.find(
       (controller) => controller.userData.hasGun
     );
@@ -253,13 +280,13 @@ class VR {
     }
   }
 
-  private updateProjectile(deltaTime: number) {
+  private _updateProjectile(deltaTime: number) {
     this.projectiles.forEach((el) => {
       el.AddScalar(deltaTime);
     });
   }
 
-  private updateCollisions(): void {
+  private _updateCollisions(): void {
     for (let i = 0; i < this.projectiles.length; i++) {
       for (let j = 0; j < this.invaders.length; j++) {
         const sphere = this.projectiles[i];
@@ -278,7 +305,7 @@ class VR {
       }
     }
   }
-  private updateInvaders(_deltaTime: number): void {
+  private _updateInvaders(_deltaTime: number): void {
     this.invaders.forEach((el, index, object) => {
       if (el.IsRemoved()) {
         object.splice(index, 1);
@@ -312,13 +339,13 @@ class VR {
       });
       controller.addEventListener("selectstart", function () {
         if (controller.userData.hasGun) {
-          self.shoot();
+          self._shoot();
         }
       });
     });
   }
 
-  private playerUpdate() {
+  private _playerUpdate() {
     for (let i = 0; i < this.invaders.length; i++) {
       const invader = this.invaders[i];
       if (invader.GetModel().position.distanceTo(this.camera.position) <= 1) {
@@ -327,7 +354,7 @@ class VR {
     }
   }
 
-  private spawnInvader(): void {
+  private _spawnInvader(): void {
     const minX = -60;
     const maxX = 60;
     const minY = 10;
@@ -371,14 +398,21 @@ class VR {
       ]);
       if (intersects.length > 0) {
         this.intersection = intersects[0];
+        controller.userData.marker.visible =
+          controller.userData.marker.position.copy(this.intersection?.point);
+      } else {
+        controller.userData.marker.visible = false
       }
       if (controller.userData.selectPressed === true && this.intersection) {
-        if (this.intersection.object.name === "floor") {
+        if (this.intersection.object.name === "floor" && !controller.userData.hasGun) {
+
+        }
+        if (this.intersection.object.name === "restart" && !controller.userData.hasGun) {
           if (this.intersection && !controller.userData.hasGun) {
-            controller.userData.marker.visible =
-              this.intersection !== undefined;
             controller.userData.marker.position.copy(this.intersection?.point);
+            console.log(this.intersection.object)
           }
+
         }
         if (this.intersection.object.name === "gun") {
           this.gun?.GetModel()!.position.set(-0.15, 0, -0.2);
@@ -389,26 +423,27 @@ class VR {
           controller.userData.grip = this.gun?.GetModel()!;
         }
       }
+
     });
 
     const deltaTime = Math.min(0.05, this.clock.getDelta()) / 5;
     for (let i = 0; i < 5; i++) {
-      this.updateProjectile(deltaTime);
-      this.updateInvaders(deltaTime);
-      this.updateCollisions();
-      this.playerUpdate();
+      this._updateInvaders(deltaTime);
+      this._updateProjectile(deltaTime);
+      this._updateCollisions();
+      this._playerUpdate();
       update();
     }
     if (this.spawnTime <= 0) {
       this.spawnTime = this.timer;
-      this.spawnInvader();
+      this._spawnInvader();
     }
     this.spawnTime -= deltaTime;
 
     this.renderer.render(this.scene, this.camera);
   }
 
-  public Destroy() {}
+  public Destroy() { }
 }
 
 export default VR;

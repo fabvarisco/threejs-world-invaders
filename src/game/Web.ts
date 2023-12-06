@@ -6,6 +6,7 @@ import WorldWebGameObject from "../assets/gameObjects/WorldWebGameObject";
 import Player from "../assets/Player";
 import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
 import GreenInvaderGameObject from "../assets/gameObjects/GreenInvaderGameObject";
+import Stats from "three/examples/jsm/libs/stats.module.js";
 
 class Web {
   private readonly scene: THREE.Scene;
@@ -19,7 +20,7 @@ class Web {
   private readonly playerVelocity: THREE.Vector3;
   private readonly playerDirection: THREE.Vector3;
   private readonly keyStates: { [key: string]: boolean };
-  private readonly assets:  Map<string, THREE.Object3D>
+  private readonly assets: Map<string, THREE.Object3D>
   private clock: THREE.Clock;
   private renderer: THREE.WebGLRenderer;
   private playerOnFloor: boolean;
@@ -32,6 +33,7 @@ class Web {
   private shakeIntensity: number = 0;
   private player: Player = new Player();
   private gunModel: THREE.Object3D;
+  private stats: Stats;
   constructor(
     camera: THREE.PerspectiveCamera,
     renderer: THREE.WebGLRenderer,
@@ -124,6 +126,11 @@ class Web {
     this.camera.add(this.gunModel);
     this.gunModel.add(gun);
     this.scene.add(this.gunModel);
+
+    this.stats = new Stats();
+    const container = document.getElementById('stats-container');
+    container?.appendChild(this.stats.dom);
+
     this.animate();
   }
 
@@ -180,6 +187,7 @@ class Web {
 
   private playerCollisions(): void {
     const result = this.worldWeb.GetOctree().capsuleIntersect(this.playerCollider);
+
     this.playerOnFloor = false;
     if (result) {
       this.playerOnFloor = result.normal.y > 0;
@@ -192,6 +200,20 @@ class Web {
       this.playerCollider.translate(result.normal.multiplyScalar(result.depth));
     }
 
+
+    // this.worldWeb.GetMeshes().forEach((el, index, object) => {
+    //   const elBox = new THREE.Box3().setFromObject(el);
+    //   const result = this.playerCollider.intersectsBox(elBox);
+
+    //   if (result) {
+    //     this.playerOnFloor = true;
+    //   }else{
+    //     this.playerOnFloor = false;
+    //   }
+    // });
+
+
+    ///-------------------------
     for (let i = 0; i < this.invaders.length; i++) {
       const invader = this.invaders[i];
       if (invader.GetModel().position.distanceTo(this.camera.position) <= 1) {
@@ -370,11 +392,12 @@ class Web {
 
     if (this.spawnTime <= 0) {
       this.spawnTime = this.timer;
-      SpawnInvaders(this.scene, this.invaders, this.assets, this.invaderShoots, this.worldWeb.GetRandomMesh());
+      SpawnInvaders(this.scene, this.invaders, this.assets, this.invaderShoots, [this.worldWeb.GetRandomMesh(), this.worldWeb.GetRandomMesh()]);
     }
     this.spawnTime -= deltaTime;
     this.gunModel.position.copy(this.camera.position);
     this.gunModel.rotation.copy(this.camera.rotation);
+    this.stats.update()
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(() => this.animate());
   }

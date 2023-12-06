@@ -1,4 +1,5 @@
 import {
+  Box3,
   BufferAttribute,
   BufferGeometry,
   ColorRepresentation,
@@ -15,6 +16,7 @@ import InvaderGameObject from "./assets/gameObjects/InvaderGameObject";
 import RedInvaderGameObject from "./assets/gameObjects/RedInvaderGameObject";
 import GreenInvaderGameObject from "./assets/gameObjects/GreenInvaderGameObject";
 import GameObject from "./assets/gameObjects/GameObject";
+import { Capsule } from "three/examples/jsm/math/Capsule.js";
 
 export function CreateStars(scene: Scene) {
   const starsGeometry = new BufferGeometry();
@@ -162,7 +164,7 @@ export function SpawnInvaders(
   invaders: InvaderGameObject[],
   assets: Map<string, Object3D>,
   shootsArray: GameObject[],
-  greenTargetPosition: Vector3
+  randomTargetPosition: Vector3[]
 ): void {
 
   const redInvader = new RedInvaderGameObject(
@@ -172,13 +174,14 @@ export function SpawnInvaders(
     scene,
     { shootsArray }
   );
+  redInvader.SetTargetPosition(randomTargetPosition[0]);
 
   const invader = new InvaderGameObject(
     assets.get("invader")!.clone(),
     GenerateRandomPosition(),
     10,
     scene
-  );  
+  );
 
   const greenInvader = new GreenInvaderGameObject(
     assets.get("invader")!.clone(),
@@ -186,7 +189,7 @@ export function SpawnInvaders(
     25,
     scene
   );
-  greenInvader.SetTargetPosition(greenTargetPosition);
+  greenInvader.SetTargetPosition(randomTargetPosition[1]);
 
 
   invaders.push(invader);
@@ -213,3 +216,4 @@ function GenerateRandomPosition(): Vector3 {
 
   return position;
 }
+

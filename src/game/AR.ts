@@ -23,8 +23,8 @@ class AR {
   private invaders: InvaderGameObject[] = [];
   private spheres: GameObject[] = [];
   private scene: Scene = new Scene();
-  private spawnTime: number = 1000;
-  private timer: number = 1000;
+  private spawnTime: number = 1;
+  private timer: number = 1;
   private controllers: Group[] = [];
   private xrSession: XRSession | null = null;
   private stepsPerFrame: number = 5;
@@ -191,11 +191,8 @@ class AR {
       Math.min(0.05, this.clock.getDelta()) / this.stepsPerFrame;
 
     for (let i = 0; i < this.stepsPerFrame; i++) {
-      this._updateInvaders(deltaTime);
       this._updateSpheres(deltaTime);
       this._playerUpdate();
-
-
       const distance = 1; 
       const angle = -Math.PI / 4; 
       const cameraDirection = new Vector3();
@@ -203,13 +200,10 @@ class AR {
       const targetPosition = new Vector3().copy(this.camera.position).add(cameraDirection.multiplyScalar(distance)); 
       targetPosition.x -= .2
       targetPosition.y -= .4
-
-
       this.textContainer.position.copy(targetPosition);
-
       this.textContainer.rotation.setFromRotationMatrix(this.camera.matrix);
-
       update();
+      this._updateInvaders(deltaTime);
     }
 
     if (!this.xrSession) {
