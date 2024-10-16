@@ -6,6 +6,8 @@ class Keyboard {
 
   constructor(element: HTMLElement) {
     this._element = element;
+    this._keyDownEvent();
+    this._keyUpEvent();
   }
 
   _keyDownEvent() {
