@@ -7,7 +7,7 @@ import {
   ColorRepresentation,
 } from "three";
 import GameObject from "./GameObject";
-import { ExplosionParticles } from "../../utils";
+import { ExplosionParticles } from "../../utils/utils";
 
 class InvaderGameObject extends GameObject {
   protected args: any;

@@ -22,7 +22,7 @@ import {
 } from "three";
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 import GameObject from "../assets/gameObjects/GameObject";
-import { CreateStars } from "../utils";
+import { CreateStars } from "../utils/utils";
 import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
 import { Block, Text, update } from "three-mesh-ui";
 import GreenInvaderGameObject from "../assets/gameObjects/GreenInvaderGameObject";

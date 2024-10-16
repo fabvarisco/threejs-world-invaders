@@ -17,7 +17,7 @@ import TitleScreen from "./game/TitleScreen";
 import AR from "./game/AR";
 import VR from "./game/VR";
 import Web from "./game/Web";
-import { Loader } from "./utils";
+import { Loader } from "./utils/utils";
 
 class App {
   private readonly camera: PerspectiveCamera;

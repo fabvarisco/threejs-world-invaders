@@ -8,7 +8,7 @@ import {
   Object3D,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { CreateStars } from "../utils";
+import { CreateStars } from "../utils/utils";
 import Text from "../assets/Text";
 import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
 import EarthGameObject from "../assets/gameObjects/EarthGameObject";

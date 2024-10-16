@@ -1,5 +1,5 @@
 import { Camera, Group, Mesh, Object3D, Scene } from "three";
-import { GameOverOverlay } from "../utils";
+import { GameOverOverlay } from "../utils/utils";
 import { CameraType } from "../type";
 
 class Gun {

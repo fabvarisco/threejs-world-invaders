@@ -1,5 +1,5 @@
 import { Camera, Group, Mesh, Object3D, Scene } from "three";
-import { GameOverOverlay } from "../utils";
+import { GameOverOverlay } from "../utils/utils";
 import { CameraType } from "../type";
 
 class Player {
@@ -21,6 +21,12 @@ class Player {
     this._scene = scene;
     this._camera = camera;
     this._cameraType = "FPS";
+
+    this._init();
+  }
+
+  private _init(){
+
   }
 
   public TakeDamage() {

@@ -13,7 +13,7 @@ import {
 } from "three";
 import GameObject from "./GameObject";
 import { Octree } from "three/examples/jsm/math/Octree.js";
-import { GetRandomInt } from "../../utils";
+import { GetRandomInt } from "../../utils/utils";
 
 class WorldWebGameObject extends GameObject {
   private worldMeshes: Mesh[] = [];

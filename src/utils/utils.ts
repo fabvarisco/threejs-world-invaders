@@ -12,10 +12,10 @@ import {
 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
-import InvaderGameObject from "./assets/gameObjects/InvaderGameObject";
-import RedInvaderGameObject from "./assets/gameObjects/RedInvaderGameObject";
-import GreenInvaderGameObject from "./assets/gameObjects/GreenInvaderGameObject";
-import GameObject from "./assets/gameObjects/GameObject";
+import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
+import RedInvaderGameObject from "../assets/gameObjects/RedInvaderGameObject";
+import GreenInvaderGameObject from "../assets/gameObjects/GreenInvaderGameObject";
+import GameObject from "../assets/gameObjects/GameObject";
 import { Capsule } from "three/examples/jsm/math/Capsule.js";
 
 export function CreateStars(scene: Scene) {

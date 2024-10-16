@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { Capsule } from "three/addons/math/Capsule.js";
 import GameObject from "../assets/gameObjects/GameObject";
-import { CreateStars, SpawnInvaders } from "../utils";
+import { CreateStars, SpawnInvaders } from "../utils/utils";
 import WorldWebGameObject from "../assets/gameObjects/WorldWebGameObject";
 import Player from "../assets/Player";
 import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
@@ -79,6 +79,7 @@ class Web {
     this.playerOnFloor = false;
     this.mouseTime = 0;
     this.keyStates = {};
+
     document.addEventListener("keydown", (event) => {
       this.keyStates[event.code] = true;
     });
