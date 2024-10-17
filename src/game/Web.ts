@@ -31,8 +31,7 @@ class Web {
   private spawnTime: number = 10;
   private timer: number = 10;
   private shakeIntensity: number = 0;
-  private player: Player = new Player();
-  private gunModel: THREE.Object3D;
+  private player: Player;
   private stats: Stats;
   constructor(
     camera: THREE.PerspectiveCamera,
@@ -79,7 +78,7 @@ class Web {
     this.playerOnFloor = false;
     this.mouseTime = 0;
     this.keyStates = {};
-
+    this.player = new Player(this.scene, this.camera);
     document.addEventListener("keydown", (event) => {
       this.keyStates[event.code] = true;
     });
@@ -116,17 +115,13 @@ class Web {
 
     CreateStars(this.scene);
 
-    const crosshair = document.createElement("div");
-    crosshair.id = "crosshair";
-    document.body.appendChild(crosshair);
-
-    const gun = this.assets.get("gun")!.clone();
-    gun.position.set(0, -0.15, -0.5);
-    gun.rotation.set(Math.PI, 0, Math.PI);
-    this.gunModel = new THREE.Object3D();
-    this.camera.add(this.gunModel);
-    this.gunModel.add(gun);
-    this.scene.add(this.gunModel);
+    // const gun = this.assets.get("gun")!.clone();
+    // gun.position.set(0, -0.15, -0.5);
+    // gun.rotation.set(Math.PI, 0, Math.PI);
+    // this.gunModel = new THREE.Object3D();
+    // this.camera.add(this.gunModel);
+    // this.gunModel.add(gun);
+    // this.scene.add(this.gunModel);
 
     this.stats = new Stats();
     const container = document.getElementById('stats-container');
@@ -396,8 +391,7 @@ class Web {
       SpawnInvaders(this.scene, this.invaders, this.assets, this.invaderShoots, [this.worldWeb.GetRandomMesh(), this.worldWeb.GetRandomMesh()]);
     }
     this.spawnTime -= deltaTime;
-    this.gunModel.position.copy(this.camera.position);
-    this.gunModel.rotation.copy(this.camera.rotation);
+
     this.stats.update()
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(() => this.animate());

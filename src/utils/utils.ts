@@ -166,7 +166,6 @@ export function SpawnInvaders(
   shootsArray: GameObject[],
   randomTargetPosition: Vector3[]
 ): void {
-
   const redInvader = new RedInvaderGameObject(
     assets.get("invader")!.clone(),
     GenerateRandomPosition(),
@@ -190,7 +189,6 @@ export function SpawnInvaders(
     scene
   );
   greenInvader.SetTargetPosition(randomTargetPosition[1]);
-
 
   invaders.push(invader);
   invaders.push(greenInvader);
@@ -217,3 +215,6 @@ function GenerateRandomPosition(): Vector3 {
   return position;
 }
 
+export const GLOBAL_ASSETS: any = {
+  assets: undefined,
+};

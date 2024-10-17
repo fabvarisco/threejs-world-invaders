@@ -17,7 +17,7 @@ import TitleScreen from "./game/TitleScreen";
 import AR from "./game/AR";
 import VR from "./game/VR";
 import Web from "./game/Web";
-import { Loader } from "./utils/utils";
+import { GLOBAL_ASSETS, Loader } from "./utils/utils";
 
 class App {
   private readonly camera: PerspectiveCamera;
@@ -87,6 +87,7 @@ class App {
       const key = fileName.split(".")[0];
       this.assets.set(key, instance);
     }
+    GLOBAL_ASSETS.assets = this.assets;
     console.log("All prefabs were created!");
   }
 
@@ -166,7 +167,6 @@ class App {
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
-
 }
 
 export default App;
