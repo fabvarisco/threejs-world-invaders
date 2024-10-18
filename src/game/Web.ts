@@ -160,25 +160,25 @@ class Web {
     playerShootMesh.castShadow = true;
     playerShootMesh.receiveShadow = true;
 
-    const playerShoot = new GameObject(
-      playerShootMesh,
-      this.gunModel.localToWorld(new THREE.Vector3(0.15, -0.15, -0.5)),
-      30,
-      this.scene
-    );
+    // const playerShoot = new GameObject(
+    //   playerShootMesh,
+    //   this.gunModel.localToWorld(new THREE.Vector3(0.15, -0.15, -0.5)),
+    //   30,
+    //   this.scene
+    // );
 
-    const impulse =
-      15 + 30 * (1 - Math.exp((this.mouseTime - performance.now()) * 0.001));
-    playerShoot.SetVelocity(
-      this.gunModel
-        .localToWorld(new THREE.Vector3(0, 0, -1))
-        .sub(this.camera.position)
-        .normalize()
-        .multiplyScalar(impulse * 4)
-    );
+    // const impulse =
+    //   15 + 30 * (1 - Math.exp((this.mouseTime - performance.now()) * 0.001));
+    // playerShoot.SetVelocity(
+    //   this.gunModel
+    //     .localToWorld(new THREE.Vector3(0, 0, -1))
+    //     .sub(this.camera.position)
+    //     .normalize()
+    //     .multiplyScalar(impulse * 4)
+    // );
 
-    this.playerShoots.push(playerShoot);
-    this.scene.add(playerShoot.GetModel());
+    // this.playerShoots.push(playerShoot);
+    // this.scene.add(playerShoot.GetModel());
   }
 
   private playerCollisions(): void {

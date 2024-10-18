@@ -16,7 +16,7 @@ class Player {
     this._scene = scene;
     this._camera = camera;
     this._cameraType = "FPS";
-    this._gun = new Gun(this._scene);
+    this._gun = new Gun(this._scene, this._camera);
 
     this._init();
   }
@@ -34,7 +34,7 @@ class Player {
       GameOverOverlay();
     }
 
-    this._gun.UpdatePosition(this._camera);
+    this._gun.UpdatePosition();
   }
 
   public IsEndGame() {
