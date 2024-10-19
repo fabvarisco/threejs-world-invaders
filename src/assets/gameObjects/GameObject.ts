@@ -49,7 +49,9 @@ class GameObject {
   }
 
   public ApplyImpulse(impulse: number): void {
-    this.velocity.copy(this.model.position.clone().multiplyScalar(impulse * this.speed));
+    this.velocity.copy(
+      this.model.position.clone().multiplyScalar(impulse * this.speed)
+    );
   }
 
   public SetVelocity(velocity: Vector3): void {
@@ -121,6 +123,8 @@ class GameObject {
       this.Destroy();
     }
   }
+
+  public Update(_deltaTime: number): void {}
 }
 
 export default GameObject;

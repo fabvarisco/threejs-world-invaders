@@ -30,10 +30,13 @@ class InvaderGameObject extends GameObject {
     });
   }
 
-
-  public Update(_target: Vector3, _deltaTime: number) {
-    this.MoveTo(_target, _deltaTime);
-    this.LookTo(_target);
+  // public Update(_target: Vector3, _deltaTime: number) {
+  //   this.MoveTo(_target, _deltaTime);
+  //   this.LookTo(_target);
+  // }
+  public Update(_deltaTime: number) {
+    // this.MoveTo(_target, _deltaTime);
+    // this.LookTo(_target);
   }
 
   public Destroy(): void {

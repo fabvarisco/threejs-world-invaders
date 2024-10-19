@@ -1,6 +1,7 @@
-import { Camera, Group, Mesh, Object3D, Scene, Vector2 } from "three";
+import { Camera, Group, Mesh, Object3D, Scene, Vector2, Vector3 } from "three";
 import { GameOverOverlay, GLOBAL_ASSETS } from "../utils/utils";
 import { CameraType } from "../type";
+import ShootGameObject from "./gameObjects/ShootGameObject";
 
 class Gun {
   private _model: Group | Mesh | Object3D;
@@ -17,37 +18,31 @@ class Gun {
     this._createGun();
   }
 
-  public Shoot(): void {
-    const playerShootGeometry = new IcosahedronGeometry(0.1, 5);
-    const playerShootMaterial = new MeshLambertMaterial({
-      color: 0xdede8d,
-    });
-    const playerShootMesh = new Mesh(
-      playerShootGeometry,
-      playerShootMaterial
+  public Shoot(_mouseTime: number): void {
+    const playerShoot = new ShootGameObject(
+      new Group(),
+      this._model.localToWorld(new Vector3(0.15, -0.15, -0.5)),
+      30,
+      this._scene
     );
-    playerShootMesh.castShadow = true;
-    playerShootMesh.receiveShadow = true;
+    playerShoot.SetPosition(
+      this._model.localToWorld(new Vector3(0.15, -0.15, -0.5))
+    );
+    const impulse =
+      15 + 30 * (1 - Math.exp((_mouseTime - performance.now()) * 0.001));
+    playerShoot.SetVelocity(
+      this._model
+        .localToWorld(new Vector3(0, 0, -1))
+        .sub(this._camera.position)
+        .normalize()
+        .multiplyScalar(impulse * 4)
+    );
 
-    // const playerShoot = new GameObject(
-    //   playerShootMesh,
-    //   this.gunModel.localToWorld(new THREE.Vector3(0.15, -0.15, -0.5)),
-    //   30,
-    //   this.scene
-    // );
-
-    // const impulse =
-    //   15 + 30 * (1 - Math.exp((this.mouseTime - performance.now()) * 0.001));
-    // playerShoot.SetVelocity(
-    //   this.gunModel
-    //     .localToWorld(new THREE.Vector3(0, 0, -1))
-    //     .sub(this.camera.position)
-    //     .normalize()
-    //     .multiplyScalar(impulse * 4)
-    // );
-
-    // this.playerShoots.push(playerShoot);
-    // this.scene.add(playerShoot.GetModel());
+    const event = new CustomEvent("addInstance", {
+      detail: playerShoot,
+    });
+    document.dispatchEvent(event);
+    this._scene.add(playerShoot.GetModel());
   }
 
   public UpdatePosition(): void {

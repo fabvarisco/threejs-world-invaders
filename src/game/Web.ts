@@ -3,7 +3,7 @@ import { Capsule } from "three/addons/math/Capsule.js";
 import GameObject from "../assets/gameObjects/GameObject";
 import { CreateStars, SpawnInvaders } from "../utils/utils";
 import WorldWebGameObject from "../assets/gameObjects/WorldWebGameObject";
-import Player from "../assets/Player";
+import Player from "../assets/WebPlayer";
 import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
 import GreenInvaderGameObject from "../assets/gameObjects/GreenInvaderGameObject";
 import Stats from "three/examples/jsm/libs/stats.module.js";
@@ -19,12 +19,11 @@ class Web {
   private readonly playerCollider: Capsule;
   private readonly playerVelocity: THREE.Vector3;
   private readonly playerDirection: THREE.Vector3;
-  private readonly keyStates: { [key: string]: boolean };
-  private readonly assets: Map<string, THREE.Object3D>
+  private readonly assets: Map<string, THREE.Object3D>;
   private clock: THREE.Clock;
   private renderer: THREE.WebGLRenderer;
   private playerOnFloor: boolean;
-  private mouseTime: number;
+
   private invaderModel: THREE.Object3D;
   private worldWeb: WorldWebGameObject;
   private invaders: InvaderGameObject[] = [];
@@ -33,11 +32,13 @@ class Web {
   private shakeIntensity: number = 0;
   private player: Player;
   private stats: Stats;
+  private gameObjectList: GameObject[] = [];
   constructor(
     camera: THREE.PerspectiveCamera,
     renderer: THREE.WebGLRenderer,
     assets: Map<string, THREE.Object3D>
   ) {
+    this._createGameEvents();
     this.clock = new THREE.Clock();
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.Fog(0x88ccee, 0, 50);
@@ -76,29 +77,7 @@ class Web {
     this.playerVelocity = new THREE.Vector3();
     this.playerDirection = new THREE.Vector3();
     this.playerOnFloor = false;
-    this.mouseTime = 0;
-    this.keyStates = {};
-    this.player = new Player(this.scene, this.camera);
-    document.addEventListener("keydown", (event) => {
-      this.keyStates[event.code] = true;
-    });
-    document.addEventListener("keyup", (event) => {
-      this.keyStates[event.code] = false;
-    });
-    document.addEventListener("mousedown", () => {
-      if (this.player.IsEndGame()) return;
-      document.body.requestPointerLock();
-      this.mouseTime = performance.now();
-    });
-    document.addEventListener("mouseup", () => {
-      if (document.pointerLockElement !== null) this.throwBall();
-    });
-    document.body.addEventListener("mousemove", (event) => {
-      if (document.pointerLockElement === document.body) {
-        this.camera.rotation.y -= event.movementX / 1200;
-        this.camera.rotation.x -= event.movementY / 1200;
-      }
-    });
+
     window.addEventListener("resize", this.onWindowResize);
     this.onWindowResize();
 
@@ -113,30 +92,34 @@ class Web {
 
     this.scene.add(this.worldWeb.GetModel());
 
+    this.player = new Player(this.scene, this.camera, this.worldWeb);
+
     CreateStars(this.scene);
 
-    // const gun = this.assets.get("gun")!.clone();
-    // gun.position.set(0, -0.15, -0.5);
-    // gun.rotation.set(Math.PI, 0, Math.PI);
-    // this.gunModel = new THREE.Object3D();
-    // this.camera.add(this.gunModel);
-    // this.gunModel.add(gun);
-    // this.scene.add(this.gunModel);
-
     this.stats = new Stats();
-    const container = document.getElementById('stats-container');
+    const container = document.getElementById("stats-container");
     container?.appendChild(this.stats.dom);
 
     this.animate();
   }
+  private _createGameEvents() {
+    document.addEventListener("addInstance", (event: Event) => {
+      const customEvent = event as CustomEvent;
+      this._onAddInstance(customEvent.detail as GameObject);
+    });
+  }
 
+  private _onAddInstance(_instance: GameObject) {
+    this.gameObjectList.push(_instance);
+    console.log(this.gameObjectList);
+  }
 
   private updateInvaders(_deltaTime: number): void {
     this.invaders.forEach((el, index, object) => {
       if (el.IsRemoved()) {
         object.splice(index, 1);
       }
-      el.Update(this.camera.position, _deltaTime);
+      el.Update(_deltaTime);
     });
 
     this.invadersCollisions();
@@ -182,7 +165,9 @@ class Web {
   }
 
   private playerCollisions(): void {
-    const result = this.worldWeb.GetOctree().capsuleIntersect(this.playerCollider);
+    const result = this.worldWeb
+      .GetOctree()
+      .capsuleIntersect(this.playerCollider);
 
     this.playerOnFloor = false;
     if (result) {
@@ -196,7 +181,6 @@ class Web {
       this.playerCollider.translate(result.normal.multiplyScalar(result.depth));
     }
 
-
     // this.worldWeb.GetMeshes().forEach((el, index, object) => {
     //   const elBox = new THREE.Box3().setFromObject(el);
     //   const result = this.playerCollider.intersectsBox(elBox);
@@ -207,7 +191,6 @@ class Web {
     //     this.playerOnFloor = false;
     //   }
     // });
-
 
     ///-------------------------
     for (let i = 0; i < this.invaders.length; i++) {
@@ -242,18 +225,20 @@ class Web {
   }
 
   private invaderWorldCollisions(): void {
-    this.invaders.filter(invader => invader.constructor == GreenInvaderGameObject).forEach((invader) => {
-      this.worldWeb.GetMeshes().forEach((el, index, object) => {
-        const elBox = new THREE.Box3().setFromObject(el);
-        const result = elBox.intersectsBox(invader.GetBox());
-        if (result) {
-          invader.Destroy();
-          this.worldWeb.GetModel().remove(el);
-          this.worldWeb.ResetOctree();
-          object.splice(index, 1);
-        }
+    this.invaders
+      .filter((invader) => invader.constructor == GreenInvaderGameObject)
+      .forEach((invader) => {
+        this.worldWeb.GetMeshes().forEach((el, index, object) => {
+          const elBox = new THREE.Box3().setFromObject(el);
+          const result = elBox.intersectsBox(invader.GetBox());
+          if (result) {
+            invader.Destroy();
+            this.worldWeb.GetModel().remove(el);
+            this.worldWeb.ResetOctree();
+            object.splice(index, 1);
+          }
+        });
       });
-    });
   }
 
   private invadersCollisions(): void {
@@ -294,22 +279,6 @@ class Web {
     }
   }
 
-  private updatePlayer(_deltaTime: number): void {
-    let damping = Math.exp(-4 * _deltaTime) - 1;
-    if (!this.playerOnFloor) {
-      this.playerVelocity.y -= this.GRAVITY * _deltaTime;
-      damping *= 0.1;
-    }
-    this.playerVelocity.addScaledVector(this.playerVelocity, damping);
-    const deltaPosition = this.playerVelocity
-      .clone()
-      .multiplyScalar(_deltaTime);
-    this.playerCollider.translate(deltaPosition);
-    this.playerCollisions();
-    this.camera.position.copy(this.playerCollider.end);
-    this.player.Update();
-  }
-
   private updateShoots(_deltaTime: number): void {
     this.playerShoots.forEach((el, index, object) => {
       if (el.IsRemoved()) {
@@ -326,73 +295,37 @@ class Web {
     });
   }
 
-  private getForwardVector(): THREE.Vector3 {
-    this.camera.getWorldDirection(this.playerDirection);
-    this.playerDirection.y = 0;
-    this.playerDirection.normalize();
-    return this.playerDirection;
-  }
-
-  private getSideVector(): THREE.Vector3 {
-    this.camera.getWorldDirection(this.playerDirection);
-    this.playerDirection.y = 0;
-    this.playerDirection.normalize();
-    this.playerDirection.cross(this.camera.up);
-    return this.playerDirection;
-  }
-
-  private controls(_deltaTime: number): void {
-    const speedDelta = _deltaTime * (this.playerOnFloor ? 25 : 8);
-    if (this.keyStates["KeyW"]) {
-      this.playerVelocity.add(
-        this.getForwardVector().multiplyScalar(speedDelta)
-      );
-    }
-    if (this.keyStates["KeyS"]) {
-      this.playerVelocity.add(
-        this.getForwardVector().multiplyScalar(-speedDelta)
-      );
-    }
-    if (this.keyStates["KeyA"]) {
-      this.playerVelocity.add(this.getSideVector().multiplyScalar(-speedDelta));
-    }
-    if (this.keyStates["KeyD"]) {
-      this.playerVelocity.add(this.getSideVector().multiplyScalar(speedDelta));
-    }
-    if (this.playerOnFloor) {
-      if (this.keyStates["Space"]) {
-        this.playerVelocity.y = 15;
-      }
-    }
-  }
-
-  private teleportPlayerIfOob(): void {
-    if (this.camera.position.y <= -25) {
-      this.player.TakeDamage()
-    }
-  }
-
   private animate(): void {
     if (this.player.IsEndGame()) {
       document.exitPointerLock();
       return;
     }
     const deltaTime = this.clock.getDelta();
-    this.controls(deltaTime);
-    this.updatePlayer(deltaTime);
-    this.updateShoots(deltaTime);
-    this.updateInvaders(deltaTime);
-    this.updateCamera(deltaTime);
-    this.teleportPlayerIfOob();
-    this.invaderWorldCollisions();
+    //this.controls(deltaTime);
+    this.player.Update(deltaTime);
+    // this.updateShoots(deltaTime);
+    // this.updateInvaders(deltaTime);
+    // this.updateCamera(deltaTime);
+    // this.teleportPlayerIfOob();
+    // this.invaderWorldCollisions();
 
-    if (this.spawnTime <= 0) {
-      this.spawnTime = this.timer;
-      SpawnInvaders(this.scene, this.invaders, this.assets, this.invaderShoots, [this.worldWeb.GetRandomMesh(), this.worldWeb.GetRandomMesh()]);
-    }
-    this.spawnTime -= deltaTime;
+    this.gameObjectList.forEach((gameObject) => {
+      gameObject.Update(deltaTime);
+    });
 
-    this.stats.update()
+    // if (this.spawnTime <= 0) {
+    //   this.spawnTime = this.timer;
+    //   SpawnInvaders(
+    //     this.scene,
+    //     this.invaders,
+    //     this.assets,
+    //     this.invaderShoots,
+    //     [this.worldWeb.GetRandomMesh(), this.worldWeb.GetRandomMesh()]
+    //   );
+    // }
+    // this.spawnTime -= deltaTime;
+
+    this.stats.update();
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(() => this.animate());
   }
