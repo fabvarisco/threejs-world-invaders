@@ -11,13 +11,14 @@ import {
 import { Octree } from "three/examples/jsm/math/Octree.js";
 
 class GameObject {
-  private velocity: Vector3 = new Vector3(0, 0, 0);
   private box3: Box3;
   private speed: number;
   private box3Helper: Box3Helper;
   private removed: boolean = false;
+  protected velocity: Vector3 = new Vector3(0, 0, 0);
   protected model: Group | Mesh | Object3D;
   protected scene: Scene;
+  protected timeout: any;
   constructor(
     model: Group | Mesh | Object3D,
     position: Vector3,
@@ -85,6 +86,7 @@ class GameObject {
     this.scene.remove(this.model);
     this.scene.remove(this.box3Helper);
     this.removed = true;
+    clearTimeout(this.timeout); 
   }
 
   public IsRemoved() {
@@ -92,8 +94,9 @@ class GameObject {
   }
 
   public SetDestroyTimeOut(timer: number = 1000) {
-    setTimeout(() => {
+    this.timeout = setTimeout(() => {
       this.Destroy();
+      console.log("TIMEOUT")
     }, timer);
   }
 

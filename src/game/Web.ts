@@ -7,6 +7,7 @@ import Player from "../assets/WebPlayer";
 import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
 import GreenInvaderGameObject from "../assets/gameObjects/GreenInvaderGameObject";
 import Stats from "three/examples/jsm/libs/stats.module.js";
+import ShootGameObject from "../assets/gameObjects/ShootGameObject";
 
 class Web {
   private readonly scene: THREE.Scene;
@@ -26,13 +27,14 @@ class Web {
 
   private invaderModel: THREE.Object3D;
   private worldWeb: WorldWebGameObject;
-  private invaders: InvaderGameObject[] = [];
   private spawnTime: number = 10;
   private timer: number = 10;
   private shakeIntensity: number = 0;
   private player: Player;
   private stats: Stats;
   private gameObjectList: GameObject[] = [];
+  private invaders: InvaderGameObject[] = [];
+  private projectiles: ShootGameObject[] = [];
   constructor(
     camera: THREE.PerspectiveCamera,
     renderer: THREE.WebGLRenderer,
@@ -102,16 +104,17 @@ class Web {
 
     this.animate();
   }
+
   private _createGameEvents() {
     document.addEventListener("addInstance", (event: Event) => {
       const customEvent = event as CustomEvent;
-      this._onAddInstance(customEvent.detail as GameObject);
+      this._onAddInstance(customEvent.detail as ShootGameObject);
     });
   }
 
-  private _onAddInstance(_instance: GameObject) {
-    this.gameObjectList.push(_instance);
-    console.log(this.gameObjectList);
+  private _onAddInstance(_instance: ShootGameObject) {
+    this.projectiles.push(_instance);
+    console.log(this.projectiles);
   }
 
   private updateInvaders(_deltaTime: number): void {
@@ -212,17 +215,6 @@ class Web {
     }
   }
 
-  private updateCamera(_deltaTime: number): void {
-    if (this.shakeIntensity > 0) {
-      const offsetX = (Math.random() - 0.5) * this.shakeIntensity;
-      const offsetY = (Math.random() - 0.5) * this.shakeIntensity;
-
-      this.camera.position.x += offsetX;
-      this.camera.position.y += offsetY;
-
-      this.shakeIntensity -= _deltaTime;
-    }
-  }
 
   private invaderWorldCollisions(): void {
     this.invaders
@@ -301,16 +293,17 @@ class Web {
       return;
     }
     const deltaTime = this.clock.getDelta();
-    //this.controls(deltaTime);
     this.player.Update(deltaTime);
-    // this.updateShoots(deltaTime);
-    // this.updateInvaders(deltaTime);
-    // this.updateCamera(deltaTime);
-    // this.teleportPlayerIfOob();
-    // this.invaderWorldCollisions();
+
 
     this.gameObjectList.forEach((gameObject) => {
       gameObject.Update(deltaTime);
+    });
+
+    this.projectiles.filter(el => !el.IsRemoved()).map((gameObject) => {
+      if (gameObject.IsRemoved()) return
+      gameObject.Update(deltaTime);
+      gameObject.WorldCollision(this.worldWeb);
     });
 
     // if (this.spawnTime <= 0) {

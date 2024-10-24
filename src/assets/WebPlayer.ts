@@ -124,6 +124,9 @@ class WebPlayer {
     this._playerCollisions();
     this._camera.position.copy(this._collider.end);
 
+
+    this._teleportPlayerIfOob();
+    
     this._gun.UpdatePosition();
   }
 
