@@ -12,6 +12,7 @@ import { ExplosionParticles } from "../../utils/utils";
 class InvaderGameObject extends GameObject {
   protected args: any;
   protected color: ColorRepresentation = 0xffffff;
+  private _target:Vector3 | null = null;
   constructor(
     model: Group | Mesh | Object3D,
     position: Vector3,
@@ -30,13 +31,10 @@ class InvaderGameObject extends GameObject {
     });
   }
 
-  // public Update(_target: Vector3, _deltaTime: number) {
-  //   this.MoveTo(_target, _deltaTime);
-  //   this.LookTo(_target);
-  // }
-  public Update(_deltaTime: number) {
-    // this.MoveTo(_target, _deltaTime);
-    // this.LookTo(_target);
+  public Update(_deltaTime: number) : void {
+    if (!this._target) return
+    this.MoveTo(this._target, _deltaTime);
+    this.LookTo(this._target);
   }
 
   public Destroy(): void {
@@ -54,6 +52,10 @@ class InvaderGameObject extends GameObject {
     }
 
     return collidedObjects;
+  }
+
+  public SetTarget(_target:Vector3):void{
+    this._target = _target;
   }
 }
 

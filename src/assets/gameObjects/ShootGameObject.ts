@@ -70,10 +70,16 @@ class ShootGameObject extends GameObject {
     const result = webWorld.GetOctree().sphereIntersect(this._collider);
 
     if (result) {
-      this._colliderHelper?.clear();
-      this._colliderHelper = null;
       this.Destroy();
     }
+  }
+
+  public Destroy(): void {
+    super.Destroy()
+    this.scene.remove(this._colliderHelper!);
+    this._colliderHelper!.geometry.dispose();
+    (this._colliderHelper!.material as LineBasicMaterial).dispose();
+    this._colliderHelper = null;
   }
 }
 

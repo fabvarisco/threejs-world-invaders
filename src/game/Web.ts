@@ -114,7 +114,6 @@ class Web {
 
   private _onAddInstance(_instance: ShootGameObject) {
     this.projectiles.push(_instance);
-    console.log(this.projectiles);
   }
 
   private updateInvaders(_deltaTime: number): void {
@@ -122,6 +121,7 @@ class Web {
       if (el.IsRemoved()) {
         object.splice(index, 1);
       }
+      el.SetTarget(this.player.GetPosition())
       el.Update(_deltaTime);
     });
 
@@ -234,14 +234,14 @@ class Web {
   }
 
   private invadersCollisions(): void {
-    for (let i = 0; i < this.playerShoots.length; i++) {
+    for (let i = 0; i < this.projectiles.length; i++) {
       for (let j = 0; j < this.invaders.length; j++) {
-        const playerShoot = this.playerShoots[i];
+        const playerShoot = this.projectiles[i];
         const invader = this.invaders[j];
 
         if (invader.IntersectBoxWith(playerShoot)) {
           playerShoot.Destroy();
-          this.playerShoots.splice(i, 1);
+          this.projectiles.splice(i, 1);
 
           invader.Destroy();
           this.invaders.splice(j, 1);
@@ -252,14 +252,15 @@ class Web {
       }
     }
 
-    for (let i = 0; i < this.playerShoots.length; i++) {
+    for (let i = 0; i < this.projectiles.length; i++) {
       for (let j = 0; j < this.invaders.length; j++) {
-        const playerShoot = this.playerShoots[i];
+        const playerShoot = this.projectiles[i];
+        if(playerShoot.IsRemoved()) continue;
         const invader = this.invaders[j];
-
+        console.log(playerShoot)
         if (invader.IntersectBoxWith(playerShoot)) {
           playerShoot.Destroy();
-          this.playerShoots.splice(i, 1);
+          this.projectiles.splice(i, 1);
 
           invader.Destroy();
           this.invaders.splice(j, 1);
@@ -300,23 +301,30 @@ class Web {
       gameObject.Update(deltaTime);
     });
 
-    this.projectiles.filter(el => !el.IsRemoved()).map((gameObject) => {
-      if (gameObject.IsRemoved()) return
-      gameObject.Update(deltaTime);
-      gameObject.WorldCollision(this.worldWeb);
-    });
+    this.updateInvaders(deltaTime);
+    this.invadersCollisions();
 
-    // if (this.spawnTime <= 0) {
-    //   this.spawnTime = this.timer;
-    //   SpawnInvaders(
-    //     this.scene,
-    //     this.invaders,
-    //     this.assets,
-    //     this.invaderShoots,
-    //     [this.worldWeb.GetRandomMesh(), this.worldWeb.GetRandomMesh()]
-    //   );
-    // }
-    // this.spawnTime -= deltaTime;
+    for (let i = this.projectiles.length - 1; i >= 0; i--) {
+      const gameObject = this.projectiles[i];
+      if (gameObject.IsRemoved()) {
+        this.projectiles.splice(i, 1);
+      } else {
+        gameObject.Update(deltaTime);
+        gameObject.WorldCollision(this.worldWeb);
+      }
+    }
+
+    if (this.spawnTime <= 0) {
+      this.spawnTime = this.timer;
+      SpawnInvaders(
+        this.scene,
+        this.invaders,
+        this.assets,
+        this.invaderShoots,
+        [this.worldWeb.GetRandomMesh(), this.worldWeb.GetRandomMesh()]
+      );
+    }
+    this.spawnTime -= deltaTime;
 
     this.stats.update();
     this.renderer.render(this.scene, this.camera);

@@ -162,6 +162,10 @@ class WebPlayer {
   public ChangeCameraType(_type: CameraType) {
     this._cameraType = _type;
   }
+
+  public GetPosition(): Vector3 {
+    return this._camera.position;
+  }
 }
 
 export default WebPlayer;
