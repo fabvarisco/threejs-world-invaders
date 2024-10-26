@@ -11,10 +11,10 @@ import {
 import { Octree } from "three/examples/jsm/math/Octree.js";
 
 class GameObject {
-  private box3: Box3;
-  private speed: number;
-  private box3Helper: Box3Helper;
-  private removed: boolean = false;
+  protected box3: Box3;
+  protected speed: number;
+  protected box3Helper: Box3Helper;
+  protected removed: boolean = false;
   protected velocity: Vector3 = new Vector3(0, 0, 0);
   protected model: Group | Mesh | Object3D;
   protected scene: Scene;
@@ -28,9 +28,13 @@ class GameObject {
     this.model = model;
     this.model.position.set(position.x, position.y, position.z);
     this.speed = speed;
+    this.scene = scene;
+    this._init();
+  }
+
+  private _init(): void {
     this.box3 = new Box3().setFromObject(this.model);
     this.box3Helper = new Box3Helper(this.box3, new Color(0xffff00));
-    this.scene = scene;
   }
 
   public MoveTo(targetPosition: Vector3, deltaTime: number): void {
@@ -46,7 +50,7 @@ class GameObject {
   }
 
   public SetPosition(position: Vector3): void {
-    this.model.position.set(position.x, position.y, position.z);
+    this.model.position.copy(position);
   }
 
   public ApplyImpulse(impulse: number): void {
@@ -83,10 +87,40 @@ class GameObject {
   }
 
   public Destroy() {
+    if (this.removed) return; // Prevent multiple calls to Destroy
+
+    // Remove from the scene
     this.scene.remove(this.model);
     this.scene.remove(this.box3Helper);
+
+    // Dispose of the model's geometry and material if they exist
+    if (this.model instanceof Mesh) {
+      if (this.model.geometry) {
+        this.model.geometry.dispose();
+      }
+      if (this.model.material) {
+        if (Array.isArray(this.model.material)) {
+          this.model.material.forEach((mat) => mat.dispose());
+        } else {
+          this.model.material.dispose();
+        }
+      }
+    }
+
+    // Clear the timeout if set
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+    }
+
+    // Mark the object as removed
     this.removed = true;
-    clearTimeout(this.timeout); 
+
+    // Optional: Set references to null to assist with garbage collection
+    // this.model = null;
+    // this.velocity = null;
+    // this.box3 = null;
+    // this.box3Helper = null;
+    // this.scene = null;
   }
 
   public IsRemoved() {
@@ -96,7 +130,7 @@ class GameObject {
   public SetDestroyTimeOut(timer: number = 1000) {
     this.timeout = setTimeout(() => {
       this.Destroy();
-      console.log("TIMEOUT")
+      console.log("TIMEOUT");
     }, timer);
   }
 

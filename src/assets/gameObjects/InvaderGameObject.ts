@@ -26,7 +26,6 @@ class InvaderGameObject extends GameObject {
     this.model.traverse((child) => {
       if (child instanceof Mesh) {
         child.material.color.set(this.color);
-        console.log(this.color);
       }
     });
   }

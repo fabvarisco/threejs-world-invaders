@@ -10,7 +10,9 @@ import {
   Vector3,
   WireframeGeometry,
   LineSegments,
-  LineBasicMaterial
+  LineBasicMaterial,
+  Box3,
+  Box3Helper
 } from "three";
 import GameObject from "./GameObject";
 import { Octree } from "three/examples/jsm/math/Octree.js";
@@ -31,9 +33,15 @@ class ShootGameObject extends GameObject {
     super(model, position, speed, scene);
     this._color = color || new Color(0xdede8d);
     this._collider = new Sphere(model.position, 0.1);
+    this.SetDestroyTimeOut(1000);
+    this._init();
+  }
+
+  private _init():void{
     this._createMesh();
     this._createColliderHelper();
-    this.SetDestroyTimeOut(1000);
+    this.box3 = new Box3().setFromObject(this.model);
+    this.box3Helper = new Box3Helper(this.box3, new Color(0xffff00));
   }
 
   private _createMesh() {
@@ -76,10 +84,13 @@ class ShootGameObject extends GameObject {
 
   public Destroy(): void {
     super.Destroy()
-    this.scene.remove(this._colliderHelper!);
-    this._colliderHelper!.geometry.dispose();
-    (this._colliderHelper!.material as LineBasicMaterial).dispose();
-    this._colliderHelper = null;
+    if(this._colliderHelper){
+      this.scene.remove(this._colliderHelper!);
+      this._colliderHelper!.geometry.dispose();
+      (this._colliderHelper!.material as LineBasicMaterial).dispose();
+      this._colliderHelper = null;
+    }
+
   }
 }
 

@@ -234,39 +234,11 @@ class Web {
   }
 
   private invadersCollisions(): void {
-    for (let i = 0; i < this.projectiles.length; i++) {
-      for (let j = 0; j < this.invaders.length; j++) {
-        const playerShoot = this.projectiles[i];
-        const invader = this.invaders[j];
-
-        if (invader.IntersectBoxWith(playerShoot)) {
+    for (let playerShoot of this.projectiles) {
+      for (let invader of this.invaders) {
+        if (playerShoot.IntersectBoxWith(invader)) {
           playerShoot.Destroy();
-          this.projectiles.splice(i, 1);
-
           invader.Destroy();
-          this.invaders.splice(j, 1);
-
-          i--;
-          j--;
-        }
-      }
-    }
-
-    for (let i = 0; i < this.projectiles.length; i++) {
-      for (let j = 0; j < this.invaders.length; j++) {
-        const playerShoot = this.projectiles[i];
-        if(playerShoot.IsRemoved()) continue;
-        const invader = this.invaders[j];
-        console.log(playerShoot)
-        if (invader.IntersectBoxWith(playerShoot)) {
-          playerShoot.Destroy();
-          this.projectiles.splice(i, 1);
-
-          invader.Destroy();
-          this.invaders.splice(j, 1);
-
-          i--;
-          j--;
         }
       }
     }
@@ -302,7 +274,6 @@ class Web {
     });
 
     this.updateInvaders(deltaTime);
-    this.invadersCollisions();
 
     for (let i = this.projectiles.length - 1; i >= 0; i--) {
       const gameObject = this.projectiles[i];
