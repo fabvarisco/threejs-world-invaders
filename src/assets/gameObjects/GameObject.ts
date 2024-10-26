@@ -7,6 +7,11 @@ import {
   Box3Helper,
   Color,
   Object3D,
+  Sphere,
+  IcosahedronGeometry,
+  WireframeGeometry,
+  LineBasicMaterial,
+  LineSegments,
 } from "three";
 import { Octree } from "three/examples/jsm/math/Octree.js";
 
@@ -19,6 +24,8 @@ class GameObject {
   protected model: Group | Mesh | Object3D;
   protected scene: Scene;
   protected timeout: any;
+  protected boundingSphere: any;
+
   constructor(
     model: Group | Mesh | Object3D,
     position: Vector3,
@@ -29,12 +36,21 @@ class GameObject {
     this.model.position.set(position.x, position.y, position.z);
     this.speed = speed;
     this.scene = scene;
-    this._init();
-  }
-
-  private _init(): void {
     this.box3 = new Box3().setFromObject(this.model);
     this.box3Helper = new Box3Helper(this.box3, new Color(0xffff00));
+    this.boundingSphere = new Sphere(this.model.position, 0.2);
+    console.log(this.boundingSphere);
+    const wireframeGeometry = new WireframeGeometry(
+      new IcosahedronGeometry(this.boundingSphere.radius, 4)
+    );
+    const wireframeMaterial = new LineBasicMaterial({ color: 0xff0000 });
+    const boundingSphereHelper = new LineSegments(
+      wireframeGeometry,
+      wireframeMaterial
+    );
+
+    boundingSphereHelper.position.copy(this.boundingSphere.center);
+    this.scene.add(boundingSphereHelper);
   }
 
   public MoveTo(targetPosition: Vector3, deltaTime: number): void {
@@ -134,15 +150,8 @@ class GameObject {
     }, timer);
   }
 
-  public IntersectBoxWith(_other: GameObject): boolean {
-    const otherBox = _other.GetBox();
-    const otherModel = _other.GetModel();
-    this.box3.setFromObject(this.model);
-    otherBox.setFromObject(otherModel);
-    if (this.box3.intersectsBox(otherBox)) {
-      return true;
-    }
-    return false;
+  public IntersectsWith(other: GameObject): boolean {
+    return this.boundingSphere.intersectsSphere(other.boundingSphere);
   }
 
   public IntersectBoxWithWorld(_other: Octree): boolean {
