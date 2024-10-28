@@ -24,7 +24,8 @@ class GameObject {
   protected model: Group | Mesh | Object3D;
   protected scene: Scene;
   protected timeout: any;
-  protected boundingSphere: any;
+  protected collider: Sphere | null = null;
+  protected colliderHelper: LineSegments | null = null;
 
   constructor(
     model: Group | Mesh | Object3D,
@@ -38,19 +39,25 @@ class GameObject {
     this.scene = scene;
     this.box3 = new Box3().setFromObject(this.model);
     this.box3Helper = new Box3Helper(this.box3, new Color(0xffff00));
-    this.boundingSphere = new Sphere(this.model.position, 0.2);
-    console.log(this.boundingSphere);
+  }
+
+  protected CreateCollider(_radius: number): void {
+    this.collider = new Sphere(this.model.position, _radius);
+  }
+
+  protected CreateColliderHelper() {
+    if (!this.collider) return;
     const wireframeGeometry = new WireframeGeometry(
-      new IcosahedronGeometry(this.boundingSphere.radius, 4)
+      new IcosahedronGeometry(this.collider.radius, 4)
     );
     const wireframeMaterial = new LineBasicMaterial({ color: 0xff0000 });
-    const boundingSphereHelper = new LineSegments(
+    this.colliderHelper = new LineSegments(
       wireframeGeometry,
       wireframeMaterial
     );
 
-    boundingSphereHelper.position.copy(this.boundingSphere.center);
-    this.scene.add(boundingSphereHelper);
+    this.colliderHelper.position.copy(this.collider.center);
+    this.scene.add(this.colliderHelper);
   }
 
   public MoveTo(targetPosition: Vector3, deltaTime: number): void {
@@ -105,9 +112,17 @@ class GameObject {
   public Destroy() {
     if (this.removed) return; // Prevent multiple calls to Destroy
 
+    if (this.colliderHelper) {
+      this.scene.remove(this.colliderHelper!);
+      this.colliderHelper!.geometry.dispose();
+      (this.colliderHelper!.material as LineBasicMaterial).dispose();
+      this.colliderHelper = null;
+    }
+ 
     // Remove from the scene
     this.scene.remove(this.model);
     this.scene.remove(this.box3Helper);
+   
 
     // Dispose of the model's geometry and material if they exist
     if (this.model instanceof Mesh) {
@@ -151,7 +166,8 @@ class GameObject {
   }
 
   public IntersectsWith(other: GameObject): boolean {
-    return this.boundingSphere.intersectsSphere(other.boundingSphere);
+    console.log("asdasd")
+    return this.collider!.intersectsSphere(other.collider!);
   }
 
   public IntersectBoxWithWorld(_other: Octree): boolean {

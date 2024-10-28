@@ -171,24 +171,26 @@ export function SpawnInvaders(
     GenerateRandomPosition(),
     40,
     scene,
-    { shootsArray }
+    { shootsArray, color: 0x732828 }
   );
-  redInvader.SetTargetPosition(randomTargetPosition[0]);
+  redInvader.SetTarget(randomTargetPosition[0]);
 
   const invader = new InvaderGameObject(
     assets.get("invader")!.clone(),
     GenerateRandomPosition(),
     10,
-    scene
+    scene,
+    {color: 0xffffff}
   );
 
   const greenInvader = new GreenInvaderGameObject(
     assets.get("invader")!.clone(),
     GenerateRandomPosition(),
     25,
-    scene
+    scene,
+    {color: 0x28a745}
   );
-  greenInvader.SetTargetPosition(randomTargetPosition[1]);
+  greenInvader.SetTarget(randomTargetPosition[1]);
 
   invaders.push(invader);
   invaders.push(greenInvader);

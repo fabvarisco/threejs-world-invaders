@@ -11,8 +11,8 @@ import { ExplosionParticles } from "../../utils/utils";
 
 class InvaderGameObject extends GameObject {
   protected args: any;
+  protected target: Vector3 | null = null;
   protected color: ColorRepresentation = 0xffffff;
-  private _target:Vector3 | null = null;
   constructor(
     model: Group | Mesh | Object3D,
     position: Vector3,
@@ -22,18 +22,35 @@ class InvaderGameObject extends GameObject {
   ) {
     super(model, position, speed, scene);
     this.args = args;
+    this.color = this.args.color;
+    this.Init();
+  }
 
+  public Init() {
+    console.log("asas")
     this.model.traverse((child) => {
       if (child instanceof Mesh) {
         child.material.color.set(this.color);
+        console.log("Invader") 
       }
     });
+
+    this.CreateCollider(0.6);
+    this.CreateColliderHelper();
   }
 
-  public Update(_deltaTime: number) : void {
-    if (!this._target) return
-    this.MoveTo(this._target, _deltaTime);
-    this.LookTo(this._target);
+  public Update(_deltaTime: number): void {
+    if (!this.target) return;
+    this.MoveTo(this.target, _deltaTime);
+    this.LookTo(this.target);
+    if (this.collider) {
+      const deltaPosition = this.velocity.clone().multiplyScalar(_deltaTime);
+      this.collider.center.add(deltaPosition);
+
+      if (this.colliderHelper) {
+        this.colliderHelper.position.copy(this.collider.center);
+      }
+    }
   }
 
   public Destroy(): void {
@@ -53,8 +70,8 @@ class InvaderGameObject extends GameObject {
     return collidedObjects;
   }
 
-  public SetTarget(_target:Vector3):void{
-    this._target = _target;
+  public SetTarget(_target: Vector3): void {
+    this.target = _target;
   }
 }
 

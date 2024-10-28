@@ -235,10 +235,13 @@ class Web {
 
   private invadersCollisions(): void {
     for (let playerShoot of this.projectiles) {
+      if(playerShoot.IsRemoved()) continue;
       for (let invader of this.invaders) {
+        if(invader.IsRemoved()) continue;
         if (playerShoot.IntersectsWith(invader)) {
-          playerShoot.Destroy();
           invader.Destroy();
+          playerShoot.Destroy();
+
         }
       }
     }
