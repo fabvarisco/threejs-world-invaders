@@ -124,15 +124,15 @@ class AR {
         const sphere = this.spheres[i];
         const invader = this.invaders[j];
 
-        if (invader.IntersectBoxWith(sphere)) {
-          this.spheres.splice(i, 1);
-          this.invaders.splice(j, 1);
+        // if (invader.IntersectBoxWith(sphere)) {
+        //   this.spheres.splice(i, 1);
+        //   this.invaders.splice(j, 1);
 
-          invader.Destroy();
-          sphere.Destroy();
-          i--;
-          j--;
-        }
+        //   invader.Destroy();
+        //   sphere.Destroy();
+        //   i--;
+        //   j--;
+        // }
       }
     }
   }
@@ -178,7 +178,7 @@ class AR {
       if (el.IsRemoved()) {
         object.splice(index, 1);
       }
-      el.Update(this.camera.position, _deltaTime);
+      el.Update(_deltaTime);
     });
   }
 
