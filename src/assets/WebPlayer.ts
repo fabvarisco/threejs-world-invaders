@@ -179,6 +179,7 @@ class WebPlayer {
     for (let i = 0; i < _others.length; i++) {
       const shoot = _others[i];
       if (shoot.IsRemoved()) continue;
+      //TODO Fix this to be with colliders
       if (shoot.GetModel().position.distanceTo(this._camera.position) <= 0.5) {
         shoot.Destroy();
         this.TakeDamage();
