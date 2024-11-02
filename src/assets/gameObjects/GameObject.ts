@@ -16,16 +16,14 @@ import {
 import { Octree } from "three/examples/jsm/math/Octree.js";
 
 class GameObject {
-  protected box3: Box3;
   protected speed: number;
-  protected box3Helper: Box3Helper;
   protected removed: boolean = false;
   protected velocity: Vector3 = new Vector3(0, 0, 0);
   protected model: Group | Mesh | Object3D;
   protected scene: Scene;
   protected timeout: any;
-  protected collider: Sphere | null = null;
-  protected colliderHelper: LineSegments | null = null;
+  protected box3?: Box3;
+  protected box3Helper?: Box3Helper;
 
   constructor(
     model: Group | Mesh | Object3D,
@@ -37,27 +35,12 @@ class GameObject {
     this.model.position.set(position.x, position.y, position.z);
     this.speed = speed;
     this.scene = scene;
+  }
+
+  public CreateBox() {
     this.box3 = new Box3().setFromObject(this.model);
     this.box3Helper = new Box3Helper(this.box3, new Color(0xffff00));
-  }
-
-  protected CreateCollider(_radius: number): void {
-    this.collider = new Sphere(this.model.position, _radius);
-  }
-
-  protected CreateColliderHelper() {
-    if (!this.collider) return;
-    const wireframeGeometry = new WireframeGeometry(
-      new IcosahedronGeometry(this.collider.radius, 4)
-    );
-    const wireframeMaterial = new LineBasicMaterial({ color: 0xff0000 });
-    this.colliderHelper = new LineSegments(
-      wireframeGeometry,
-      wireframeMaterial
-    );
-
-    this.colliderHelper.position.copy(this.collider.center);
-    this.scene.add(this.colliderHelper);
+    this.DebugDrawBox3();
   }
 
   public MoveTo(targetPosition: Vector3, deltaTime: number): void {
@@ -101,30 +84,21 @@ class GameObject {
   public GetModel() {
     return this.model;
   }
-  public GetBox() {
+  public GetBox(): Box3 | undefined {
     return this.box3;
   }
 
   public DebugDrawBox3(): void {
+    if (!this.box3Helper) return;
     this.scene.add(this.box3Helper);
   }
 
   public Destroy() {
-    if (this.removed) return; // Prevent multiple calls to Destroy
+    if (this.removed) return;
 
-    if (this.colliderHelper) {
-      this.scene.remove(this.colliderHelper!);
-      this.colliderHelper!.geometry.dispose();
-      (this.colliderHelper!.material as LineBasicMaterial).dispose();
-      this.colliderHelper = null;
-    }
- 
-    // Remove from the scene
     this.scene.remove(this.model);
-    this.scene.remove(this.box3Helper);
-   
+    if (this.box3Helper) this.scene.remove(this.box3Helper);
 
-    // Dispose of the model's geometry and material if they exist
     if (this.model instanceof Mesh) {
       if (this.model.geometry) {
         this.model.geometry.dispose();
@@ -138,20 +112,11 @@ class GameObject {
       }
     }
 
-    // Clear the timeout if set
     if (this.timeout) {
       clearTimeout(this.timeout);
     }
 
-    // Mark the object as removed
     this.removed = true;
-
-    // Optional: Set references to null to assist with garbage collection
-    // this.model = null;
-    // this.velocity = null;
-    // this.box3 = null;
-    // this.box3Helper = null;
-    // this.scene = null;
   }
 
   public IsRemoved() {
@@ -166,16 +131,22 @@ class GameObject {
   }
 
   public IntersectsWith(other: GameObject): boolean {
-    console.log("asdasd")
-    return this.collider!.intersectsSphere(other.collider!);
+    if (!other?.GetBox()) return false;
+    this.box3?.setFromObject(this.model);
+
+
+    if (this.box3?.intersectsBox(other.GetBox()!)) {
+      return true;
+    }
+    return false;
   }
 
   public IntersectBoxWithWorld(_other: Octree): boolean {
-    // this.box3.setFromObject(this.model);
+    this.box3?.setFromObject(this.model);
 
-    // if (this.box3.intersectsBox(otherBox)) {
-    //   return true;
-    // }
+    if (this.box3?.intersectsBox(_other.box)) {
+      return true;
+    }
     return false;
   }
 
@@ -186,7 +157,10 @@ class GameObject {
     }
   }
 
-  public Update(_deltaTime: number): void {}
+  public Update(_deltaTime: number): void {
+    this.box3?.setFromObject(this.model);
+    this.box3Helper?.updateMatrix();
+  }
 }
 
 export default GameObject;
