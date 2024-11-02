@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { Capsule } from "three/addons/math/Capsule.js";
 import GameObject from "../assets/gameObjects/GameObject";
-import { CreateStars, SpawnInvaders } from "../utils/utils";
+import { CreateStars, GLOBAL_ASSETS, SpawnInvaders } from "../utils/utils";
 import WorldWebGameObject from "../assets/gameObjects/WorldWebGameObject";
 import Player from "../assets/WebPlayer";
 import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
@@ -14,22 +14,12 @@ class Web {
   private readonly camera: THREE.PerspectiveCamera;
   private readonly fillLight1: THREE.HemisphereLight;
   private readonly directionalLight: THREE.DirectionalLight;
-  private readonly GRAVITY: number;
-  private readonly playerShoots: GameObject[] = [];
   private readonly invaderShoots: GameObject[] = [];
-  private readonly playerCollider: Capsule;
-  private readonly playerVelocity: THREE.Vector3;
-  private readonly playerDirection: THREE.Vector3;
-  private readonly assets: Map<string, THREE.Object3D>;
   private clock: THREE.Clock;
   private renderer: THREE.WebGLRenderer;
-  private playerOnFloor: boolean;
-
-  private invaderModel: THREE.Object3D;
   private worldWeb: WorldWebGameObject;
   private spawnTime: number = 10;
   private timer: number = 10;
-  private shakeIntensity: number = 0;
   private player: Player;
   private stats: Stats;
   private gameObjectList: GameObject[] = [];
@@ -38,7 +28,6 @@ class Web {
   constructor(
     camera: THREE.PerspectiveCamera,
     renderer: THREE.WebGLRenderer,
-    assets: Map<string, THREE.Object3D>
   ) {
     this._createGameEvents();
     this.clock = new THREE.Clock();
@@ -69,24 +58,12 @@ class Web {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.VSMShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.GRAVITY = 30;
-    this.assets = assets;
-    this.playerCollider = new Capsule(
-      new THREE.Vector3(0, 0.35, 0),
-      new THREE.Vector3(0, 1, 0),
-      0.35
-    );
-    this.playerVelocity = new THREE.Vector3();
-    this.playerDirection = new THREE.Vector3();
-    this.playerOnFloor = false;
 
     window.addEventListener("resize", this.onWindowResize);
     this.onWindowResize();
 
-    this.invaderModel = this.assets.get("invader")!;
-    this.invaderModel.scale.set(1, 1, 1);
     this.worldWeb = new WorldWebGameObject(
-      this.assets.get("city")!,
+      GLOBAL_ASSETS.assets.get("city")!,
       new THREE.Vector3(0, 0, 0),
       0,
       this.scene
@@ -129,106 +106,9 @@ class Web {
   }
 
   private onWindowResize(): void {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.updateProjectionMatrix();
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-  }
-
-  private throwBall(): void {
-    const playerShootGeometry = new THREE.IcosahedronGeometry(0.1, 5);
-    const playerShootMaterial = new THREE.MeshLambertMaterial({
-      color: 0xdede8d,
-    });
-    const playerShootMesh = new THREE.Mesh(
-      playerShootGeometry,
-      playerShootMaterial
-    );
-    playerShootMesh.castShadow = true;
-    playerShootMesh.receiveShadow = true;
-
-    // const playerShoot = new GameObject(
-    //   playerShootMesh,
-    //   this.gunModel.localToWorld(new THREE.Vector3(0.15, -0.15, -0.5)),
-    //   30,
-    //   this.scene
-    // );
-
-    // const impulse =
-    //   15 + 30 * (1 - Math.exp((this.mouseTime - performance.now()) * 0.001));
-    // playerShoot.SetVelocity(
-    //   this.gunModel
-    //     .localToWorld(new THREE.Vector3(0, 0, -1))
-    //     .sub(this.camera.position)
-    //     .normalize()
-    //     .multiplyScalar(impulse * 4)
-    // );
-
-    // this.playerShoots.push(playerShoot);
-    // this.scene.add(playerShoot.GetModel());
-  }
-
-  private playerCollisions(): void {
-    const result = this.worldWeb
-      .GetOctree()
-      .capsuleIntersect(this.playerCollider);
-
-    this.playerOnFloor = false;
-    if (result) {
-      this.playerOnFloor = result.normal.y > 0;
-      if (!this.playerOnFloor) {
-        this.playerVelocity.addScaledVector(
-          result.normal,
-          -result.normal.dot(this.playerVelocity)
-        );
-      }
-      this.playerCollider.translate(result.normal.multiplyScalar(result.depth));
-    }
-
-    // this.worldWeb.GetMeshes().forEach((el, index, object) => {
-    //   const elBox = new THREE.Box3().setFromObject(el);
-    //   const result = this.playerCollider.intersectsBox(elBox);
-
-    //   if (result) {
-    //     this.playerOnFloor = true;
-    //   }else{
-    //     this.playerOnFloor = false;
-    //   }
-    // });
-
-    ///-------------------------
-    for (let i = 0; i < this.invaders.length; i++) {
-      const invader = this.invaders[i];
-      if (invader.GetModel().position.distanceTo(this.camera.position) <= 1) {
-        this.player.TakeDamage();
-        invader.Destroy();
-      }
-    }
-
-    for (let i = 0; i < this.invaderShoots.length; i++) {
-      const shoot = this.invaderShoots[i];
-      if (shoot.GetModel().position.distanceTo(this.camera.position) <= 0.5) {
-        shoot.Destroy();
-        this.player.TakeDamage();
-      }
-    }
-  }
-
-
-  private invaderWorldCollisions(): void {
-    this.invaders
-      .filter((invader) => invader.constructor == GreenInvaderGameObject)
-      .forEach((invader) => {
-        this.worldWeb.GetMeshes().forEach((el, index, object) => {
-          const elBox = new THREE.Box3().setFromObject(el);
-          const result = elBox.intersectsBox(invader.GetBox());
-          if (result) {
-            invader.Destroy();
-            this.worldWeb.GetModel().remove(el);
-            this.worldWeb.ResetOctree();
-            object.splice(index, 1);
-          }
-        });
-      });
+    // this.camera.aspect = window.innerWidth / window.innerHeight;
+    // this.camera.updateProjectionMatrix();
+    // this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
   private invadersCollisions(): void {
@@ -275,6 +155,7 @@ class Web {
       if (el.IsRemoved()) {
         object.splice(index, 1);
       }
+      el.Update(deltaTime);
       el.AddScalar(deltaTime);
     });
 
@@ -287,7 +168,6 @@ class Web {
       SpawnInvaders(
         this.scene,
         this.invaders,
-        this.assets,
         this.invaderShoots,
         [this.worldWeb.GetRandomMesh(), this.worldWeb.GetRandomMesh()]
       );

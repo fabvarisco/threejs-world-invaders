@@ -30,8 +30,6 @@ class ShootGameObject extends GameObject {
     super(model, position, speed, scene);
     this._color = color || new Color(0xdede8d);
     this._createMesh();
-    this.CreateCollider(0.1);
-    this.CreateColliderHelper();
     this.SetDestroyTimeOut(1000);
   }
 
@@ -43,27 +41,21 @@ class ShootGameObject extends GameObject {
     this.model = new Mesh(_shootGeometry, _playerShootMaterial);
     this.model.castShadow = true;
     this.model.receiveShadow = true;
+    this.CreateBox();
   }
 
   public Update(_deltaTime: number): void {
     this.AddScalar(_deltaTime);
-
-    if (this.collider) {
-      const deltaPosition = this.velocity.clone().multiplyScalar(_deltaTime);
-      this.collider.center.add(deltaPosition);
-
-      if (this.colliderHelper) {
-        this.colliderHelper.position.copy(this.collider.center);
-      }
-    }
+    this.box3?.setFromObject(this.model)
+    this.box3Helper?.updateMatrix(); 
   }
 
   public WorldCollision(webWorld: WorldWebGameObject) {
-    const result = webWorld.GetOctree().sphereIntersect(this.collider!);
+    // const result = webWorld.GetOctree().sphereIntersect(this.collider!);
 
-    if (result) {
-      this.Destroy();
-    }
+    // if (result) {
+    //   this.Destroy();
+    // }
   }
 }
 

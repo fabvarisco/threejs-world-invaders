@@ -11,8 +11,6 @@ class Gun {
   constructor(scene: Scene, camera: Camera) {
     this._scene = scene;
     this._camera = camera;
-
-    console.log(GLOBAL_ASSETS.assets);
     this._model = new Object3D();
     this._createCrosshair();
     this._createGun();

@@ -16,7 +16,7 @@ import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
 import RedInvaderGameObject from "../assets/gameObjects/RedInvaderGameObject";
 import GreenInvaderGameObject from "../assets/gameObjects/GreenInvaderGameObject";
 import GameObject from "../assets/gameObjects/GameObject";
-import { Capsule } from "three/examples/jsm/math/Capsule.js";
+import { GlobalAssetsType } from "../type";
 
 export function CreateStars(scene: Scene) {
   const starsGeometry = new BufferGeometry();
@@ -162,12 +162,19 @@ export function GetRandomInt(min: number, max: number): number {
 export function SpawnInvaders(
   scene: Scene,
   invaders: InvaderGameObject[],
-  assets: Map<string, Object3D>,
   shootsArray: GameObject[],
   randomTargetPosition: Vector3[]
 ): void {
+  const invader = new InvaderGameObject(
+    GLOBAL_ASSETS.assets.get("invader")!.clone(),
+    GenerateRandomPosition(),
+    10,
+    scene,
+    { color: 0xffffff }
+  );
+
   const redInvader = new RedInvaderGameObject(
-    assets.get("invader")!.clone(),
+    GLOBAL_ASSETS.assets.get("invader")!.clone(),
     GenerateRandomPosition(),
     40,
     scene,
@@ -175,20 +182,12 @@ export function SpawnInvaders(
   );
   redInvader.SetTarget(randomTargetPosition[0]);
 
-  const invader = new InvaderGameObject(
-    assets.get("invader")!.clone(),
-    GenerateRandomPosition(),
-    10,
-    scene,
-    {color: 0xffffff}
-  );
-
   const greenInvader = new GreenInvaderGameObject(
-    assets.get("invader")!.clone(),
+    GLOBAL_ASSETS.assets.get("invader")!.clone(),
     GenerateRandomPosition(),
     25,
     scene,
-    {color: 0x28a745}
+    { color: 0x28a745 }
   );
   greenInvader.SetTarget(randomTargetPosition[1]);
 
@@ -217,6 +216,6 @@ function GenerateRandomPosition(): Vector3 {
   return position;
 }
 
-export const GLOBAL_ASSETS: any = {
-  assets: undefined,
+export const GLOBAL_ASSETS: GlobalAssetsType = {
+  assets: new Map(),
 };

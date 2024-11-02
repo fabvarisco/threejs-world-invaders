@@ -8,6 +8,8 @@ import {
   MeshLambertMaterial,
   ColorRepresentation,
   Color,
+  Material,
+  MeshStandardMaterial,
 } from "three";
 import InvaderGameObject from "./InvaderGameObject";
 import GameObject from "./GameObject";
@@ -27,16 +29,16 @@ class RedInvaderGameObject extends InvaderGameObject {
   }
 
   public Init() {
+    console.log(this.args);
     this.color = 0x732828;
-    this.model.traverse((child) => {
-      if (child instanceof Mesh) {
-        console.log("RED") 
-        child.material.color.set(0x732828);
-      }
-    });
-
-    this.CreateCollider(0.6);
-    this.CreateColliderHelper();
+    if (
+      this.model instanceof Mesh &&
+      this.model.material instanceof Material
+    ) {
+      (this.model.material as MeshStandardMaterial).color.set(this.color);
+      this.model.material.needsUpdate = true; 
+    }
+    this.CreateBox();
   }
 
   private _shoot(targetPosition: Vector3) {
@@ -59,7 +61,7 @@ class RedInvaderGameObject extends InvaderGameObject {
       .normalize();
 
     shoot.SetVelocity(direction.multiplyScalar(5));
-
+    shoot.CreateBox();
     this.args.shootsArray.push(shoot);
     this.scene.add(shoot.GetModel());
   }
@@ -79,14 +81,8 @@ class RedInvaderGameObject extends InvaderGameObject {
       this.shootTimer -= _deltaTime;
     }
     this.LookTo(this.target);
-    if (this.collider) {
-      const deltaPosition = this.velocity.clone().multiplyScalar(_deltaTime);
-      this.collider.center.add(deltaPosition);
-
-      if (this.colliderHelper) {
-        this.colliderHelper.position.copy(this.collider.center);
-      }
-    }
+    this.box3?.setFromObject(this.model);
+    this.box3Helper?.updateMatrix();
   }
 }
 

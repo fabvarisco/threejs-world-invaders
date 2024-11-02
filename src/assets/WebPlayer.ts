@@ -175,6 +175,8 @@ class WebPlayer {
     return this._camera.position;
   }
 
+
+
   public PlayerCollisionsWithOthers(_others: GameObject[]): void {
     for (let i = 0; i < _others.length; i++) {
       const shoot = _others[i];
@@ -186,6 +188,9 @@ class WebPlayer {
       }
     }
   }
+
+
+  
 }
 
 export default WebPlayer;

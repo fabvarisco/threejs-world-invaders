@@ -22,35 +22,26 @@ class InvaderGameObject extends GameObject {
   ) {
     super(model, position, speed, scene);
     this.args = args;
-    this.color = this.args.color;
+
     this.Init();
   }
 
   public Init() {
-    console.log("asas")
+    this.color = this.args?.color ?? 0xffffff;
     this.model.traverse((child) => {
       if (child instanceof Mesh) {
         child.material.color.set(this.color);
-        console.log("Invader") 
       }
     });
-
-    this.CreateCollider(0.6);
-    this.CreateColliderHelper();
+    this.CreateBox();
   }
 
   public Update(_deltaTime: number): void {
     if (!this.target) return;
     this.MoveTo(this.target, _deltaTime);
     this.LookTo(this.target);
-    if (this.collider) {
-      const deltaPosition = this.velocity.clone().multiplyScalar(_deltaTime);
-      this.collider.center.add(deltaPosition);
-
-      if (this.colliderHelper) {
-        this.colliderHelper.position.copy(this.collider.center);
-      }
-    }
+    this.box3Helper?.updateMatrix();
+    this.box3?.setFromObject(this.model);
   }
 
   public Destroy(): void {
@@ -62,7 +53,7 @@ class InvaderGameObject extends GameObject {
     const collidedObjects = [];
 
     for (const cityObject of cityObjects) {
-      if (this.GetBox().intersectsBox(cityObject.geometry.boundingBox!)) {
+      if (this.GetBox()?.intersectsBox(cityObject.geometry.boundingBox!)) {
         collidedObjects.push(cityObject);
       }
     }
