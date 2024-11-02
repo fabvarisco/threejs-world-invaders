@@ -4,6 +4,7 @@ import { CameraType } from "../type";
 import Gun from "./Gun";
 import { Capsule } from "three/examples/jsm/math/Capsule.js";
 import WorldWebGameObject from "./gameObjects/WorldWebGameObject";
+import GameObject from "./gameObjects/GameObject";
 
 class WebPlayer {
   private life = 3;
@@ -12,6 +13,7 @@ class WebPlayer {
   private _gun: Gun;
   private _scene: Scene;
   private _camera: Camera;
+  private _shakeIntensity: number = 0;
   private _cameraType: CameraType;
   private _playerOnFloor: boolean = false;
   private _velocity: Vector3 = new Vector3();
@@ -49,7 +51,8 @@ class WebPlayer {
       this._mouseTime = performance.now();
     });
     document.addEventListener("mouseup", () => {
-      if (document.pointerLockElement !== null) this._gun.Shoot(this._mouseTime);
+      if (document.pointerLockElement !== null)
+        this._gun.Shoot(this._mouseTime);
     });
     document.body.addEventListener("mousemove", (event) => {
       if (document.pointerLockElement === document.body) {
@@ -57,11 +60,9 @@ class WebPlayer {
         this._camera.rotation.x -= event.movementY / 1200;
       }
     });
-
   }
 
   private _playerControlls(_deltaTime: number): void {
-
     const _speedDelta = _deltaTime * (this._playerOnFloor ? 25 : 8);
     if (this._keyStates["KeyW"]) {
       this._velocity.add(this._getForwardVector().multiplyScalar(_speedDelta));
@@ -80,7 +81,6 @@ class WebPlayer {
         this._velocity.y = 15;
       }
     }
-    
   }
 
   private _getSideVector(): Vector3 {
@@ -90,7 +90,7 @@ class WebPlayer {
     this._direction.cross(this._camera.up);
     return this._direction;
   }
-  
+
   private _getForwardVector(): Vector3 {
     this._camera.getWorldDirection(this._direction);
     this._direction.y = 0;
@@ -100,6 +100,7 @@ class WebPlayer {
 
   public TakeDamage() {
     this.life--;
+    this._shakeIntensity = 0.5;
   }
 
   public Update(_deltaTime: number) {
@@ -108,7 +109,7 @@ class WebPlayer {
       this.endGame = true;
       GameOverOverlay();
     }
-    
+
     this._playerControlls(_deltaTime);
 
     let damping = Math.exp(-4 * _deltaTime) - 1;
@@ -117,23 +118,19 @@ class WebPlayer {
       damping *= 0.1;
     }
     this._velocity.addScaledVector(this._velocity, damping);
-    const deltaPosition = this._velocity
-      .clone()
-      .multiplyScalar(_deltaTime);
+    const deltaPosition = this._velocity.clone().multiplyScalar(_deltaTime);
     this._collider.translate(deltaPosition);
     this._playerCollisions();
     this._camera.position.copy(this._collider.end);
 
-
     this._teleportPlayerIfOob();
-    
+
     this._gun.UpdatePosition();
+    this._updateCamera(_deltaTime);
   }
 
   private _playerCollisions(): void {
-    const result = this._webWorld
-      .GetOctree()
-      .capsuleIntersect(this._collider);
+    const result = this._webWorld.GetOctree().capsuleIntersect(this._collider);
 
     this._playerOnFloor = false;
     if (result) {
@@ -154,6 +151,17 @@ class WebPlayer {
     }
   }
 
+  private _updateCamera(_deltaTime: number): void {
+    if (this._shakeIntensity > 0) {
+      const offsetX = (Math.random() - 0.5) * this._shakeIntensity;
+      const offsetY = (Math.random() - 0.5) * this._shakeIntensity;
+
+      this._camera.position.x += offsetX;
+      this._camera.position.y += offsetY;
+
+      this._shakeIntensity -= _deltaTime;
+    }
+  }
 
   public IsEndGame() {
     return this.endGame;
@@ -165,6 +173,17 @@ class WebPlayer {
 
   public GetPosition(): Vector3 {
     return this._camera.position;
+  }
+
+  public PlayerCollisionsWithOthers(_others: GameObject[]): void {
+    for (let i = 0; i < _others.length; i++) {
+      const shoot = _others[i];
+      if (shoot.IsRemoved()) continue;
+      if (shoot.GetModel().position.distanceTo(this._camera.position) <= 0.5) {
+        shoot.Destroy();
+        this.TakeDamage();
+      }
+    }
   }
 }
 

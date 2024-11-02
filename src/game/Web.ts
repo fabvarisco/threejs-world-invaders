@@ -201,7 +201,6 @@ class Web {
       if (invader.GetModel().position.distanceTo(this.camera.position) <= 1) {
         this.player.TakeDamage();
         invader.Destroy();
-        this.shakeIntensity = 1;
       }
     }
 
@@ -210,7 +209,6 @@ class Web {
       if (shoot.GetModel().position.distanceTo(this.camera.position) <= 0.5) {
         shoot.Destroy();
         this.player.TakeDamage();
-        this.shakeIntensity = 1;
       }
     }
   }
@@ -247,21 +245,6 @@ class Web {
     }
   }
 
-  private updateShoots(_deltaTime: number): void {
-    this.playerShoots.forEach((el, index, object) => {
-      if (el.IsRemoved()) {
-        object.splice(index, 1);
-      }
-      el.AddScalar(_deltaTime);
-    });
-
-    this.invaderShoots.forEach((el, index, object) => {
-      if (el.IsRemoved()) {
-        object.splice(index, 1);
-      }
-      el.AddScalar(_deltaTime);
-    });
-  }
 
   private animate(): void {
     if (this.player.IsEndGame()) {
@@ -270,7 +253,6 @@ class Web {
     }
     const deltaTime = this.clock.getDelta();
     this.player.Update(deltaTime);
-
 
     this.gameObjectList.forEach((gameObject) => {
       gameObject.Update(deltaTime);
@@ -287,6 +269,18 @@ class Web {
         gameObject.WorldCollision(this.worldWeb);
       }
     }
+
+
+    this.invaderShoots.forEach((el, index, object) => {
+      if (el.IsRemoved()) {
+        object.splice(index, 1);
+      }
+      el.AddScalar(deltaTime);
+    });
+
+
+    this.player.PlayerCollisionsWithOthers(this.invaderShoots);
+
 
     if (this.spawnTime <= 0) {
       this.spawnTime = this.timer;
