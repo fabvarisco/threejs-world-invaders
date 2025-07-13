@@ -15,6 +15,8 @@ import {
 import GameObject from "../assets/gameObjects/GameObject";
 import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
 import { Block, Text, update } from "three-mesh-ui";
+import { ZIPS_COMPRESSION } from "three/examples/jsm/exporters/EXRExporter.js";
+import ShootGameObject from "../assets/gameObjects/ShootGameObject";
 
 class AR {
   private readonly camera: Camera;
@@ -47,6 +49,7 @@ class AR {
     this.scene.add(light);
 
     this._buildControllers();
+
     // Create VR GUI
     this.textContainer = new Block({
       width: 0.3,
@@ -54,14 +57,14 @@ class AR {
       padding: 0.05,
       justifyContent: "center",
       textAlign: "center",
-      fontFamily: './fonts/Roboto-msdf.json',
-      fontTexture: './fonts/Roboto-msdf.png',
+      fontFamily: "./fonts/Roboto-msdf.json",
+      fontTexture: "./fonts/Roboto-msdf.png",
     });
 
     //
     this.textContainer.position.set(0, 0, -1.8);
     const text = new Text({
-      content: "Life: 3"
+      content: "Life: 3",
     });
 
     this.textContainer.add(text);
@@ -72,28 +75,24 @@ class AR {
   }
 
   private _onSelect(): void {
-    const sphereGeometry = new IcosahedronGeometry(0.02, 5);
-    const sphereMaterial = new MeshLambertMaterial({ color: 0xdede8d });
-    const meshSphere = new Mesh(sphereGeometry, sphereMaterial);
-    meshSphere.castShadow = true;
-    meshSphere.receiveShadow = true;
-
     const velocity = new Vector3(0, 0, -0.1);
     velocity.x = (Math.random() - 0.5) * 0.02;
     velocity.y = (Math.random() - 0.5) * 0.02;
     velocity.z = Math.random() * 0.01 - 0.05;
     velocity.applyQuaternion(this.controllers[0].quaternion);
 
-    const sphere = new GameObject(
-      meshSphere,
+    const playerShoot = new ShootGameObject(
+      new Group(),
       this.controllers[0].position,
-      0.6,
+      30,
       this.scene
     );
-    sphere.SetVelocity(velocity.clone().multiplyScalar(23));
 
-    this.spheres.push(sphere);
-    this.scene.add(sphere.GetModel());
+
+    playerShoot.SetVelocity(velocity.clone().multiplyScalar(500));
+
+     this.spheres.push(playerShoot);
+      this.scene.add(playerShoot.GetModel());
   }
 
   private _updateSpheres(deltaTime: number) {
@@ -119,20 +118,14 @@ class AR {
   }
 
   private _invadersCollisions(): void {
-    for (let i = 0; i < this.spheres.length; i++) {
-      for (let j = 0; j < this.invaders.length; j++) {
-        const sphere = this.spheres[i];
-        const invader = this.invaders[j];
-
-        // if (invader.IntersectBoxWith(sphere)) {
-        //   this.spheres.splice(i, 1);
-        //   this.invaders.splice(j, 1);
-
-        //   invader.Destroy();
-        //   sphere.Destroy();
-        //   i--;
-        //   j--;
-        // }
+    for (let playerShoot of this.spheres) {
+      if (playerShoot.IsRemoved()) continue;
+      for (let invader of this.invaders) {
+        if (invader.IsRemoved()) continue;
+        if (playerShoot.IntersectsWith(invader)) {
+          invader.Destroy();
+          playerShoot.Destroy();
+        }
       }
     }
   }
@@ -178,6 +171,8 @@ class AR {
       if (el.IsRemoved()) {
         object.splice(index, 1);
       }
+      el.SetTarget(this.camera.position);
+      ZIPS_COMPRESSION;
       el.Update(_deltaTime);
     });
   }
@@ -193,13 +188,14 @@ class AR {
     for (let i = 0; i < this.stepsPerFrame; i++) {
       this._updateSpheres(deltaTime);
       this._playerUpdate();
-      const distance = 1; 
-      const angle = -Math.PI / 4; 
+      const distance = 1;
       const cameraDirection = new Vector3();
-      this.camera.getWorldDirection(cameraDirection); 
-      const targetPosition = new Vector3().copy(this.camera.position).add(cameraDirection.multiplyScalar(distance)); 
-      targetPosition.x -= .2
-      targetPosition.y -= .4
+      this.camera.getWorldDirection(cameraDirection);
+      const targetPosition = new Vector3()
+        .copy(this.camera.position)
+        .add(cameraDirection.multiplyScalar(distance));
+      targetPosition.x -= 0.2;
+      targetPosition.y -= 0.4;
       this.textContainer.position.copy(targetPosition);
       this.textContainer.rotation.setFromRotationMatrix(this.camera.matrix);
       update();
@@ -228,7 +224,7 @@ class AR {
     this.renderer.render(this.scene, this.camera);
   }
 
-  public Destroy() { }
+  public Destroy() {}
 }
 
 export default AR;

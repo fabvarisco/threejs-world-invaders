@@ -6,17 +6,9 @@ import {
   MeshLambertMaterial,
   Object3D,
   Scene,
-  Sphere,
   Vector3,
-  WireframeGeometry,
-  LineSegments,
-  LineBasicMaterial,
-  Box3,
-  Box3Helper,
 } from "three";
 import GameObject from "./GameObject";
-import { Octree } from "three/examples/jsm/math/Octree.js";
-import WorldWebGameObject from "./WorldWebGameObject";
 
 class ShootGameObject extends GameObject {
   private _color: Color | null;

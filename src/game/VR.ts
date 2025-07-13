@@ -292,7 +292,7 @@ class VR {
         const sphere = this.projectiles[i];
         const invader = this.invaders[j];
 
-        if (invader.IntersectBoxWith(sphere)) {
+        if (invader.IntersectsWith(sphere)) {
           sphere.Destroy();
           this.projectiles.splice(i, 1);
 
@@ -310,7 +310,7 @@ class VR {
       if (el.IsRemoved()) {
         object.splice(index, 1);
       }
-      el.Update(this.camera.position, _deltaTime);
+      el.Update(_deltaTime);
     });
   }
 
