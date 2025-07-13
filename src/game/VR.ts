@@ -410,7 +410,6 @@ class VR {
         if (this.intersection.object.name === "restart" && !controller.userData.hasGun) {
           if (this.intersection && !controller.userData.hasGun) {
             controller.userData.marker.position.copy(this.intersection?.point);
-            console.log(this.intersection.object)
           }
 
         }

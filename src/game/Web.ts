@@ -1,11 +1,9 @@
 import * as THREE from "three";
-import { Capsule } from "three/addons/math/Capsule.js";
 import GameObject from "../assets/gameObjects/GameObject";
 import { CreateStars, GLOBAL_ASSETS, SpawnInvaders } from "../utils/utils";
 import WorldWebGameObject from "../assets/gameObjects/WorldWebGameObject";
 import Player from "../assets/WebPlayer";
 import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
-import GreenInvaderGameObject from "../assets/gameObjects/GreenInvaderGameObject";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import ShootGameObject from "../assets/gameObjects/ShootGameObject";
 
@@ -59,11 +57,8 @@ class Web {
     this.renderer.shadowMap.type = THREE.VSMShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
 
-    window.addEventListener("resize", this.onWindowResize);
-    this.onWindowResize();
-
     this.worldWeb = new WorldWebGameObject(
-      GLOBAL_ASSETS.assets.get("city")!,
+      GLOBAL_ASSETS.assets.get("collisionWorld")!,
       new THREE.Vector3(0, 0, 0),
       0,
       this.scene
@@ -105,12 +100,6 @@ class Web {
     this.invadersCollisions();
   }
 
-  private onWindowResize(): void {
-    // this.camera.aspect = window.innerWidth / window.innerHeight;
-    // this.camera.updateProjectionMatrix();
-    // this.renderer.setSize(window.innerWidth, window.innerHeight);
-  }
-
   private invadersCollisions(): void {
     for (let playerShoot of this.projectiles) {
       if(playerShoot.IsRemoved()) continue;
@@ -119,7 +108,6 @@ class Web {
         if (playerShoot.IntersectsWith(invader)) {
           invader.Destroy();
           playerShoot.Destroy();
-
         }
       }
     }
@@ -146,8 +134,7 @@ class Web {
         this.projectiles.splice(i, 1);
       } else {
         gameObject.Update(deltaTime);
-        gameObject.WorldCollision(this.worldWeb);
-      }
+      } 
     }
 
 
@@ -161,7 +148,7 @@ class Web {
 
 
     this.player.PlayerCollisionsWithOthers(this.invaderShoots);
-
+    this.player.PlayerCollisionsWithOthers(this.invaders);
 
     if (this.spawnTime <= 0) {
       this.spawnTime = this.timer;

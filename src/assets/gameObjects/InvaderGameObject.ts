@@ -12,7 +12,7 @@ import { ExplosionParticles } from "../../utils/utils";
 class InvaderGameObject extends GameObject {
   protected args: any;
   protected target: Vector3 | null = null;
-  protected color: ColorRepresentation = 0xffffff;
+  protected color: ColorRepresentation | null = null;
   constructor(
     model: Group | Mesh | Object3D,
     position: Vector3,
@@ -22,6 +22,7 @@ class InvaderGameObject extends GameObject {
   ) {
     super(model, position, speed, scene);
     this.args = args;
+    this.model = model;
 
     this.Init();
   }
@@ -30,7 +31,21 @@ class InvaderGameObject extends GameObject {
     this.color = this.args?.color ?? 0xffffff;
     this.model.traverse((child) => {
       if (child instanceof Mesh) {
-        child.material.color.set(this.color);
+        if (Array.isArray(child.material)) {
+          child.material = child.material.map((mat) => mat.clone());
+        } else {
+          child.material = child.material.clone();
+        }
+
+        const materials = Array.isArray(child.material)
+          ? child.material
+          : [child.material];
+
+        for (const material of materials) {
+          if ("color" in material) {
+            material.color.set(this.color);
+          }
+        }
       }
     });
     this.CreateBox();
@@ -46,19 +61,7 @@ class InvaderGameObject extends GameObject {
 
   public Destroy(): void {
     super.Destroy();
-    ExplosionParticles(this.model.position, this.scene, this.color);
-  }
-
-  public DetectCollisionWithCityObjects(cityObjects: Mesh[]): any[] {
-    const collidedObjects = [];
-
-    for (const cityObject of cityObjects) {
-      if (this.GetBox()?.intersectsBox(cityObject.geometry.boundingBox!)) {
-        collidedObjects.push(cityObject);
-      }
-    }
-
-    return collidedObjects;
+    ExplosionParticles(this.model.position, this.scene, this.color ?? 0xffffff);
   }
 
   public SetTarget(_target: Vector3): void {

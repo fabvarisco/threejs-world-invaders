@@ -24,11 +24,10 @@ class App {
   private readonly scene: Scene;
   private readonly renderer: WebGLRenderer;
   private readonly assetList: IAsset[] = [
-    { fileName: "webWorld.glb" },
+    { fileName: "collisionWorld.glb" },
     { fileName: "invader.glb" },
     { fileName: "gun.glb" },
     { fileName: "earth.fbx" },
-    { fileName: "city.glb" },
   ];
   private readonly assets: Map<string, Object3D> = new Map();
   private activeGame: Web | AR | VR | TitleScreen | undefined | null = null;
@@ -67,8 +66,7 @@ class App {
     this._createLoading();
     this.activeGame = null;
 
-    // resize
-    window.addEventListener("resize", this._resize.bind(this));
+
   }
 
   public async Start(): Promise<void> {
@@ -78,6 +76,7 @@ class App {
     this._removeLoading();
     this.activeGame = new TitleScreen(this.camera, this.renderer, this.assets);
     document.getElementById("ARButton");
+
   }
 
   private async _init(): Promise<void> {
@@ -159,14 +158,9 @@ class App {
     document.getElementById("title-container")?.remove();
     this._destroyStartButtonsContainer();
     this.activeGame = null;
-    this.activeGame = new Web(this.camera, this.renderer, this.assets);
+    this.activeGame = new Web(this.camera, this.renderer);
   }
 
-  private _resize(): void {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.updateProjectionMatrix();
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-  }
 }
 
 export default App;

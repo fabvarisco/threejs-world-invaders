@@ -34,29 +34,14 @@ class WorldWebGameObject extends GameObject {
           material.map.anisotropy = 4;
         }
         this.worldMeshes.push(child);
+        
       }
     });
     this.octree.fromGraphNode(this.model);
-
-  }
-
-  public DetectCollisionWithWorldObjects(): void {
-    const collidedObjects: Mesh[] = [];
-
-    for (const worldMesh of this.worldMeshes) {
-      const worldBox = new Box3().setFromObject(worldMesh);
-      const box = new Box3Helper(worldBox, new Color(0xffff00));
-      this.scene.add(box);
-
-      // if (worldBox.intersectsBox(invaderBox)) {
-      //   collidedObjects.push(worldMesh);
-      // }
-    }
-
+    this.model = model;
   }
 
   public ResetOctree() {
-    console.log(this.octree.subTrees)
     this.octree.subTrees = [];
     this.octree.fromGraphNode(this.model);
   }

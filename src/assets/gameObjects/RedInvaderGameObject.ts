@@ -6,10 +6,6 @@ import {
   Scene,
   IcosahedronGeometry,
   MeshLambertMaterial,
-  ColorRepresentation,
-  Color,
-  Material,
-  MeshStandardMaterial,
 } from "three";
 import InvaderGameObject from "./InvaderGameObject";
 import GameObject from "./GameObject";
@@ -28,22 +24,9 @@ class RedInvaderGameObject extends InvaderGameObject {
     super(model, position, speed, scene, args);
   }
 
-  public Init() {
-    console.log(this.args);
-    this.color = 0x732828;
-    if (
-      this.model instanceof Mesh &&
-      this.model.material instanceof Material
-    ) {
-      (this.model.material as MeshStandardMaterial).color.set(this.color);
-      this.model.material.needsUpdate = true; 
-    }
-    this.CreateBox();
-  }
-
   private _shoot(targetPosition: Vector3) {
     const sphereGeometry = new IcosahedronGeometry(0.2, 5);
-    const sphereMaterial = new MeshLambertMaterial({ color: this.color });
+    const sphereMaterial = new MeshLambertMaterial({ color: this.color ?? 0xffffff });
     const meshSphere = new Mesh(sphereGeometry, sphereMaterial);
     meshSphere.castShadow = true;
     meshSphere.receiveShadow = true;

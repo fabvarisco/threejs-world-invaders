@@ -115,7 +115,7 @@ export async function Loader(fileName: string): Promise<Object3D> {
     try {
       const fbx = await fbxLoader.loadAsync(fileName);
       model = fbx.clone();
-      console.log(fileName + " loaded!");
+      console.log(fileName + " fbx loaded!");
     } catch (error) {
       console.error(error);
     }
@@ -125,7 +125,7 @@ export async function Loader(fileName: string): Promise<Object3D> {
     try {
       const gltf = await gltfLoader.loadAsync(fileName);
       model = gltf.scene.clone();
-      console.log(fileName + " loaded!");
+      console.log(fileName + "glb loaded!");
     } catch (error) {
       console.error(error);
     }
@@ -178,7 +178,7 @@ export function SpawnInvaders(
     GenerateRandomPosition(),
     40,
     scene,
-    { shootsArray, color: 0x732828 }
+    { shootsArray, color: 0x732828  }
   );
   redInvader.SetTarget(randomTargetPosition[0]);
 
@@ -187,17 +187,16 @@ export function SpawnInvaders(
     GenerateRandomPosition(),
     25,
     scene,
-    { color: 0x28a745 }
+    { color: 0x28a745}
   );
+
   greenInvader.SetTarget(randomTargetPosition[1]);
 
   invaders.push(invader);
   invaders.push(greenInvader);
   invaders.push(redInvader);
 
-  scene.add(invader.GetModel());
-  scene.add(greenInvader.GetModel());
-  scene.add(redInvader.GetModel());
+  invaders.forEach(element => scene.add(element.GetModel()))
 }
 
 function GenerateRandomPosition(): Vector3 {

@@ -49,14 +49,6 @@ class ShootGameObject extends GameObject {
     this.box3?.setFromObject(this.model)
     this.box3Helper?.updateMatrix(); 
   }
-
-  public WorldCollision(webWorld: WorldWebGameObject) {
-    // const result = webWorld.GetOctree().sphereIntersect(this.collider!);
-
-    // if (result) {
-    //   this.Destroy();
-    // }
-  }
 }
 
 export default ShootGameObject;

@@ -56,8 +56,8 @@ class WebPlayer {
     });
     document.body.addEventListener("mousemove", (event) => {
       if (document.pointerLockElement === document.body) {
-        this._camera.rotation.y -= event.movementX / 1200;
-        this._camera.rotation.x -= event.movementY / 1200;
+        this._camera.rotation.y -= event.movementX / 2000;
+        this._camera.rotation.x -= event.movementY / 2000;
       }
     });
   }
@@ -181,8 +181,7 @@ class WebPlayer {
     for (let i = 0; i < _others.length; i++) {
       const shoot = _others[i];
       if (shoot.IsRemoved()) continue;
-      //TODO Fix this to be with colliders
-      if (shoot.GetModel().position.distanceTo(this._camera.position) <= 0.5) {
+        if (shoot.GetModel().position.distanceTo(this._camera.position) <= 0.5) {
         shoot.Destroy();
         this.TakeDamage();
       }

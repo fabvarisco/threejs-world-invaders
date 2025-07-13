@@ -126,7 +126,6 @@ class GameObject {
   public SetDestroyTimeOut(timer: number = 1000) {
     this.timeout = setTimeout(() => {
       this.Destroy();
-      console.log("TIMEOUT");
     }, timer);
   }
 
@@ -134,21 +133,12 @@ class GameObject {
     if (!other?.GetBox()) return false;
     this.box3?.setFromObject(this.model);
 
-
     if (this.box3?.intersectsBox(other.GetBox()!)) {
       return true;
     }
     return false;
   }
 
-  public IntersectBoxWithWorld(_other: Octree): boolean {
-    this.box3?.setFromObject(this.model);
-
-    if (this.box3?.intersectsBox(_other.box)) {
-      return true;
-    }
-    return false;
-  }
 
   public DestroyOnDistance(targetDistance: Vector3, distanceToDestroy: number) {
     const distance = targetDistance.distanceTo(this.model.position);
