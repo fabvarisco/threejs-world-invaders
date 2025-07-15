@@ -4,9 +4,6 @@ import {
   DirectionalLight,
   Group,
   HemisphereLight,
-  IcosahedronGeometry,
-  Mesh,
-  MeshLambertMaterial,
   Scene,
   Vector3,
   WebGLRenderer,
@@ -15,7 +12,6 @@ import {
 import GameObject from "../assets/gameObjects/GameObject";
 import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
 import { Block, Text, update } from "three-mesh-ui";
-import { ZIPS_COMPRESSION } from "three/examples/jsm/exporters/EXRExporter.js";
 import ShootGameObject from "../assets/gameObjects/ShootGameObject";
 
 class AR {
@@ -32,6 +28,8 @@ class AR {
   private stepsPerFrame: number = 5;
   private prefabs: Map<string, Object3D>;
   private textContainer: Block;
+  private life: number = 3;
+  private text: Text = new Text({ content: `Life: ${this.life}` });
   constructor(
     camera: Camera,
     renderer: WebGLRenderer,
@@ -63,11 +61,8 @@ class AR {
 
     //
     this.textContainer.position.set(0, 0, -1.8);
-    const text = new Text({
-      content: "Life: 3",
-    });
 
-    this.textContainer.add(text);
+    this.textContainer.add(this.text);
 
     this.scene.add(this.textContainer);
 
@@ -88,11 +83,10 @@ class AR {
       this.scene
     );
 
-
     playerShoot.SetVelocity(velocity.clone().multiplyScalar(500));
 
-     this.spheres.push(playerShoot);
-      this.scene.add(playerShoot.GetModel());
+    this.spheres.push(playerShoot);
+    this.scene.add(playerShoot.GetModel());
   }
 
   private _updateSpheres(deltaTime: number) {
@@ -113,6 +107,13 @@ class AR {
       const invader = this.invaders[i];
       if (invader.GetModel().position.distanceTo(this.camera.position) <= 1) {
         invader.Destroy();
+
+        //@ts-ignore
+        this.text.set({ content: String(`Life: ${--this.life}`) });
+
+        if (this.life <= 0) {
+          location.reload();
+        }
       }
     }
   }
@@ -172,7 +173,6 @@ class AR {
         object.splice(index, 1);
       }
       el.SetTarget(this.camera.position);
-      ZIPS_COMPRESSION;
       el.Update(_deltaTime);
     });
   }

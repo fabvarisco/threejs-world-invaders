@@ -128,31 +128,28 @@ class VR {
     const selectedAttributes = {
       offset: 0.02,
       backgroundColor: new Color(0x777777),
-      fontColor: new Color(0x222222)
+      fontColor: new Color(0x222222),
     };
 
     this.restartButton = new Block(buttonOptions);
-    this.restartButton.name = "restart"
-    this.restartButton.add(
-      new Text({ content: 'Restart' })
-    );
+    this.restartButton.name = "restart";
+    this.restartButton.add(new Text({ content: "Restart" }));
 
     //@ts-ignore
     this.restartButton.setupState({
-      state: 'selected',
+      state: "selected",
       attributes: selectedAttributes,
       onSet: () => {
-        location.reload()
-      }
+        location.reload();
+      },
     });
-
 
     //@ts-ignore
     this.restartButton.setupState(hoveredStateAttributes);
     //@ts-ignore
     this.restartButton.setupState(idleStateAttributes);
 
-    container.add(this.restartButton)
+    container.add(this.restartButton);
     this.scene.add(container);
 
     this._buildControllers();
@@ -349,6 +346,8 @@ class VR {
     for (let i = 0; i < this.invaders.length; i++) {
       const invader = this.invaders[i];
       if (invader.GetModel().position.distanceTo(this.camera.position) <= 1) {
+        console.log("Take damage")
+        debugger
         invader.Destroy();
       }
     }
@@ -401,17 +400,21 @@ class VR {
         controller.userData.marker.visible =
           controller.userData.marker.position.copy(this.intersection?.point);
       } else {
-        controller.userData.marker.visible = false
+        controller.userData.marker.visible = false;
       }
       if (controller.userData.selectPressed === true && this.intersection) {
-        if (this.intersection.object.name === "floor" && !controller.userData.hasGun) {
-
+        if (
+          this.intersection.object.name === "floor" &&
+          !controller.userData.hasGun
+        ) {
         }
-        if (this.intersection.object.name === "restart" && !controller.userData.hasGun) {
+        if (
+          this.intersection.object.name === "restart" &&
+          !controller.userData.hasGun
+        ) {
           if (this.intersection && !controller.userData.hasGun) {
             controller.userData.marker.position.copy(this.intersection?.point);
           }
-
         }
         if (this.intersection.object.name === "gun") {
           this.gun?.GetModel()!.position.set(-0.15, 0, -0.2);
@@ -422,7 +425,6 @@ class VR {
           controller.userData.grip = this.gun?.GetModel()!;
         }
       }
-
     });
 
     const deltaTime = Math.min(0.05, this.clock.getDelta()) / 5;
@@ -442,7 +444,7 @@ class VR {
     this.renderer.render(this.scene, this.camera);
   }
 
-  public Destroy() { }
+  public Destroy() {}
 }
 
 export default VR;
