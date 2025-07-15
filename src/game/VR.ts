@@ -346,8 +346,6 @@ class VR {
     for (let i = 0; i < this.invaders.length; i++) {
       const invader = this.invaders[i];
       if (invader.GetModel().position.distanceTo(this.camera.position) <= 1) {
-        console.log("Take damage")
-        debugger
         invader.Destroy();
       }
     }
@@ -444,7 +442,9 @@ class VR {
     this.renderer.render(this.scene, this.camera);
   }
 
-  public Destroy() {}
+  public Destroy() {
+    this.renderer.setAnimationLoop(null);
+  }
 }
 
 export default VR;

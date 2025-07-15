@@ -224,7 +224,9 @@ class AR {
     this.renderer.render(this.scene, this.camera);
   }
 
-  public Destroy() {}
+  public Destroy() {
+    this.renderer.setAnimationLoop(null);
+  }
 }
 
 export default AR;
