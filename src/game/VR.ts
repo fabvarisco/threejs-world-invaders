@@ -18,7 +18,6 @@ import {
   Vector3,
   WebGLRenderer,
   Object3D,
-  Color,
 } from "three";
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 import GameObject from "../assets/gameObjects/GameObject";
@@ -26,6 +25,7 @@ import { CreateStars } from "../utils/utils";
 import InvaderGameObject from "../assets/gameObjects/InvaderGameObject";
 import { Block, Text, update } from "three-mesh-ui";
 import GreenInvaderGameObject from "../assets/gameObjects/GreenInvaderGameObject";
+import ShootGameObject from "../assets/gameObjects/ShootGameObject";
 
 class VR {
   private readonly scene: Scene = new Scene();
@@ -38,14 +38,12 @@ class VR {
   private readonly floor: Mesh;
   private projectiles: GameObject[] = [];
   private invaders: InvaderGameObject[] = [];
-  private greenInvaders: GreenInvaderGameObject[] = [];
   private spawnTime: number = 1;
   private timer: number = 1;
   private readonly prefabs: Map<string, Object3D>;
   private clock: Clock = new Clock();
   private baseReferenceSpace: XRReferenceSpace | null | undefined;
   private gun: GameObject | null = null;
-  private restartButton: Block;
   constructor(
     camera: Camera,
     renderer: WebGLRenderer,
@@ -95,61 +93,6 @@ class VR {
 
     container.add(text);
 
-    //Restart button
-    const buttonOptions = {
-      width: 0.4,
-      height: 0.15,
-      justifyContent: "center",
-      offset: 0.05,
-      margin: 0.02,
-      borderRadius: 0.075,
-    };
-
-    const hoveredStateAttributes = {
-      state: "hovered",
-      attributes: {
-        offset: 0.035,
-        backgroundColor: new Color(0x999999),
-        backgroundOpacity: 1,
-        fontColor: new Color(0xffffff),
-      },
-    };
-
-    const idleStateAttributes = {
-      state: "idle",
-      attributes: {
-        offset: 0.035,
-        backgroundColor: new Color(0x666666),
-        backgroundOpacity: 0.3,
-        fontColor: new Color(0xffffff),
-      },
-    };
-
-    const selectedAttributes = {
-      offset: 0.02,
-      backgroundColor: new Color(0x777777),
-      fontColor: new Color(0x222222),
-    };
-
-    this.restartButton = new Block(buttonOptions);
-    this.restartButton.name = "restart";
-    this.restartButton.add(new Text({ content: "Restart" }));
-
-    //@ts-ignore
-    this.restartButton.setupState({
-      state: "selected",
-      attributes: selectedAttributes,
-      onSet: () => {
-        location.reload();
-      },
-    });
-
-    //@ts-ignore
-    this.restartButton.setupState(hoveredStateAttributes);
-    //@ts-ignore
-    this.restartButton.setupState(idleStateAttributes);
-
-    container.add(this.restartButton);
     this.scene.add(container);
 
     this._buildControllers();
@@ -246,10 +189,6 @@ class VR {
 
     if (controllerWithGun) {
       const gun = controllerWithGun.userData.grip;
-
-      const projectileGeometry = new SphereGeometry(0.05, 8, 6);
-      const projectileMaterial = new MeshBasicMaterial({ color: 0x00ff00 });
-      const projectileMesh = new Mesh(projectileGeometry, projectileMaterial);
       const gunDirection = new Vector3(0, 0, 1);
       const gunPosition = new Vector3();
 
@@ -261,57 +200,58 @@ class VR {
         .clone()
         .add(gunDirection.clone().multiplyScalar(0.1));
 
-      const projectile = new GameObject(
-        projectileMesh,
+      const playerShoot = new ShootGameObject(
+        new Group(),
         projectileStartPosition,
-        0.01,
+        30,
         this.scene
       );
+      playerShoot.SetPosition(projectileStartPosition);
+      playerShoot.SetVelocity(projectileVelocity.clone().multiplyScalar(1));
 
-      projectile.GetModel().position.copy(projectileStartPosition);
-      projectile.SetVelocity(projectileVelocity);
+      this.projectiles.push(playerShoot);
 
-      this.scene.add(projectile.GetModel());
-
-      this.projectiles.push(projectile);
+      this.scene.add(playerShoot.GetModel());
     }
   }
 
-  private _updateProjectile(deltaTime: number) {
-    this.projectiles.forEach((el) => {
-      el.AddScalar(deltaTime);
-    });
+  private _updateProjectiles(deltaTime: number): void {
+    for (const sphere of this.projectiles) {
+      sphere.AddScalar(deltaTime);
+      const distance = this.camera.position.distanceTo(
+        sphere.GetModel().position
+      );
+      if (distance >= 5.0) {
+        this.scene.remove(sphere.GetModel());
+      }
+    }
+    this._invadersCollisions();
   }
 
-  private _updateCollisions(): void {
-    for (let i = 0; i < this.projectiles.length; i++) {
-      for (let j = 0; j < this.invaders.length; j++) {
-        const sphere = this.projectiles[i];
-        const invader = this.invaders[j];
-
-        if (invader.IntersectsWith(sphere)) {
-          sphere.Destroy();
-          this.projectiles.splice(i, 1);
-
+  private _invadersCollisions(): void {
+    for (let playerShoot of this.projectiles) {
+      if (playerShoot.IsRemoved()) continue;
+      for (let invader of this.invaders) {
+        if (invader.IsRemoved()) continue;
+        if (playerShoot.IntersectsWith(invader)) {
           invader.Destroy();
-          this.invaders.splice(j, 1);
-
-          i--;
-          j--;
+          playerShoot.Destroy();
         }
       }
     }
   }
+
   private _updateInvaders(_deltaTime: number): void {
     this.invaders.forEach((el, index, object) => {
       if (el.IsRemoved()) {
         object.splice(index, 1);
       }
+      el.SetTarget(this.camera.position);
       el.Update(_deltaTime);
     });
   }
 
-  private _createGun() {
+  private _createGun(): void {
     const newGun = new GameObject(
       this.prefabs.get("gun")!,
       new Vector3(-0.5, 1.5, -1.0),
@@ -342,7 +282,7 @@ class VR {
     });
   }
 
-  private _playerUpdate() {
+  private _playerUpdate(): void {
     for (let i = 0; i < this.invaders.length; i++) {
       const invader = this.invaders[i];
       if (invader.GetModel().position.distanceTo(this.camera.position) <= 1) {
@@ -375,7 +315,10 @@ class VR {
     this.scene.add(newInvader.GetModel());
   }
 
-  private createMarker(geometry: SphereGeometry, material: MeshBasicMaterial) {
+  private createMarker(
+    geometry: SphereGeometry,
+    material: MeshBasicMaterial
+  ): Mesh {
     const mesh = new Mesh(geometry, material);
     mesh.visible = false;
     this.scene.add(mesh);
@@ -428,8 +371,7 @@ class VR {
     const deltaTime = Math.min(0.05, this.clock.getDelta()) / 5;
     for (let i = 0; i < 5; i++) {
       this._updateInvaders(deltaTime);
-      this._updateProjectile(deltaTime);
-      this._updateCollisions();
+      this._updateProjectiles(deltaTime);
       this._playerUpdate();
       update();
     }
@@ -442,7 +384,7 @@ class VR {
     this.renderer.render(this.scene, this.camera);
   }
 
-  public Destroy() {
+  public Destroy(): void {
     this.renderer.setAnimationLoop(null);
   }
 }

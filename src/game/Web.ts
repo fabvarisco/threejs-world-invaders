@@ -23,10 +23,7 @@ class Web {
   private gameObjectList: GameObject[] = [];
   private invaders: InvaderGameObject[] = [];
   private projectiles: ShootGameObject[] = [];
-  constructor(
-    camera: THREE.PerspectiveCamera,
-    renderer: THREE.WebGLRenderer,
-  ) {
+  constructor(camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer) {
     this._createGameEvents();
     this.clock = new THREE.Clock();
     this.scene = new THREE.Scene();
@@ -93,7 +90,7 @@ class Web {
       if (el.IsRemoved()) {
         object.splice(index, 1);
       }
-      el.SetTarget(this.player.GetPosition())
+      el.SetTarget(this.player.GetPosition());
       el.Update(_deltaTime);
     });
 
@@ -102,9 +99,9 @@ class Web {
 
   private invadersCollisions(): void {
     for (let playerShoot of this.projectiles) {
-      if(playerShoot.IsRemoved()) continue;
+      if (playerShoot.IsRemoved()) continue;
       for (let invader of this.invaders) {
-        if(invader.IsRemoved()) continue;
+        if (invader.IsRemoved()) continue;
         if (playerShoot.IntersectsWith(invader)) {
           invader.Destroy();
           playerShoot.Destroy();
@@ -112,7 +109,6 @@ class Web {
       }
     }
   }
-
 
   private animate(): void {
     if (this.player.IsEndGame()) {
@@ -134,9 +130,8 @@ class Web {
         this.projectiles.splice(i, 1);
       } else {
         gameObject.Update(deltaTime);
-      } 
+      }
     }
-
 
     this.invaderShoots.forEach((el, index, object) => {
       if (el.IsRemoved()) {
@@ -146,18 +141,15 @@ class Web {
       el.AddScalar(deltaTime);
     });
 
-
     this.player.PlayerCollisionsWithOthers(this.invaderShoots);
     this.player.PlayerCollisionsWithOthers(this.invaders);
 
     if (this.spawnTime <= 0) {
       this.spawnTime = this.timer;
-      SpawnInvaders(
-        this.scene,
-        this.invaders,
-        this.invaderShoots,
-        [this.worldWeb.GetRandomMesh(), this.worldWeb.GetRandomMesh()]
-      );
+      SpawnInvaders(this.scene, this.invaders, this.invaderShoots, [
+        this.worldWeb.GetRandomMesh(),
+        this.worldWeb.GetRandomMesh(),
+      ]);
     }
     this.spawnTime -= deltaTime;
 
@@ -166,7 +158,7 @@ class Web {
     requestAnimationFrame(() => this.animate());
   }
 
-  Destroy() {
+  Destroy(): void {
     this.renderer.setAnimationLoop(null);
   }
 }

@@ -100,7 +100,7 @@ class TitleScreen {
     this.scene.add(newInvader.GetModel());
   }
 
-  private updateInvaders(_deltaTime: number) {
+  private updateInvaders(_deltaTime: number): void {
     this.invaders.forEach((el, index, object) => {
       el.SetTarget(this.earth.GetModel().position);
       el.Update(_deltaTime);
@@ -111,11 +111,11 @@ class TitleScreen {
     });
   }
 
-  private updateEarth(_deltaTime: number) {
+  private updateEarth(_deltaTime: number): void {
     this.earth.Update(_deltaTime);
   }
 
-  private _animate(timestamp: number) {
+  private _animate(timestamp: number): void {
     const deltaTime = timestamp - this.lastFrameTimestamp;
     this.lastFrameTimestamp = timestamp;
 
@@ -133,7 +133,7 @@ class TitleScreen {
     this.renderer.render(this.scene, this.camera);
   }
 
-  Destroy() {
+  Destroy(): void {
     this.controls.dispose();
     this.renderer.setAnimationLoop(null);
   }

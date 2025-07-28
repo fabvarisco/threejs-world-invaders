@@ -89,7 +89,7 @@ class AR {
     this.scene.add(playerShoot.GetModel());
   }
 
-  private _updateSpheres(deltaTime: number) {
+  private _updateSpheres(deltaTime: number): void {
     for (const sphere of this.spheres) {
       sphere.AddScalar(deltaTime);
       const distance = this.camera.position.distanceTo(
@@ -102,7 +102,7 @@ class AR {
     this._invadersCollisions();
   }
 
-  private _playerUpdate() {
+  private _playerUpdate(): void {
     for (let i = 0; i < this.invaders.length; i++) {
       const invader = this.invaders[i];
       if (invader.GetModel().position.distanceTo(this.camera.position) <= 1) {
@@ -167,7 +167,7 @@ class AR {
     this.scene.add(newInvader.GetModel());
   }
 
-  private _updateInvaders(_deltaTime: number) {
+  private _updateInvaders(_deltaTime: number): void {
     this.invaders.forEach((el, index, object) => {
       if (el.IsRemoved()) {
         object.splice(index, 1);
@@ -177,11 +177,11 @@ class AR {
     });
   }
 
-  private _endSession() {
+  private _endSession(): void {
     location.reload();
   }
 
-  private _animate() {
+  private _animate(): void {
     const deltaTime =
       Math.min(0.05, this.clock.getDelta()) / this.stepsPerFrame;
 
@@ -224,7 +224,7 @@ class AR {
     this.renderer.render(this.scene, this.camera);
   }
 
-  public Destroy() {
+  public Destroy(): void {
     this.renderer.setAnimationLoop(null);
   }
 }
