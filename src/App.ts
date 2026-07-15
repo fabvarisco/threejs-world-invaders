@@ -38,7 +38,7 @@ class App {
       70,
       window.innerWidth / window.innerHeight,
       0.01,
-      400
+      400,
     );
     this.camera.position.set(0, 0, 20);
     this.camera.lookAt(new Vector3(0, 0, 0));
@@ -60,13 +60,27 @@ class App {
     });
 
     this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
+
+    //resize
+    this._onWindowResize();
+    window.addEventListener("resize", this._onWindowResize.bind(this));
 
     //game
     this._createLoading();
     this.activeGame = null;
+  }
 
-
+  private _onWindowResize(): void {
+    const aspect = window.innerWidth / window.innerHeight;
+    this.camera.aspect = aspect;
+    const baseFov = 70;
+    this.camera.fov =
+      aspect < 1
+        ? (Math.atan(Math.tan((baseFov * Math.PI) / 360) / aspect) * 360) /
+          Math.PI
+        : baseFov;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
   public async Start(): Promise<void> {
@@ -76,7 +90,6 @@ class App {
     this._removeLoading();
     this.activeGame = new TitleScreen(this.camera, this.renderer, this.assets);
     document.getElementById("ARButton");
-
   }
 
   private async _init(): Promise<void> {
@@ -160,7 +173,6 @@ class App {
     this.activeGame = null;
     this.activeGame = new Web(this.camera, this.renderer);
   }
-
 }
 
 export default App;

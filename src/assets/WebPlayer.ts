@@ -56,8 +56,8 @@ class WebPlayer {
     });
     document.body.addEventListener("mousemove", (event) => {
       if (document.pointerLockElement === document.body) {
-        this._camera.rotation.y -= event.movementX / 2000;
-        this._camera.rotation.x -= event.movementY / 2000;
+        this._camera.rotation.y -= event.movementX / 100;
+        this._camera.rotation.x -= event.movementY / 100;
       }
     });
   }

@@ -5,11 +5,6 @@ import {
   Object3D,
   Scene,
   MeshStandardMaterial,
-  Box3,
-  BoxHelper,
-  Box3Helper,
-  Color,
-  ColorRepresentation,
 } from "three";
 import GameObject from "./GameObject";
 import { Octree } from "three/examples/jsm/math/Octree.js";

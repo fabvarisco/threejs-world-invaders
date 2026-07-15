@@ -7,13 +7,7 @@ import {
   Box3Helper,
   Color,
   Object3D,
-  Sphere,
-  IcosahedronGeometry,
-  WireframeGeometry,
-  LineBasicMaterial,
-  LineSegments,
 } from "three";
-import { Octree } from "three/examples/jsm/math/Octree.js";
 
 class GameObject {
   protected speed: number;
@@ -40,7 +34,7 @@ class GameObject {
   public CreateBox() {
     this.box3 = new Box3().setFromObject(this.model);
     this.box3Helper = new Box3Helper(this.box3, new Color(0xffff00));
-    this.DebugDrawBox3();
+    //this.DebugDrawBox3();
   }
 
   public MoveTo(targetPosition: Vector3, deltaTime: number): void {
