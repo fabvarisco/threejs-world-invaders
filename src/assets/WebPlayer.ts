@@ -27,6 +27,8 @@ class WebPlayer {
   private _mouseTime: number;
   private readonly _gravity = 30;
   private readonly _keyStates: { [key: string]: boolean };
+  private static readonly _MOUSE_SENSITIVITY = 0.002;
+  private static readonly _MAX_PITCH = Math.PI / 2 - 0.01;
 
   constructor(scene: Scene, camera: Camera, webWorld: WorldWebGameObject) {
     this._model = new Group();
@@ -47,7 +49,7 @@ class WebPlayer {
     });
     document.addEventListener("mousedown", () => {
       if (this.IsEndGame()) return;
-      document.body.requestPointerLock();
+      this._requestPointerLock();
       this._mouseTime = performance.now();
     });
     document.addEventListener("mouseup", () => {
@@ -56,10 +58,30 @@ class WebPlayer {
     });
     document.body.addEventListener("mousemove", (event) => {
       if (document.pointerLockElement === document.body) {
-        this._camera.rotation.y -= event.movementX / 100;
-        this._camera.rotation.x -= event.movementY / 100;
+        this._camera.rotation.y -=
+          event.movementX * WebPlayer._MOUSE_SENSITIVITY;
+        this._camera.rotation.x -=
+          event.movementY * WebPlayer._MOUSE_SENSITIVITY;
+        this._camera.rotation.x = Math.max(
+          -WebPlayer._MAX_PITCH,
+          Math.min(WebPlayer._MAX_PITCH, this._camera.rotation.x)
+        );
       }
     });
+  }
+
+  private _requestPointerLock(): void {
+    const requestPointerLock = document.body.requestPointerLock as (
+      options?: { unadjustedMovement: boolean }
+    ) => Promise<void> | undefined;
+    try {
+      const result = requestPointerLock.call(document.body, {
+        unadjustedMovement: true,
+      });
+      result?.catch(() => document.body.requestPointerLock());
+    } catch {
+      document.body.requestPointerLock();
+    }
   }
 
   private _playerControlls(_deltaTime: number): void {
